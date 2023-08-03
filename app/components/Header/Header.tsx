@@ -14,7 +14,7 @@ export default function Header() {
 
   return (
     <header>
-      <nav className="border-gray-200 bg-white dark:bg-gray-900">
+      <nav className="left-0 top-0 border-b border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-900">
         <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
           <a href="/" className="flex items-center">
             <img
@@ -137,8 +137,8 @@ export default function Header() {
                   href="/"
                   className={`block rounded py-2 pl-3 pr-4 md:p-0 ${
                     pathname === '/'
-                      ? ' text-gray-900 hover:bg-gray-100 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:bg-transparent md:dark:hover:text-blue-500'
-                      : 'bg-blue-700 text-white md:bg-transparent md:text-blue-700 md:dark:text-blue-500'
+                      ? ' text-gray-900 hover:bg-gray-100 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:hover:bg-transparent md:hover:text-primary-darker md:dark:hover:bg-transparent md:dark:hover:text-primary-darker'
+                      : 'bg-primary text-white md:bg-transparent md:text-primary md:dark:text-primary'
                   }`}
                   aria-current={pathname === '/' ? 'page' : 'false'}
                 >
@@ -150,8 +150,8 @@ export default function Header() {
                   href="/about"
                   className={`block rounded py-2 pl-3 pr-4 md:p-0 ${
                     pathname.startsWith('/about')
-                      ? ' text-gray-900 hover:bg-gray-100 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:bg-transparent md:dark:hover:text-blue-500'
-                      : 'bg-blue-700 text-white md:bg-transparent md:text-blue-700 md:dark:text-blue-500'
+                      ? ' text-gray-900 hover:bg-gray-100 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:hover:bg-transparent md:hover:text-primary-darker md:dark:hover:bg-transparent md:dark:hover:text-primary-darker'
+                      : 'bg-primary text-white md:bg-transparent md:text-primary md:dark:text-primary'
                   }`}
                   aria-current={
                     pathname.startsWith('/about') ? 'page' : 'false'
@@ -162,15 +162,15 @@ export default function Header() {
               </li>
               <li>
                 <Link
-                  href="/post"
+                  href="/blog"
                   className={`block rounded py-2 pl-3 pr-4 md:p-0 ${
-                    pathname.startsWith('/post')
-                      ? ' text-gray-900 hover:bg-gray-100 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:bg-transparent md:dark:hover:text-blue-500'
-                      : 'bg-blue-700 text-white md:bg-transparent md:text-blue-700 md:dark:text-blue-500'
+                    pathname.startsWith('/blog')
+                      ? ' text-gray-900 hover:bg-gray-100 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:hover:bg-transparent md:hover:text-primary-darker md:dark:hover:bg-transparent md:dark:hover:text-primary-darker'
+                      : 'bg-primary text-white md:bg-transparent md:text-primary md:dark:text-primary'
                   }`}
-                  aria-current={pathname.startsWith('/post') ? 'page' : 'false'}
+                  aria-current={pathname.startsWith('/blog') ? 'page' : 'false'}
                 >
-                  Post
+                  Blog
                 </Link>
               </li>
             </ul>

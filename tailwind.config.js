@@ -12,8 +12,8 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: colors.slate[400],
-          darker: colors.slate[600],
+          DEFAULT: colors.yellow[300],
+          darker: colors.yellow[400],
         },
       },
       backgroundImage: {

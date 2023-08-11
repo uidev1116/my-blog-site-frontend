@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { Card } from './components';
-import { range } from './utils';
+import { Card } from '../components';
+import { range } from '../utils';
 
 export default function Home() {
   return (

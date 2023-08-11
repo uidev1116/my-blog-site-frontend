@@ -10,9 +10,7 @@ export default function RootLayout({
     <html lang="ja">
       <body>
         <Header />
-        <div className="px-4 py-8 lg:container lg:mx-auto lg:py-12">
-          {children}
-        </div>
+        <main>{children}</main>
         <Footer />
       </body>
     </html>

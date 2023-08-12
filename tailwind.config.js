@@ -13,6 +13,8 @@ module.exports = {
       colors: {
         primary: {
           DEFAULT: colors.yellow[300],
+          lightest: colors.yellow[50],
+          lighter: colors.yellow[100],
           darker: colors.yellow[400],
         },
       },

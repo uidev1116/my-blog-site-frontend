@@ -187,7 +187,7 @@ export default function Home() {
         </div>
         <div className="flex justify-end">
           <Link
-            href="#"
+            href="/blog"
             className="inline-flex items-center rounded-lg bg-primary px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-primary-darker focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-primary dark:hover:bg-primary dark:focus:ring-primary-darker"
           >
             ブログ一覧

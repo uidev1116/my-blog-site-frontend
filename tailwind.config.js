@@ -16,6 +16,7 @@ module.exports = {
           lightest: colors.yellow[50],
           lighter: colors.yellow[100],
           darker: colors.yellow[400],
+          darkest: colors.yellow[600],
         },
       },
       backgroundImage: {
@@ -25,5 +26,5 @@ module.exports = {
       },
     },
   },
-  plugins: [require('flowbite/plugin')],
+  plugins: [require('flowbite/plugin'), require('flowbite-typography')],
 };

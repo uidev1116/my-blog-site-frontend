@@ -167,52 +167,54 @@ const entries = [
 
 export default function Blog() {
   return (
-    <div className="px-4 py-8 lg:container lg:mx-auto lg:py-12">
-      <div className="flex flex-col gap-12">
-        <div>
-          <ul className="grid gap-4 md:grid-cols-2">
-            {entries.map((entry) => (
-              <li key={entry.id}>
-                <Link href="/" className="flex h-full">
-                  <Card
-                    title={entry.title}
-                    description={entry.summary}
-                    datetime={entry.datetime}
-                    tags={entry.tag}
-                  />
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="flex justify-center">
-          <Pagination
-            previous={{ url: '/blog/', num: 10, page: 2 }}
-            pages={[
-              {
-                page: 1,
-                url: '/blog/',
-              },
-              {
-                page: 2,
-                url: '/blog/',
-              },
-              {
-                page: 3,
-              },
-              {
-                page: 4,
-                url: '/blog/',
-              },
-              {
-                page: 5,
-                url: '/blog/',
-              },
-            ]}
-            next={{ url: '/blog/', num: 10, page: 4 }}
-          />
+    <main>
+      <div className="px-4 py-8 lg:container lg:mx-auto lg:py-12">
+        <div className="flex flex-col gap-12">
+          <div>
+            <ul className="grid gap-4 md:grid-cols-2">
+              {entries.map((entry) => (
+                <li key={entry.id}>
+                  <Link href="/" className="flex h-full">
+                    <Card
+                      title={entry.title}
+                      description={entry.summary}
+                      datetime={entry.datetime}
+                      tags={entry.tag}
+                    />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="flex justify-center">
+            <Pagination
+              previous={{ url: '/blog/', num: 10, page: 2 }}
+              pages={[
+                {
+                  page: 1,
+                  url: '/blog/',
+                },
+                {
+                  page: 2,
+                  url: '/blog/',
+                },
+                {
+                  page: 3,
+                },
+                {
+                  page: 4,
+                  url: '/blog/',
+                },
+                {
+                  page: 5,
+                  url: '/blog/',
+                },
+              ]}
+              next={{ url: '/blog/', num: 10, page: 4 }}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

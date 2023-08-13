@@ -167,8 +167,8 @@ const entries = [
 
 export default function Home() {
   return (
-    <main>
-      <div className="px-4 py-8 lg:container lg:mx-auto lg:py-12">
+    <div className="px-4 py-8 lg:container lg:mx-auto lg:py-12">
+      <main>
         <div className="flex flex-col gap-12">
           <div>
             <ul className="grid gap-4 md:grid-cols-2">
@@ -210,7 +210,7 @@ export default function Home() {
             </Link>
           </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

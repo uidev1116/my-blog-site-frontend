@@ -9,16 +9,10 @@ type Props = Omit<
   'type' | 'aria-controls' | 'aria-expanded' | 'data-collapse-toggle'
 > & {
   toggle: string;
-  expanded?: boolean;
   children?: React.ReactNode;
 };
 
-export default function Collapse({
-  toggle,
-  expanded = false,
-  children,
-  ...props
-}: Props) {
+export default function Collapse({ toggle, children, ...props }: Props) {
   useEffect(() => {
     initCollapses();
   }, []);
@@ -27,7 +21,7 @@ export default function Collapse({
       type="button"
       data-collapse-toggle={toggle}
       aria-controls={toggle}
-      aria-expanded={expanded}
+      aria-expanded="false"
       {...props}
     >
       {children}

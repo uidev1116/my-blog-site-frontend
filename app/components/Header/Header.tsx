@@ -14,8 +14,8 @@ const data: {
     matchType: 'full',
   },
   {
-    url: `${process.env.NEXT_PUBLIC_BASE_URL}/about/`,
-    label: 'About',
+    url: `${process.env.NEXT_PUBLIC_BASE_URL}/profile/`,
+    label: 'Profile',
     target: '',
     matchType: 'startWith',
   },
@@ -39,11 +39,6 @@ export default function Header() {
       <nav className="left-0 top-0 border-b border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-900">
         <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
           <a href="/" className="flex items-center">
-            <img
-              src="https://flowbite.com/docs/images/logo.svg"
-              className="mr-3 h-8"
-              alt="Flowbite Logo"
-            />
             <span className="self-center whitespace-nowrap text-2xl font-semibold dark:text-white">
               Flowbite
             </span>

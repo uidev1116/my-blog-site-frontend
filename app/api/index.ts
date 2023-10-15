@@ -1,5 +1,6 @@
 import { API_HOST, API_KEY } from '../config/acms';
 import type { Entry } from '../types';
+import type { UrlMatchType } from '@/app/hooks';
 
 type EntriesResponse = {
   indexPath: string;
@@ -11,7 +12,7 @@ type GlobalNavigation = {
   label: string;
   level: number;
   url: string;
-  matchType: 'full' | 'startWith' | '';
+  matchType: UrlMatchType | '';
   target: '_blank' | '';
 };
 

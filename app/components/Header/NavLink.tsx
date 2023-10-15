@@ -2,12 +2,12 @@
 import Link from 'next/link';
 import { useUrlMatch } from '@/app/hooks';
 
-import type { HTMLAttributeAnchorTarget } from 'react';
 import type { UrlMatchType } from '@/app/hooks';
 
 type Props = {
   href: string;
-  target?: HTMLAttributeAnchorTarget;
+  target?: React.HTMLAttributeAnchorTarget;
+  rel?: React.HTMLAttributeReferrerPolicy;
   matchType?: UrlMatchType;
   children?: React.ReactNode;
 };
@@ -15,6 +15,7 @@ type Props = {
 export default function NavLink({
   href,
   target,
+  rel,
   matchType = 'full',
   children,
 }: Props) {
@@ -31,6 +32,7 @@ export default function NavLink({
           : 'text-gray-900 hover:bg-gray-100 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:hover:bg-transparent md:hover:text-primary-darker md:dark:hover:bg-transparent md:dark:hover:text-primary-darker'
       }`}
       target={target}
+      rel={rel}
       aria-current={isFullMatch ? 'page' : undefined}
     >
       {children}

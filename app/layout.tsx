@@ -7,7 +7,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ja">
+    <html lang="ja" className="scroll-pt-2 scroll-smooth">
       <body>
         <Header />
         {children}

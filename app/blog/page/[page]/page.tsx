@@ -1,9 +1,22 @@
 import Link from 'next/link';
 import { Card, Pagination } from '@/app/components';
-import { getBlogEntries } from './api';
+import { range } from '@/app/utils';
+import { getBlogEntries } from '../../api';
 
-export default async function BlogIndex() {
-  const { entries, pager } = await getBlogEntries();
+export async function generateStaticParams() {
+  const { pager } = await getBlogEntries();
+  return range(pager?.firstPage || 1, pager?.lastPage || 1).map((page) => ({
+    page: page.toString(),
+  }));
+}
+
+export default async function BlogIndex({
+  params,
+}: {
+  params: { page: string };
+}) {
+  const { page } = params;
+  const { entries, pager } = await getBlogEntries({ page: parseInt(page, 10) });
   return (
     <div className="px-4 py-8 lg:container lg:mx-auto lg:py-12">
       <main>
@@ -27,10 +40,10 @@ export default async function BlogIndex() {
           {pager !== undefined && (
             <div className="flex justify-center">
               <Pagination
-                currentPage={1}
+                currentPage={parseInt(page, 10)}
                 previous={pager?.previous}
                 pages={pager?.pages}
-                next={pager.next}
+                next={pager?.next}
               />
             </div>
           )}

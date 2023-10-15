@@ -8,6 +8,6 @@ export type Blog = {
   name: string;
   pbid: number;
   indexing: 'on' | 'off';
-  url: string;
+  path: string;
   createdAt: Date;
 };

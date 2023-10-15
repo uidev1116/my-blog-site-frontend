@@ -9,7 +9,7 @@ export type Entry = {
   usort: number;
   status: EntryStatus;
   title: string;
-  url: string;
+  path: string;
   isNew: boolean;
   createdAt: Date;
   updatedAt?: Date;
@@ -17,7 +17,7 @@ export type Entry = {
   startAt?: Date;
   endAt?: Date;
   summary?: string;
-  tags?: Tag[];
+  tags: Tag[];
   category?: Category;
   blog?: Blog;
   user?: User;

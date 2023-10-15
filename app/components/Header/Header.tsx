@@ -40,7 +40,7 @@ export default function Header() {
         <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
           <a href="/" className="flex items-center">
             <span className="self-center whitespace-nowrap text-2xl font-semibold dark:text-white">
-              Flowbite
+              uidev
             </span>
           </a>
           <div className="flex md:order-2">

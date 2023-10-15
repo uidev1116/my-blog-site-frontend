@@ -1,14 +1,10 @@
 import Image from 'next/image';
 import nl2br from 'react-nl2br';
-import { ConditionalWrapper } from '../../..';
+import { ConditionalWrapper, SmartPhoto } from '../../..';
 import type { Unit, MediaUnit } from '@/app/types';
 import { API_HOST } from '@/app/config/acms';
 
-export default function MediaUnit({
-  align,
-  displaySize,
-  media,
-}: Unit<MediaUnit>) {
+export default function MediaUnit({ media }: Unit<MediaUnit>) {
   const render = () => {
     if (media.type === 'image' || media.type === 'svg') {
       return (
@@ -18,6 +14,7 @@ export default function MediaUnit({
             wrapper={(children) => (
               <a
                 href={media.link}
+                className="js-smartphoto"
                 data-group={media.eid}
                 data-caption={media.caption.replace(/\r?\n/g, '')}
               >

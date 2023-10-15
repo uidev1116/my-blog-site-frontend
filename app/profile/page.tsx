@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getProfileEntry } from './api';
-import type { Entry, Unit } from '../types';
-import { UnitIndex } from '../components';
+import { UnitIndex, SmartPhotoJs } from '../components';
 
 export default async function About() {
   const entry = await getProfileEntry();
@@ -20,7 +19,8 @@ export default async function About() {
                 {entry.title}
               </h1>
             </header>
-            <UnitIndex units={entry.units as Unit[]} />
+            {entry.units !== undefined && <UnitIndex units={entry.units} />}
+            <SmartPhotoJs />
           </article>
         </div>
       </main>

@@ -29,7 +29,7 @@ export async function getProfileEntry(): Promise<Entry | null> {
     usort: entries[0].usort,
     status: entries[0].status,
     title: entries[0].title,
-    url: entries[0].url,
+    path: new URL(entries[0].url).pathname,
     isNew: entries[0].isNew,
     createdAt: new Date(entries[0]['date#']),
     updatedAt: new Date(entries[0]['udate#']),

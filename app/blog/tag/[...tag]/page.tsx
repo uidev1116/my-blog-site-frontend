@@ -1,9 +1,23 @@
 import Link from 'next/link';
 import { Card, Pagination } from '@/app/components';
-import { getBlogEntries } from './api';
+import { getBlogEntries } from '../../api';
+import { getAllBlogTags } from '../api';
 
-export default async function BlogIndex() {
-  const { entries, pager } = await getBlogEntries();
+export async function generateStaticParams() {
+  const tags = await getAllBlogTags();
+  console.log(tags);
+  const r = tags.map((tag) => ({ tag }));
+  console.log('r', r);
+  return r;
+}
+
+export default async function BlogIndex({
+  params,
+}: {
+  params: { tag: string[] };
+}) {
+  const { tag } = params;
+  const { entries, pager } = await getBlogEntries({ tag });
   return (
     <div className="px-4 py-8 lg:container lg:mx-auto lg:py-12">
       <main>

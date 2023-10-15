@@ -9,6 +9,6 @@ export type Category = {
   name: string;
   pcid: number;
   indexing: 'on' | 'off';
-  url: string;
+  path: string;
   blog: Blog;
 };

@@ -7,7 +7,7 @@ import type { UrlMatchType } from '@/app/hooks';
 
 type Props = {
   href: string;
-  target: HTMLAttributeAnchorTarget;
+  target?: HTMLAttributeAnchorTarget;
   matchType?: UrlMatchType;
   children?: React.ReactNode;
 };

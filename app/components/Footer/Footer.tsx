@@ -20,7 +20,7 @@ export default async function Footer() {
                 <Link
                   href={navigation.url}
                   className="hover:underline"
-                  target={navigation.target}
+                  target={navigation.target || undefined}
                   rel={
                     navigation.target === '_blank' ? 'noreferrer' : undefined
                   }

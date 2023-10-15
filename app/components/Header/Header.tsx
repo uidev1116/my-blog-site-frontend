@@ -119,7 +119,12 @@ export default async function Header() {
                   <li key={navigation.url}>
                     <NavLink
                       href={navigation.url}
-                      target={navigation.target}
+                      target={navigation.target || undefined}
+                      rel={
+                        navigation.target === '_blank'
+                          ? 'noreferrer'
+                          : undefined
+                      }
                       matchType={navigation.matchType || 'full'}
                     >
                       {navigation.label}

@@ -8,11 +8,16 @@ import type { UrlMatchType } from '@/app/hooks';
 type Props = {
   href: string;
   target: HTMLAttributeAnchorTarget;
-  matchType: UrlMatchType;
+  matchType?: UrlMatchType;
   children?: React.ReactNode;
 };
 
-export default function NavLink({ href, target, matchType, children }: Props) {
+export default function NavLink({
+  href,
+  target,
+  matchType = 'full',
+  children,
+}: Props) {
   const url = new URL(href, process.env.NEXT_PUBLIC_BASE_URL);
   const isMatch = useUrlMatch(url, matchType);
   const isFullMatch = useUrlMatch(url, 'full');

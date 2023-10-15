@@ -1,39 +1,10 @@
-import { Collapse } from '..';
+import { Collapse } from '@/app/components';
 import NavLink from './NavLink';
 
-const data: {
-  url: string;
-  label: string;
-  target: '_blank' | '';
-  matchType: 'full' | 'startWith';
-}[] = [
-  {
-    url: `${process.env.NEXT_PUBLIC_BASE_URL}/`,
-    label: 'Home',
-    target: '',
-    matchType: 'full',
-  },
-  {
-    url: `${process.env.NEXT_PUBLIC_BASE_URL}/profile/`,
-    label: 'Profile',
-    target: '',
-    matchType: 'startWith',
-  },
-  {
-    url: `${process.env.NEXT_PUBLIC_BASE_URL}/blog/`,
-    label: 'Blog',
-    target: '',
-    matchType: 'startWith',
-  },
-  {
-    url: 'https://twitter.com/uidev1116',
-    label: 'Twitter',
-    target: '_blank',
-    matchType: 'full',
-  },
-];
+import { getGlobalNavigation } from '@/app/api';
 
-export default function Header() {
+export default async function Header() {
+  const data = await getGlobalNavigation();
   return (
     <header>
       <nav className="left-0 top-0 border-b border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-900">
@@ -142,19 +113,21 @@ export default function Header() {
                 placeholder="検索..."
               />
             </div>
-            <ul className="mt-4 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 font-medium dark:border-gray-700 dark:bg-gray-800 md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:p-0 md:dark:bg-gray-900">
-              {data.map((navigation) => (
-                <li key={navigation.url}>
-                  <NavLink
-                    href={navigation.url}
-                    target={navigation.target}
-                    matchType={navigation.matchType}
-                  >
-                    {navigation.label}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
+            {data.length > 0 && (
+              <ul className="mt-4 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 font-medium dark:border-gray-700 dark:bg-gray-800 md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:p-0 md:dark:bg-gray-900">
+                {data.map((navigation) => (
+                  <li key={navigation.url}>
+                    <NavLink
+                      href={navigation.url}
+                      target={navigation.target}
+                      matchType={navigation.matchType || 'full'}
+                    >
+                      {navigation.label}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       </nav>

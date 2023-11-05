@@ -24,7 +24,7 @@ export default async function BlogIndex() {
               ))}
             </ul>
           </div>
-          {pager !== undefined && (
+          {pager !== undefined && pager.pages.length > 0 && (
             <div className="flex justify-center">
               <Pagination
                 currentPage={1}

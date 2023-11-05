@@ -1,6 +1,7 @@
 import { API_HOST, API_KEY } from '@/app/config/acms';
 import { acmsPath } from '@/app/lib';
-import type { AcmsContext, Entry } from '@/app/types';
+import { encodeUri } from '@/app/utils';
+import type { AcmsContext, Entry, Tag } from '@/app/types';
 
 type EntriesResponse = {
   entries: Entry[];
@@ -22,6 +23,14 @@ type EntriesResponse = {
       page: number;
     };
   };
+};
+
+type TagFilterResponse = {
+  selected: Tag &
+    {
+      omitPath: string;
+    }[];
+  selectable: Tag[];
 };
 
 export async function getBlogEntries(
@@ -84,7 +93,7 @@ export async function getBlogEntries(
                   },
                 }
               : {}),
-            pages: pager.page.map(
+            pages: (pager.page || []).map(
               ({ page, url }: { page: number; url: string }) => ({
                 page,
                 path: new URL(url).pathname,
@@ -184,5 +193,53 @@ export async function getBlogEntry(code: string): Promise<Entry | null> {
       }),
     ),
     units: entries[0].unit,
+  };
+}
+
+export async function getTagFilter(tags: string[]): Promise<TagFilterResponse> {
+  const endpoint = `${API_HOST}/blog/tag/${tags
+    .map(encodeUri)
+    .join('/')}/api/tag_filter/`;
+  // console.log('endpoint', endpoint)
+  const res = await fetch(endpoint, {
+    headers: new Headers({
+      'X-API-KEY': API_KEY,
+    }),
+    cache: 'no-cache',
+  });
+
+  // The return value is *not* serialized
+  // You can return Date, Map, Set, etc.
+  if (!res.ok) {
+    console.log('endpoint', endpoint);
+    // This will activate the closest `error.js` Error Boundary
+    throw new Error('Failed to fetch data');
+  }
+
+  const { 'selected:loop': selected = [], 'choice:loop': selectable = [] } =
+    await res.json();
+
+  return {
+    selected: selected.map(
+      ({
+        name,
+        path,
+        omitUrl,
+      }: {
+        name: string;
+        path: string;
+        omitUrl: string;
+      }) => ({
+        name,
+        path,
+        omitPath: new URL(omitUrl).pathname,
+      }),
+    ),
+    selectable: selectable.map(
+      ({ name, path }: { name: string; path: string }) => ({
+        name,
+        path,
+      }),
+    ),
   };
 }

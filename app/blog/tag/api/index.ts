@@ -9,8 +9,6 @@ export async function getAllBlogTags(): Promise<string[]> {
     cache: 'no-cache',
   });
 
-  console.log('response', res);
-
   // The return value is *not* serialized
   // You can return Date, Map, Set, etc.
   if (!res.ok) {
@@ -18,9 +16,7 @@ export async function getAllBlogTags(): Promise<string[]> {
     throw new Error('Failed to fetch data');
   }
 
-  const { 'tag:loop': tags } = await res.json();
+  const { 'tag:loop': tags = [] } = await res.json();
 
-  console.log(tags);
-
-  return (tags || []).map((tag: { name: string }) => tag.name);
+  return tags.map((tag: { name: string }) => tag.name);
 }

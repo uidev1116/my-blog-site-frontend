@@ -1,9 +1,10 @@
 import Link from 'next/link';
+import { Container } from './components';
 
 export default function NotFound() {
   return (
     <section className="bg-white dark:bg-gray-900">
-      <div className="px-4 py-8 lg:container lg:mx-auto lg:py-12">
+      <Container>
         <div className="mx-auto max-w-screen-sm text-center">
           <h1 className="mb-4 text-7xl font-extrabold tracking-tight text-stone-700 dark:text-white lg:text-9xl">
             404
@@ -18,7 +19,7 @@ export default function NotFound() {
             トップページに戻る
           </Link>
         </div>
-      </div>
+      </Container>
     </section>
   );
 }

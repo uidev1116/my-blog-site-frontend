@@ -1,6 +1,12 @@
 import Link from 'next/link';
-import { Card, Pagination, Badge } from '@/app/components';
-import { getBlogEntries, getTagFilter } from '../../../../api';
+import {
+  Card,
+  Pagination,
+  Badge,
+  Container,
+  EmptyState,
+} from '@/app/components';
+import { getBlogEntries } from '../../../../api';
 import { range } from '@/app/utils';
 
 export async function generateStaticParams({
@@ -25,8 +31,18 @@ export default async function BlogIndex({
     page: parseInt(page, 10),
   });
 
+  if (entries.length === 0) {
+    return (
+      <Container>
+        <main>
+          <EmptyState />
+        </main>
+      </Container>
+    );
+  }
+
   return (
-    <div className="px-4 py-8 lg:container lg:mx-auto lg:py-12">
+    <Container>
       <main>
         <div className="flex flex-col gap-12">
           <div>
@@ -76,6 +92,6 @@ export default async function BlogIndex({
           )}
         </div>
       </main>
-    </div>
+    </Container>
   );
 }

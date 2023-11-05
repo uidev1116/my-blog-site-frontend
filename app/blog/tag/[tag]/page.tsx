@@ -1,5 +1,11 @@
 import Link from 'next/link';
-import { Card, Pagination, Badge } from '@/app/components';
+import {
+  Card,
+  Pagination,
+  Badge,
+  Container,
+  EmptyState,
+} from '@/app/components';
 import { getBlogEntries, getTagFilter } from '../../api';
 import { getAllBlogTags } from '../api';
 
@@ -18,8 +24,18 @@ export default async function BlogIndex({
   const tagName = decodeURIComponent(tag);
   const { entries, pager } = await getBlogEntries({ tag: [tagName] });
 
+  if (entries.length === 0) {
+    return (
+      <Container>
+        <main>
+          <EmptyState />
+        </main>
+      </Container>
+    );
+  }
+
   return (
-    <div className="px-4 py-8 lg:container lg:mx-auto lg:py-12">
+    <Container>
       <main>
         <div className="flex flex-col gap-12">
           <div>
@@ -35,7 +51,7 @@ export default async function BlogIndex({
                 </span>
               </div>
               <div>
-                <span className="text-sm text-gray-700 hover:text-primary dark:text-gray-400">
+                <span className="text-sm text-gray-700 hover:text-primary-darkest">
                   <Link href="/blog/">全て表示する</Link>
                 </span>
               </div>
@@ -69,6 +85,6 @@ export default async function BlogIndex({
           )}
         </div>
       </main>
-    </div>
+    </Container>
   );
 }

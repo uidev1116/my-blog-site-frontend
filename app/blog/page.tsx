@@ -1,11 +1,22 @@
 import Link from 'next/link';
-import { Card, Pagination } from '@/app/components';
+import { Card, Container, EmptyState, Pagination } from '@/app/components';
 import { getBlogEntries } from './api';
 
 export default async function BlogIndex() {
   const { entries, pager } = await getBlogEntries();
+
+  if (entries.length === 0) {
+    return (
+      <Container>
+        <main>
+          <EmptyState />
+        </main>
+      </Container>
+    );
+  }
+
   return (
-    <div className="px-4 py-8 lg:container lg:mx-auto lg:py-12">
+    <Container>
       <main>
         <div className="flex flex-col gap-12">
           <div>
@@ -36,6 +47,6 @@ export default async function BlogIndex() {
           )}
         </div>
       </main>
-    </div>
+    </Container>
   );
 }

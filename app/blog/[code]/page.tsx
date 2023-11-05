@@ -8,6 +8,7 @@ import {
   SmartPhotoJs,
   DocumentOutlierJs,
   Card,
+  Container,
 } from '@/app/components';
 
 export async function generateStaticParams() {
@@ -34,7 +35,7 @@ export default async function BlogDetail({
 
   return (
     <>
-      <div className="px-4 py-8 lg:container lg:mx-auto lg:py-12">
+      <Container>
         <main className="bg-white dark:bg-gray-900">
           <div className="mx-auto flex max-w-screen-xl justify-between px-4">
             <article className="format format-sm mx-auto w-full max-w-2xl break-words dark:format-invert sm:format-base lg:format-lg">
@@ -87,7 +88,7 @@ export default async function BlogDetail({
                       itemClassName:
                         "before:content[''] before:absolute before:w-2.5 before:h-2.5 before:bg-gray-200 before:rounded-full before:mt-3 before:-left-1.5 before:border-2 before:border-white before:dark:border-gray-900 before:dark:bg-gray-700 [.level-1>&]:before:w-3 [.level-1>&]:before:h-3 [.level-1>&]:before:border",
                       linkClassName:
-                        'block text-gray-900 focus:ring-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:focus:ring-gray-700 bg-white text-sm/base my-2 font-medium hover:text-blue-700 focus:z-10 focus:text-blue-700 focus:outline-none',
+                        'block text-gray-900 focus:ring-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:focus:ring-gray-700 bg-white text-sm/base my-2 font-medium hover:text-primary-darkest focus:z-10 focus:text-primary-darkest focus:outline-none',
                     }}
                   />
                 </div>
@@ -96,7 +97,7 @@ export default async function BlogDetail({
             </article>
           </div>
         </main>
-      </div>
+      </Container>
       <aside
         aria-label="関連記事"
         className="bg-gray-50 py-8 dark:bg-gray-800 lg:py-24"

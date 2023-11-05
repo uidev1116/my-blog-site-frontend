@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getProfileEntry } from './api';
-import { UnitIndex, SmartPhotoJs } from '../components';
+import { UnitIndex, SmartPhotoJs, Container } from '../components';
 
 export default async function About() {
   const entry = await getProfileEntry();
@@ -10,7 +10,7 @@ export default async function About() {
   }
 
   return (
-    <div className="px-4 py-8 lg:container lg:mx-auto lg:py-12">
+    <Container>
       <main className="bg-white dark:bg-gray-900">
         <div className="mx-auto flex max-w-screen-xl justify-between px-4">
           <article className="format format-sm format-blue mx-auto w-full max-w-2xl dark:format-invert sm:format-base lg:format-lg">
@@ -24,6 +24,6 @@ export default async function About() {
           </article>
         </div>
       </main>
-    </div>
+    </Container>
   );
 }

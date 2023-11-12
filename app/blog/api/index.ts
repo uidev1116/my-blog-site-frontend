@@ -33,12 +33,17 @@ type TagFilterResponse = {
   selectable: Tag[];
 };
 
+function normalizePath(path: string) {
+  return path.replace(/\/keyword\/[^\/]+/, '');
+}
+
 export async function getBlogEntries(
   acmsContext: AcmsContext = {},
 ): Promise<EntriesResponse> {
-  const endpoint = `${API_HOST}/blog${acmsPath(
-    acmsContext,
-  )}/api/summary_index/`;
+  const endpoint = `${API_HOST}/blog${acmsPath({
+    ...acmsContext,
+    api: 'summary_index',
+  })}`;
   const res = await fetch(endpoint, {
     headers: new Headers({
       'X-API-KEY': API_KEY,
@@ -87,7 +92,7 @@ export async function getBlogEntries(
             ...(Object.hasOwn(pager, 'backLink')
               ? {
                   previous: {
-                    path: new URL(pager.backLink.url).pathname,
+                    path: normalizePath(new URL(pager.backLink.url).pathname),
                     num: pager.backLink.backNum,
                     page: pager.backLink.backPage,
                   },
@@ -96,13 +101,15 @@ export async function getBlogEntries(
             pages: (pager.page || []).map(
               ({ page, url }: { page: number; url: string }) => ({
                 page,
-                path: new URL(url).pathname,
+                path: normalizePath(new URL(url).pathname),
               }),
             ),
             ...(Object.hasOwn(pager, 'forwardLink')
               ? {
                   next: {
-                    path: new URL(pager.forwardLink.url).pathname,
+                    path: normalizePath(
+                      new URL(pager.forwardLink.url).pathname,
+                    ),
                     num: pager.forwardLink.forwardNum,
                     page: pager.forwardLink.forwardPage,
                   },
@@ -200,7 +207,6 @@ export async function getTagFilter(tags: string[]): Promise<TagFilterResponse> {
   const endpoint = `${API_HOST}/blog/tag/${tags
     .map(encodeUri)
     .join('/')}/api/tag_filter/`;
-  // console.log('endpoint', endpoint)
   const res = await fetch(endpoint, {
     headers: new Headers({
       'X-API-KEY': API_KEY,
@@ -211,7 +217,6 @@ export async function getTagFilter(tags: string[]): Promise<TagFilterResponse> {
   // The return value is *not* serialized
   // You can return Date, Map, Set, etc.
   if (!res.ok) {
-    console.log('endpoint', endpoint);
     // This will activate the closest `error.js` Error Boundary
     throw new Error('Failed to fetch data');
   }

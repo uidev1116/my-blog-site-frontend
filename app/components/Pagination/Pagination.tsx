@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 type Props = {
   currentPage: number;
@@ -26,13 +27,14 @@ export default function Pagination({
   previous,
   next,
 }: Props) {
+  const searchParams = useSearchParams();
   return (
     <nav aria-label="Page navigation">
       <ul className="flex h-10 items-center -space-x-px text-base">
         {previous && (
           <li>
             <Link
-              href={previous.path}
+              href={`${previous.path}?${searchParams.toString()}`}
               className="ml-0 flex h-10 items-center justify-center rounded-l-lg border border-gray-300 bg-white px-4 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
             >
               <span className="sr-only">Previous</span>
@@ -63,7 +65,7 @@ export default function Pagination({
                 </span>
               ) : (
                 <Link
-                  href={path}
+                  href={`${path}?${searchParams.toString()}`}
                   className="flex h-10 items-center justify-center border border-gray-300 bg-white px-4 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
                 >
                   {page}
@@ -73,8 +75,8 @@ export default function Pagination({
           ))}
         {next && (
           <li>
-            <a
-              href={next.path}
+            <Link
+              href={`${next.path}?${searchParams.toString()}`}
               className="flex h-10 items-center justify-center rounded-r-lg border border-gray-300 bg-white px-4 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
             >
               <span className="sr-only">Next</span>
@@ -93,7 +95,7 @@ export default function Pagination({
                   d="m1 9 4-4-4-4"
                 />
               </svg>
-            </a>
+            </Link>
           </li>
         )}
       </ul>

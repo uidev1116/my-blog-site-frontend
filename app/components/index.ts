@@ -1,6 +1,7 @@
 export * from './Badge';
 export * from './Card';
 export * from './Collapse';
+export * from './ComboBox';
 export * from './ConditionalWrapper';
 export * from './Container';
 export * from './DocumentOutliner';

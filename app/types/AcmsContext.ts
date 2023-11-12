@@ -5,4 +5,6 @@ export type AcmsContext = {
   order?: number | null;
   page?: number | null;
   limit?: number | null;
+  api?: string;
+  query?: { [key: string | number]: string | string[] | undefined };
 };

@@ -1,4 +1,5 @@
 import { Collapse } from '@/app/components';
+import EntrySearchForm from './BlogSearchForm';
 import NavLink from './NavLink';
 
 import { getGlobalNavigation } from '@/app/api';
@@ -36,31 +37,10 @@ export default async function Header() {
               </svg>
               <span className="sr-only">Search</span>
             </Collapse>
-            <div className="relative hidden md:block">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <svg
-                  className="h-4 w-4 text-gray-500 dark:text-gray-400"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                  />
-                </svg>
-                <span className="sr-only">Search icon</span>
+            <div className="hidden md:block">
+              <div className="w-72">
+                <EntrySearchForm />
               </div>
-              <input
-                type="text"
-                id="search-navbar"
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 focus:border-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary dark:focus:ring-primary"
-                placeholder="検索..."
-              />
             </div>
             <Collapse
               toggle="navbar-search"
@@ -88,30 +68,8 @@ export default async function Header() {
             className="hidden w-full items-center justify-between md:order-1 md:flex md:w-auto"
             id="navbar-search"
           >
-            <div className="relative mt-3 md:hidden">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <svg
-                  className="h-4 w-4 text-gray-500 dark:text-gray-400"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                  />
-                </svg>
-              </div>
-              <input
-                type="text"
-                id="search-navbar"
-                className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 focus:border-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary dark:focus:ring-primary"
-                placeholder="検索..."
-              />
+            <div className="mt-3 md:hidden">
+              <EntrySearchForm />
             </div>
             {data.length > 0 && (
               <ul className="mt-4 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 font-medium dark:border-gray-700 dark:bg-gray-800 md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:p-0 md:dark:bg-gray-900">

@@ -10,6 +10,7 @@ import {
 import { usePageChange } from '@/app/hooks';
 
 type Props<T> = UseComboboxProps<T> & {
+  className?: string;
   renderInput: (
     inputProps: ReturnType<ReturnType<typeof useCombobox>['getInputProps']>,
   ) => React.ReactNode;
@@ -31,6 +32,7 @@ type Props<T> = UseComboboxProps<T> & {
 };
 
 export default function ComboBox<T>({
+  className = 'relative',
   renderInput,
   renderMenu,
   renderOption,
@@ -82,7 +84,7 @@ export default function ComboBox<T>({
   }
 
   return (
-    <div className="relative">
+    <div className={className}>
       {renderInput(getInputProps())}
       {isOpen &&
         items.length > 0 &&

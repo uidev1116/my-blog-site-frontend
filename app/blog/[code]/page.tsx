@@ -10,6 +10,16 @@ import {
   Card,
   Container,
 } from '@/app/components';
+import { Metadata } from 'next';
+import { getOGP } from '@/app/api';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { code: string };
+}): Promise<Metadata> {
+  return await getOGP(`/blog/${params.code}`);
+}
 
 export async function generateStaticParams() {
   const { entries } = await getBlogEntries();

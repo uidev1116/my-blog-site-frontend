@@ -2,6 +2,21 @@ import Link from 'next/link';
 import { Card, Container, EmptyState, Pagination } from '@/app/components';
 import { range } from '@/app/utils';
 import { getBlogEntries } from '../../api';
+import { Metadata } from 'next';
+import { getOGP } from '@/app/api';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { page: string };
+}): Promise<Metadata> {
+  return {
+    ...(await getOGP(`/blog/page/${params.page}`)),
+    robots: {
+      index: false,
+    },
+  };
+}
 
 export async function generateStaticParams() {
   const { pager } = await getBlogEntries();

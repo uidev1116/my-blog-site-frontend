@@ -1,6 +1,18 @@
 import Link from 'next/link';
 import { Card, EmptyState, Container } from '@/app/components';
-import { getBlogEntries } from '@/app/api';
+import { getBlogEntries, getOGP } from '@/app/api';
+import { Metadata } from 'next';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { openGraph, ...rest } = await getOGP();
+  return {
+    ...rest,
+    openGraph: {
+      ...openGraph,
+      type: 'website',
+    },
+  };
+}
 
 export default async function Home() {
   const { indexPath, indexBlogName, entries } = await getBlogEntries();

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { useMemo } from 'react';
 
 type Props = {
   currentPage: number;
@@ -28,13 +29,17 @@ export default function Pagination({
   next,
 }: Props) {
   const searchParams = useSearchParams();
+  const queryString = useMemo(
+    () => (searchParams.toString() ? `?${searchParams.toString()}` : ''),
+    [searchParams],
+  );
   return (
     <nav aria-label="Page navigation">
       <ul className="flex h-10 items-center -space-x-px text-base">
         {previous && (
           <li>
             <Link
-              href={`${previous.path}?${searchParams.toString()}`}
+              href={`${previous.path}${queryString}`}
               className="ml-0 flex h-10 items-center justify-center rounded-l-lg border border-gray-300 bg-white px-4 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
             >
               <span className="sr-only">Previous</span>
@@ -65,7 +70,7 @@ export default function Pagination({
                 </span>
               ) : (
                 <Link
-                  href={`${path}?${searchParams.toString()}`}
+                  href={`${path}${queryString}`}
                   className="flex h-10 items-center justify-center border border-gray-300 bg-white px-4 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
                 >
                   {page}
@@ -76,7 +81,7 @@ export default function Pagination({
         {next && (
           <li>
             <Link
-              href={`${next.path}?${searchParams.toString()}`}
+              href={`${next.path}${queryString}`}
               className="flex h-10 items-center justify-center rounded-r-lg border border-gray-300 bg-white px-4 leading-tight text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
             >
               <span className="sr-only">Next</span>

@@ -6,8 +6,34 @@ import {
   Container,
   EmptyState,
 } from '@/app/components';
-import { getBlogEntries, getTagFilter } from '../../api';
+import { getBlogEntries } from '../../api';
 import { getAllBlogTags } from '../api';
+import { Metadata } from 'next';
+import { getOGP } from '@/app/api';
+import { acmsPath } from '@/app/lib';
+
+type Props = {
+  params: { tag: string };
+};
+
+export async function generateMetadata({
+  params: { tag },
+}: Props): Promise<Metadata> {
+  const tagName = decodeURIComponent(tag);
+  const { openGraph, ...rest } = await getOGP(
+    `/blog${acmsPath({ tag: [tagName] })}`,
+  );
+  return {
+    ...rest,
+    openGraph: {
+      ...openGraph,
+      type: 'website',
+    },
+    robots: {
+      index: false,
+    },
+  };
+}
 
 export async function generateStaticParams() {
   const tags = await getAllBlogTags();
@@ -16,11 +42,7 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function BlogIndex({
-  params: { tag },
-}: {
-  params: { tag: string };
-}) {
+export default async function BlogIndex({ params: { tag } }: Props) {
   const tagName = decodeURIComponent(tag);
   const { entries, pager } = await getBlogEntries({ tag: [tagName] });
 

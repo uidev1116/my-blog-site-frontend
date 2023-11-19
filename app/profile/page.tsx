@@ -1,6 +1,19 @@
 import { notFound } from 'next/navigation';
 import { getProfileEntry } from './api';
 import { UnitIndex, SmartPhotoJs, Container } from '../components';
+import { Metadata } from 'next';
+import { getOGP } from '../api';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { openGraph, ...rest } = await getOGP('/profile');
+  return {
+    ...rest,
+    openGraph: {
+      ...openGraph,
+      type: 'profile',
+    },
+  };
+}
 
 export default async function About() {
   const entry = await getProfileEntry();

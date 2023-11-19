@@ -14,19 +14,15 @@ export default function acmsPath(acmsContext: AcmsContext = {}) {
         : path;
     }
 
+    if (key === 'page' && value === 1) {
+      return path;
+    }
+
     return `${path}/${key}/${encodeUri(value as string | number)}`;
   }, '');
 
-  if (acmsContext.query) {
-    const searchParams = new URLSearchParams();
-    Object.entries(acmsContext.query).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
-        value.forEach((v) => searchParams.append(key, v));
-      } else {
-        searchParams.append(key, value as string);
-      }
-    });
-    path += `/?${searchParams.toString()}`;
+  if (acmsContext.searchParams) {
+    path += `/?${acmsContext.searchParams.toString()}`;
   }
 
   return path;

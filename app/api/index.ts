@@ -1,6 +1,9 @@
+import { Metadata } from 'next';
 import { API_HOST, API_KEY } from '../config/acms';
-import type { Entry } from '../types';
+import type { Blog, Entry } from '../types';
 import type { UrlMatchType } from '@/app/hooks';
+import { deleteNewLine, truncate } from '../utils';
+import path from 'path';
 
 type EntriesResponse = {
   indexPath: string;
@@ -125,4 +128,117 @@ export async function getFooterNavigation(): Promise<FooterNavigation[]> {
       url: nav[0]['link#front']['url'],
       target: nav[0]['link#front']['target'],
     }));
+}
+
+export async function getBlog(blogId: number = 1): Promise<Blog> {
+  const endpoint = `${API_HOST}/bid/${blogId}/api/BF_ctx/`;
+  const res = await fetch(endpoint, {
+    headers: new Headers({
+      'X-API-KEY': API_KEY,
+    }),
+    cache: 'no-cache',
+  });
+
+  if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
+    throw new Error('Failed to fetch data');
+  }
+
+  const {
+    id,
+    code = '',
+    status,
+    sort,
+    name,
+    parent: pbid,
+    indexing,
+    generated_datetime: generatedDatetime,
+    twitter_account: twitterAccount,
+  } = await res.json();
+
+  return {
+    id,
+    code,
+    status,
+    sort,
+    name,
+    pbid,
+    indexing,
+    path: '/',
+    createdAt: new Date(generatedDatetime),
+    twitterAccount,
+  };
+}
+
+export async function getOGP(
+  pathname: string = '/',
+  searchParams?: URLSearchParams,
+): Promise<Metadata> {
+  console.log('searchParams', searchParams);
+  const endpoint = `${new URL(pathname, API_HOST).toString()}/api/ogp/${
+    searchParams ? `?${searchParams.toString()}` : ''
+  }`;
+  console.log(endpoint);
+  const res = await fetch(endpoint, {
+    headers: new Headers({
+      'X-API-KEY': API_KEY,
+    }),
+    cache: 'no-cache',
+  });
+
+  const { name, twitterAccount } = await getBlog(1);
+
+  // The return value is *not* serialized
+  // You can return Date, Map, Set, etc.
+  if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
+    throw new Error('Failed to fetch data');
+  }
+
+  const {
+    title = '',
+    description = '',
+    keywords = '',
+    image = '',
+    'image@x': imageX = 0,
+    'image@y': imageY = 0,
+    type,
+  } = await res.json();
+
+  const imageUrl = `${API_HOST}/media/${image}`;
+
+  return {
+    title,
+    description: deleteNewLine(truncate(description, 350)),
+    keywords: keywords || undefined,
+    openGraph: {
+      title,
+      description: deleteNewLine(truncate(description, 350)),
+      url: 'https://uidev.jp',
+      siteName: name,
+      images: [
+        {
+          url: imageUrl,
+          width: imageX,
+          height: imageY,
+        },
+      ],
+      locale: 'ja_JP',
+      type: type,
+    },
+    twitter: {
+      card: 'summary',
+      title,
+      description: deleteNewLine(truncate(description, 350)),
+      creator: `@${twitterAccount}`,
+      images: {
+        url: imageUrl,
+      },
+    },
+    formatDetection: {
+      email: false,
+      address: false,
+      telephone: false,
+    },
+  };
 }

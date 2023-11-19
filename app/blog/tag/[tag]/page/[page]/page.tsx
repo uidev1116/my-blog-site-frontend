@@ -8,6 +8,32 @@ import {
 } from '@/app/components';
 import { getBlogEntries } from '../../../../api';
 import { range } from '@/app/utils';
+import { Metadata } from 'next';
+import { getOGP } from '@/app/api';
+import { acmsPath } from '@/app/lib';
+
+type Props = {
+  params: { tag: string; page: string };
+};
+
+export async function generateMetadata({
+  params: { tag, page },
+}: Props): Promise<Metadata> {
+  const tagName = decodeURIComponent(tag);
+  const { openGraph, ...rest } = await getOGP(
+    `/blog${acmsPath({ tag: [tagName], page: parseInt(page, 10) })}`,
+  );
+  return {
+    ...rest,
+    openGraph: {
+      ...openGraph,
+      type: 'website',
+    },
+    robots: {
+      index: false,
+    },
+  };
+}
 
 export async function generateStaticParams({
   params: { tag },

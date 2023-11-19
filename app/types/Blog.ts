@@ -10,4 +10,5 @@ export type Blog = {
   indexing: 'on' | 'off';
   path: string;
   createdAt: Date;
+  twitterAccount?: string;
 };

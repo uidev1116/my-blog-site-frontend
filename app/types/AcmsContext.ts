@@ -6,5 +6,5 @@ export type AcmsContext = {
   page?: number | null;
   limit?: number | null;
   api?: string;
-  query?: { [key: string | number]: string | string[] | undefined };
+  searchParams?: URLSearchParams;
 };

@@ -1,18 +1,41 @@
 import Link from 'next/link';
 import { Card, Container, EmptyState, Pagination } from '@/app/components';
 import { getBlogEntries } from '../../../api';
+import { Metadata } from 'next';
+import { getOGP } from '@/app/api';
+import { parseNextSearchPrams } from '@/app/utils/next';
+import { acmsPath } from '@/app/lib';
 
-export default async function BlogIndex({
-  params,
-  searchParams,
-}: {
+type Props = {
   params: { page: string };
   searchParams: { [key: string]: string | string[] | undefined };
-}) {
+};
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: Props): Promise<Metadata> {
+  const { openGraph, ...rest } = await getOGP(
+    `/blog/page/${params.page}`,
+    parseNextSearchPrams(searchParams),
+  );
+  return {
+    ...rest,
+    openGraph: {
+      ...openGraph,
+      type: 'website',
+    },
+    robots: {
+      index: false,
+    },
+  };
+}
+
+export default async function BlogIndex({ params, searchParams }: Props) {
   const { page } = params;
   const { entries, pager } = await getBlogEntries({
     page: parseInt(page, 10),
-    query: searchParams,
+    searchParams: parseNextSearchPrams(searchParams),
   });
 
   if (entries.length === 0) {
@@ -24,6 +47,23 @@ export default async function BlogIndex({
       </Container>
     );
   }
+
+  const paginationProps = {
+    currentPage: parseInt(page, 10),
+    previous: pager?.previous && {
+      ...pager.previous,
+      path: `/blog/search${acmsPath({ page: pager.previous.page })}`,
+    },
+    pages:
+      pager?.pages.map((page) => ({
+        ...page,
+        path: `/blog/search${acmsPath({ page: page.page })}`,
+      })) || [],
+    next: pager?.next && {
+      ...pager.next,
+      path: `/blog/search${acmsPath({ page: pager.next.page })}`,
+    },
+  };
 
   return (
     <Container>
@@ -47,12 +87,7 @@ export default async function BlogIndex({
           </div>
           {pager !== undefined && pager.pages.length > 0 && (
             <div className="flex justify-center">
-              <Pagination
-                currentPage={parseInt(page, 10)}
-                previous={pager?.previous}
-                pages={pager?.pages}
-                next={pager?.next}
-              />
+              <Pagination {...paginationProps} />
             </div>
           )}
         </div>

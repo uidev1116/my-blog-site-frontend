@@ -5,7 +5,7 @@ import {
   usePathname,
   useSearchParams,
 } from 'next/navigation';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 
 export default function usePageChange(
   onPageChange: (
@@ -16,7 +16,16 @@ export default function usePageChange(
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const handlePageChange = useCallback(
+    (pathname: string, searchParams: ReadonlyURLSearchParams) => {
+      onPageChange(pathname, searchParams);
+    },
+    // 再レンダリングを防ぐために、onPageChangeを依存配列に含めない
+    // eslint-disable-line react-hooks/exhaustive-deps
+    [],
+  );
+
   useEffect(() => {
-    onPageChange(pathname, searchParams);
-  }, [pathname, searchParams, onPageChange]);
+    handlePageChange(pathname, searchParams);
+  }, [pathname, searchParams, handlePageChange]);
 }

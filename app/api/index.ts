@@ -1,9 +1,7 @@
 import { Metadata } from 'next';
 import { API_HOST, API_KEY } from '../config/acms';
 import type { Blog, Entry } from '../types';
-import type { UrlMatchType } from '@/app/hooks';
 import { deleteNewLine, truncate } from '../utils';
-import path from 'path';
 
 type EntriesResponse = {
   indexPath: string;
@@ -15,7 +13,6 @@ type GlobalNavigation = {
   label: string;
   level: number;
   url: string;
-  matchType: UrlMatchType | '';
   target: '_blank' | '';
 };
 
@@ -97,7 +94,6 @@ export async function getGlobalNavigation(): Promise<GlobalNavigation[]> {
       label: nav.label,
       level: parseInt(nav.level, 10),
       url: nav[0]['link#front']['url'],
-      matchType: nav.attr.trim(),
       target: nav[0]['link#front']['target'],
     }));
 }
@@ -174,11 +170,9 @@ export async function getOGP(
   pathname: string = '/',
   searchParams?: URLSearchParams,
 ): Promise<Metadata> {
-  console.log('searchParams', searchParams);
   const endpoint = `${new URL(pathname, API_HOST).toString()}/api/ogp/${
     searchParams ? `?${searchParams.toString()}` : ''
   }`;
-  console.log(endpoint);
   const res = await fetch(endpoint, {
     headers: new Headers({
       'X-API-KEY': API_KEY,

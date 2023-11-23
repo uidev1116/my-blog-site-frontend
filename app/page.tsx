@@ -1,17 +1,7 @@
 import Link from 'next/link';
-import {
-  Card,
-  EmptyState,
-  Container,
-  CardHeader,
-  CardBody,
-  CardFooter,
-  Badge,
-  EntryList,
-} from '@/app/components';
+import { EmptyState, Container, EntryList } from '@/app/components';
 import { getBlogEntries, getOGP } from '@/app/api';
 import { Metadata } from 'next';
-import { format, formatISO9075 } from 'date-fns';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { openGraph, ...rest } = await getOGP();

@@ -7,8 +7,8 @@ import {
   Badge,
   SmartPhotoJs,
   DocumentOutlierJs,
-  Card,
   Container,
+  EntryList,
 } from '@/app/components';
 import { Metadata } from 'next';
 import { getOGP } from '@/app/api';
@@ -61,7 +61,7 @@ export default async function BlogDetail({
                     {format(entry.createdAt, 'yyyy/MM/dd')}
                   </time>
                 </div>
-                {entry.tags.length > 0 && (
+                {entry.tags && entry.tags.length > 0 && (
                   <div>
                     <ul className="inline-flex flex-wrap gap-x-2">
                       {entry.tags.map((tag) => (
@@ -117,19 +117,10 @@ export default async function BlogDetail({
             関連記事
           </h2>
           {relationalEntries.length > 0 ? (
-            <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
-              {relationalEntries.map((entry) => (
-                <article key={entry.id}>
-                  <Link href={entry.path} className="flex h-full">
-                    <Card
-                      title={entry.title}
-                      description={entry.summary}
-                      datetime={entry.createdAt}
-                    />
-                  </Link>
-                </article>
-              ))}
-            </div>
+            <EntryList
+              className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4"
+              entries={relationalEntries}
+            />
           ) : (
             <p>関連記事が存在しません</p>
           )}

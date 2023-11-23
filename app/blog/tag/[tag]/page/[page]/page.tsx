@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import {
-  Card,
   Pagination,
   Badge,
   Container,
   EmptyState,
+  EntryList,
 } from '@/app/components';
 import { getBlogEntries } from '../../../../api';
 import { range } from '@/app/utils';
@@ -91,20 +91,7 @@ export default async function BlogIndex({
             </div>
           </div>
           <div>
-            <ul className="grid gap-4 md:grid-cols-2">
-              {entries.map((entry) => (
-                <li key={entry.id}>
-                  <Link href={entry.path} className="flex h-full">
-                    <Card
-                      title={entry.title}
-                      description={entry.summary}
-                      datetime={entry.createdAt}
-                      tags={entry.tags}
-                    />
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <EntryList entries={entries} />
           </div>
           {pager !== undefined && pager.pages.length > 0 && (
             <div className="flex justify-center">

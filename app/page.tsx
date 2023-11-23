@@ -1,7 +1,17 @@
 import Link from 'next/link';
-import { Card, EmptyState, Container } from '@/app/components';
+import {
+  Card,
+  EmptyState,
+  Container,
+  CardHeader,
+  CardBody,
+  CardFooter,
+  Badge,
+  EntryList,
+} from '@/app/components';
 import { getBlogEntries, getOGP } from '@/app/api';
 import { Metadata } from 'next';
+import { format, formatISO9075 } from 'date-fns';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { openGraph, ...rest } = await getOGP();
@@ -32,20 +42,7 @@ export default async function Home() {
       <main>
         <div className="flex flex-col gap-12">
           <div>
-            <ul className="grid gap-4 md:grid-cols-2">
-              {entries.map((entry) => (
-                <li key={entry.id}>
-                  <Link href={entry.path} className="flex h-full">
-                    <Card
-                      title={entry.title}
-                      description={entry.summary}
-                      datetime={entry.createdAt}
-                      tags={entry.tags}
-                    />
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <EntryList entries={entries} />
           </div>
           <div>
             <div className="flex justify-end">

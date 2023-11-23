@@ -17,7 +17,7 @@ export type Entry = {
   startAt?: Date;
   endAt?: Date;
   summary?: string;
-  tags: Tag[];
+  tags?: Tag[];
   category?: Category;
   blog?: Blog;
   user?: User;

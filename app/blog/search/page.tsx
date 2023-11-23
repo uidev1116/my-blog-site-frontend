@@ -2,8 +2,8 @@ import { Container, EmptyState, EntryList, Pagination } from '@/app/components';
 import { getBlogEntries } from '../api';
 import { Metadata } from 'next';
 import { getOGP } from '@/app/api';
-import { parseNextSearchPrams } from '@/app/utils/next';
-import { acmsPath } from '@/app/lib';
+import { objToSearchParams } from '@/app/utils';
+import { acmsPath } from '@/app/lib/acmsPath';
 
 type Props = {
   searchParams: { [key: string]: string | string[] | undefined };
@@ -12,10 +12,10 @@ type Props = {
 export async function generateMetadata({
   searchParams,
 }: Props): Promise<Metadata> {
-  const { openGraph, ...rest } = await getOGP(
-    '/blog',
-    parseNextSearchPrams(searchParams),
-  );
+  const { openGraph, ...rest } = await getOGP({
+    blog: 'blog',
+    searchParams: objToSearchParams(searchParams),
+  });
   return {
     ...rest,
     openGraph: {
@@ -30,7 +30,7 @@ export async function generateMetadata({
 
 export default async function BlogSearchPage({ searchParams }: Props) {
   const { entries, pager } = await getBlogEntries({
-    searchParams: parseNextSearchPrams(searchParams),
+    searchParams: objToSearchParams(searchParams),
   });
 
   if (entries.length === 0) {

@@ -1,4 +1,4 @@
-export default function parseNextSearchPrams(nextSearchParams: {
+export default function objToSearchPrams(nextSearchParams: {
   [key: string]: string | string[] | undefined;
 }) {
   const searchParams = new URLSearchParams();

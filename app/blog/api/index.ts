@@ -1,7 +1,8 @@
 import { API_HOST, API_KEY } from '@/app/config/acms';
-import { acmsPath } from '@/app/lib';
+import { acmsPath } from '@/app/lib/acmsPath';
 import { encodeUri } from '@/app/utils';
-import type { AcmsContext, Entry, Tag } from '@/app/types';
+import type { Entry, Tag } from '@/app/types';
+import type { AcmsContext } from '@/app/lib/acmsPath';
 
 type EntriesResponse = {
   entries: Entry[];
@@ -40,10 +41,10 @@ function normalizePath(path: string) {
 export async function getBlogEntries(
   acmsContext: AcmsContext = {},
 ): Promise<EntriesResponse> {
-  const endpoint = `${API_HOST}/blog${acmsPath({
-    ...acmsContext,
-    api: 'summary_index',
-  })}`;
+  const endpoint = new URL(
+    acmsPath({ ...acmsContext, blog: 'blog', api: 'summary_index' }),
+    API_HOST,
+  );
   const res = await fetch(endpoint, {
     headers: new Headers({
       'X-API-KEY': API_KEY,

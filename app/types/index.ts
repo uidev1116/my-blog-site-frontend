@@ -1,6 +1,5 @@
 export * from './enums';
 export * from './units';
-export * from './AcmsContext';
 export * from './Blog';
 export * from './Category';
 export * from './Entry';

@@ -1,8 +1,11 @@
 // To-do: field, span
 export type AcmsContext = {
+  blog?: string | null;
+  category?: string | string[] | null;
+  entry?: string | null;
   keyword?: string | null;
   tag?: string[];
-  order?: number | null;
+  order?: string | null;
   page?: number | null;
   limit?: number | null;
   api?: string;

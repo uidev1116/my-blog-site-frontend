@@ -18,7 +18,7 @@ export async function generateMetadata({
 }: {
   params: { code: string };
 }): Promise<Metadata> {
-  return await getOGP(`/blog/${params.code}`);
+  return await getOGP({ blog: 'blog', entry: params.code });
 }
 
 export async function generateStaticParams() {

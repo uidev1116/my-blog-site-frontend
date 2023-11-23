@@ -10,7 +10,7 @@ import { getBlogEntries } from '../../../../api';
 import { range } from '@/app/utils';
 import { Metadata } from 'next';
 import { getOGP } from '@/app/api';
-import { acmsPath } from '@/app/lib';
+import { acmsPath } from '@/app/lib/acmsPath';
 
 type Props = {
   params: { tag: string; page: string };
@@ -20,9 +20,12 @@ export async function generateMetadata({
   params: { tag, page },
 }: Props): Promise<Metadata> {
   const tagName = decodeURIComponent(tag);
-  const { openGraph, ...rest } = await getOGP(
-    `/blog${acmsPath({ tag: [tagName], page: parseInt(page, 10) })}`,
-  );
+  const { openGraph, ...rest } = await getOGP({
+    blog: 'blog',
+    page: parseInt(page, 10),
+    tag: [tagName],
+  });
+
   return {
     ...rest,
     openGraph: {

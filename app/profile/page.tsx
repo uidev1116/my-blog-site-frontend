@@ -5,7 +5,7 @@ import { Metadata } from 'next';
 import { getOGP } from '../api';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { openGraph, ...rest } = await getOGP('/profile');
+  const { openGraph, ...rest } = await getOGP({ category: 'profile' });
   return {
     ...rest,
     openGraph: {

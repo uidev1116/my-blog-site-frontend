@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { API_HOST, API_KEY } from '../config/acms';
 import type { Blog, Entry } from '../types';
 import { deleteNewLine, truncate } from '../utils';
+import { AcmsContext, acmsPath } from '../lib';
 
 type EntriesResponse = {
   indexPath: string;
@@ -166,13 +167,8 @@ export async function getBlog(blogId: number = 1): Promise<Blog> {
   };
 }
 
-export async function getOGP(
-  pathname: string = '/',
-  searchParams?: URLSearchParams,
-): Promise<Metadata> {
-  const endpoint = `${new URL(pathname, API_HOST).toString()}/api/ogp/${
-    searchParams ? `?${searchParams.toString()}` : ''
-  }`;
+export async function getOGP(acmsContext: AcmsContext = {}): Promise<Metadata> {
+  const endpoint = new URL(acmsPath({ ...acmsContext, api: 'ogp' }), API_HOST);
   const res = await fetch(endpoint, {
     headers: new Headers({
       'X-API-KEY': API_KEY,

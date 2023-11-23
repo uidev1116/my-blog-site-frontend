@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test": "vitest",
     "prepare": "husky install"
   },
   "dependencies": {
@@ -31,6 +32,7 @@
     "smartphoto": "^1.6.5"
   },
   "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.0",
     "autoprefixer": "^10.4.14",
     "eslint-config-prettier": "^8.9.0",
     "eslint-plugin-jsx-a11y": "^6.7.1",
@@ -41,6 +43,7 @@
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.4.1",
     "tailwindcss": "^3.3.3",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "vitest": "^0.34.6"
   }
 }

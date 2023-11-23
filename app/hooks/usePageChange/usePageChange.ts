@@ -21,7 +21,7 @@ export default function usePageChange(
       onPageChange(pathname, searchParams);
     },
     // 再レンダリングを防ぐために、onPageChangeを依存配列に含めない
-    // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
 

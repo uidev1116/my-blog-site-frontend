@@ -1,8 +1,9 @@
 import { Collapse } from '@/app/components';
-import BlogSearchForm from './BlogSearchForm';
 import NavLink from './NavLink';
 
 import { getGlobalNavigation } from '@/app/api';
+import { Suspense } from 'react';
+import BlogSearchForm from './BlogSearchForm';
 
 export default async function Header() {
   const data = await getGlobalNavigation();
@@ -72,23 +73,25 @@ export default async function Header() {
               <BlogSearchForm />
             </div>
             {data.length > 0 && (
-              <ul className="mt-4 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 font-medium dark:border-gray-700 dark:bg-gray-800 md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:p-0 md:dark:bg-gray-900">
-                {data.map((navigation) => (
-                  <li key={navigation.url}>
-                    <NavLink
-                      href={navigation.url}
-                      target={navigation.target || undefined}
-                      rel={
-                        navigation.target === '_blank'
-                          ? 'noreferrer'
-                          : undefined
-                      }
-                    >
-                      {navigation.label}
-                    </NavLink>
-                  </li>
-                ))}
-              </ul>
+              <Suspense>
+                <ul className="mt-4 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 font-medium dark:border-gray-700 dark:bg-gray-800 md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:p-0 md:dark:bg-gray-900">
+                  {data.map((navigation) => (
+                    <li key={navigation.url}>
+                      <NavLink
+                        href={navigation.url}
+                        target={navigation.target || undefined}
+                        rel={
+                          navigation.target === '_blank'
+                            ? 'noreferrer'
+                            : undefined
+                        }
+                      >
+                        {navigation.label}
+                      </NavLink>
+                    </li>
+                  ))}
+                </ul>
+              </Suspense>
             )}
           </div>
         </div>

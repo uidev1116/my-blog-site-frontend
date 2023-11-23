@@ -2,6 +2,7 @@ import { Container, EmptyState, EntryList, Pagination } from '@/app/components';
 import { getBlogEntries } from './api';
 import { Metadata } from 'next';
 import { getOGP } from '../api';
+import { Suspense } from 'react';
 
 export async function generateMetadata(): Promise<Metadata> {
   const { openGraph, ...rest } = await getOGP({ blog: 'blog' });
@@ -35,14 +36,16 @@ export default async function BlogIndex() {
             <EntryList entries={entries} />
           </div>
           {pager !== undefined && pager.pages.length > 0 && (
-            <div className="flex justify-center">
-              <Pagination
-                currentPage={1}
-                previous={pager?.previous}
-                pages={pager?.pages}
-                next={pager.next}
-              />
-            </div>
+            <Suspense>
+              <div className="flex justify-center">
+                <Pagination
+                  currentPage={1}
+                  previous={pager?.previous}
+                  pages={pager?.pages}
+                  next={pager.next}
+                />
+              </div>
+            </Suspense>
           )}
         </div>
       </main>

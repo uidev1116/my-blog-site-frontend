@@ -3,6 +3,7 @@ import { range } from '@/app/utils';
 import { getBlogEntries } from '../../api';
 import { Metadata } from 'next';
 import { getOGP } from '@/app/api';
+import { Suspense } from 'react';
 
 export async function generateMetadata({
   params,
@@ -50,14 +51,16 @@ export default async function BlogIndex({
             <EntryList entries={entries} />
           </div>
           {pager !== undefined && pager.pages.length > 0 && (
-            <div className="flex justify-center">
-              <Pagination
-                currentPage={parseInt(page, 10)}
-                previous={pager?.previous}
-                pages={pager?.pages}
-                next={pager?.next}
-              />
-            </div>
+            <Suspense>
+              <div className="flex justify-center">
+                <Pagination
+                  currentPage={parseInt(page, 10)}
+                  previous={pager?.previous}
+                  pages={pager?.pages}
+                  next={pager?.next}
+                />
+              </div>
+            </Suspense>
           )}
         </div>
       </main>

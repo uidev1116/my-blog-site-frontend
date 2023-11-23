@@ -11,6 +11,7 @@ import { getAllBlogTags } from '../api';
 import { Metadata } from 'next';
 import { getOGP } from '@/app/api';
 import { acmsPath } from '@/app/lib/acmsPath';
+import { Suspense } from 'react';
 
 type Props = {
   params: { tag: string };
@@ -85,14 +86,16 @@ export default async function BlogIndex({ params: { tag } }: Props) {
             <EntryList entries={entries} />
           </div>
           {pager !== undefined && pager.pages.length > 0 && (
-            <div className="flex justify-center">
-              <Pagination
-                currentPage={1}
-                previous={pager?.previous}
-                pages={pager?.pages}
-                next={pager.next}
-              />
-            </div>
+            <Suspense>
+              <div className="flex justify-center">
+                <Pagination
+                  currentPage={1}
+                  previous={pager?.previous}
+                  pages={pager?.pages}
+                  next={pager.next}
+                />
+              </div>
+            </Suspense>
           )}
         </div>
       </main>

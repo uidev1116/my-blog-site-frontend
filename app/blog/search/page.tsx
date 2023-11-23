@@ -4,6 +4,7 @@ import { Metadata } from 'next';
 import { getOGP } from '@/app/api';
 import { objToSearchParams } from '@/app/utils';
 import { acmsPath } from '@/app/lib/acmsPath';
+import { Suspense } from 'react';
 
 type Props = {
   searchParams: { [key: string]: string | string[] | undefined };
@@ -68,9 +69,11 @@ export default async function BlogSearchPage({ searchParams }: Props) {
             <EntryList entries={entries} />
           </div>
           {pager !== undefined && pager.pages.length > 0 && (
-            <div className="flex justify-center">
-              <Pagination {...paginationProps} />
-            </div>
+            <Suspense>
+              <div className="flex justify-center">
+                <Pagination {...paginationProps} />
+              </div>
+            </Suspense>
           )}
         </div>
       </main>

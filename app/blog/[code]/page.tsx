@@ -5,13 +5,18 @@ import { getBlogEntries, getTagRelationalEntries, getBlogEntry } from '../api';
 import {
   UnitIndex,
   Badge,
-  SmartPhotoJs,
   DocumentOutlierJs,
   Container,
   EntryList,
 } from '@/app/components';
 import { Metadata } from 'next';
 import { getOGP } from '@/app/api';
+import dynamic from 'next/dynamic';
+
+const SmartPhotoJs = dynamic(
+  () => import('@/app/components/SmartPhoto/SmartPhotoJs'),
+  { ssr: false },
+);
 
 export async function generateMetadata({
   params,

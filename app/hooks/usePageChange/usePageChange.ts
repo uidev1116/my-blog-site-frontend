@@ -18,5 +18,5 @@ export default function usePageChange(
 
   useEffect(() => {
     onPageChange(pathname, searchParams);
-  }, [pathname, searchParams]);
+  }, [pathname, searchParams, onPageChange]);
 }

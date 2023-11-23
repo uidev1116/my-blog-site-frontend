@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import nl2br from 'react-nl2br';
-import { ConditionalWrapper, SmartPhoto } from '../../..';
+import { ConditionalWrapper } from '../../..';
 import type { Unit, MediaUnit } from '@/app/types';
 import { API_HOST } from '@/app/config/acms';
 

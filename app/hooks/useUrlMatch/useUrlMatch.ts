@@ -24,7 +24,7 @@ export default function useUrlMatch(url: URL, type: UrlMatchType) {
         },
       }[type](),
     );
-  }, [pathname, searchParams]);
+  }, [pathname, searchParams, url.search, url.pathname, type]);
 
   return isMatch;
 }

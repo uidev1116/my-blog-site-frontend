@@ -3,6 +3,7 @@ import { API_HOST, API_KEY } from '../config/acms';
 import type { Blog, Entry } from '../types';
 import { deleteNewLine, truncate } from '../utils';
 import { AcmsContext, acmsPath } from '../lib';
+import { BASE_URL } from '../config';
 
 type EntriesResponse = {
   indexPath: string;
@@ -198,6 +199,7 @@ export async function getOGP(acmsContext: AcmsContext = {}): Promise<Metadata> {
   const imageUrl = `${API_HOST}/media/${image}`;
 
   return {
+    metadataBase: new URL(BASE_URL),
     title,
     description: deleteNewLine(truncate(description, 350)),
     keywords: keywords || undefined,

@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import { formatISO9075, format } from 'date-fns';
 import { getBlogEntries, getTagRelationalEntries, getBlogEntry } from '../api';
 import {
@@ -8,6 +7,7 @@ import {
   DocumentOutlierJs,
   Container,
   EntryList,
+  TagList,
 } from '@/app/components';
 import { Metadata } from 'next';
 import { getOGP } from '@/app/api';
@@ -68,15 +68,7 @@ export default async function BlogDetailPage({
                 </div>
                 {entry.tags && entry.tags.length > 0 && (
                   <div>
-                    <ul className="inline-flex flex-wrap gap-x-2">
-                      {entry.tags.map((tag) => (
-                        <li key={tag.name}>
-                          <Link href={tag.path}>
-                            <Badge>{tag.name}</Badge>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
+                    <TagList tags={entry.tags} isLink />
                   </div>
                 )}
               </header>

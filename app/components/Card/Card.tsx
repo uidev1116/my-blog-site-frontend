@@ -1,11 +1,12 @@
 import clsx from 'clsx';
-import { ComponentPropsWithRef, ElementType, forwardRef } from 'react';
+import { ComponentPropsWithoutRef, forwardRef } from 'react';
 
-type Props<T extends ElementType> = ComponentPropsWithRef<T> & {
-  as?: T;
+type Props = ComponentPropsWithoutRef<'div'> & {
+  as?: React.ElementType;
+  chidren?: React.ReactNode;
 };
 
-export default forwardRef<ElementType, Props<ElementType>>(function Card(
+export default forwardRef<'div', Props>(function Card(
   { as: Component = 'div', className, children, ...props },
   ref,
 ) {

@@ -1,10 +1,11 @@
-import { ComponentPropsWithRef, ElementType, forwardRef } from 'react';
+import { ComponentPropsWithoutRef, ElementType, forwardRef } from 'react';
 
-type Props<T extends ElementType> = ComponentPropsWithRef<T> & {
-  as?: T;
+type Props = ComponentPropsWithoutRef<'div'> & {
+  as?: React.ElementType;
+  chidren?: React.ReactNode;
 };
 
-export default forwardRef<ElementType, Props<ElementType>>(function CardFooter(
+export default forwardRef<'div', Props>(function CardFooter(
   { as: Component = 'div', children, ...props },
   ref,
 ) {

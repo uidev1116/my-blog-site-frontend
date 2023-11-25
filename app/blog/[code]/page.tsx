@@ -34,7 +34,7 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function BlogDetail({
+export default async function BlogDetailPage({
   params,
 }: {
   params: { code: string };

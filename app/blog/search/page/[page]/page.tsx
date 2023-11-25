@@ -33,7 +33,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function BlogIndex({ params, searchParams }: Props) {
+export default async function BlogSearchPage({ params, searchParams }: Props) {
   const { page } = params;
   const { entries, pager } = await getBlogEntries({
     page: parseInt(page, 10),

@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function Home() {
+export default async function HomePage() {
   const { indexPath, indexBlogName, entries } = await getBlogEntries();
 
   if (entries.length === 0) {

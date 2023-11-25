@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function BlogIndex() {
+export default async function BlogIndexPage() {
   const { entries, pager } = await getBlogEntries();
 
   if (entries.length === 0) {

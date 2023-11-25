@@ -21,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function About() {
+export default async function ProfilePage() {
   const entry = await getProfileEntry();
 
   if (entry === null) {

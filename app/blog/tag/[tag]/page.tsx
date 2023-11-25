@@ -45,7 +45,7 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function BlogIndex({ params: { tag } }: Props) {
+export default async function BlogIndexPage({ params: { tag } }: Props) {
   const tagName = decodeURIComponent(tag);
   const { entries, pager } = await getBlogEntries({ tag: [tagName] });
 

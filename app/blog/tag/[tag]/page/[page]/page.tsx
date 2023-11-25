@@ -50,7 +50,7 @@ export async function generateStaticParams({
   }));
 }
 
-export default async function BlogIndex({
+export default async function BlogIndexPage({
   params: { tag, page },
 }: {
   params: { tag: string; page: string };

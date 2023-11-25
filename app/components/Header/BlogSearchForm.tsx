@@ -88,13 +88,20 @@ export default function BlogSearchForm() {
   }
 
   function renderMenu(
-    menuProps: Parameters<ComponentProps<typeof ComboBox>['renderMenu']>[0],
-    options: Parameters<ComponentProps<typeof ComboBox>['renderMenu']>[1],
+    isOpen: Parameters<ComponentProps<typeof ComboBox>['renderMenu']>[0],
+    items: Parameters<ComponentProps<typeof ComboBox>['renderMenu']>[1],
+    menuProps: Parameters<ComponentProps<typeof ComboBox>['renderMenu']>[2],
+    options: Parameters<ComponentProps<typeof ComboBox>['renderMenu']>[3],
   ) {
     return (
       <div>
         <ul
-          className="absolute z-10 mt-1 max-h-80 w-full overflow-scroll bg-white p-0 shadow-md"
+          className={clsx(
+            'absolute z-10 mt-1 max-h-80 w-full overflow-scroll bg-white p-0 shadow-md',
+            {
+              hidden: !(isOpen && items.length),
+            },
+          )}
           {...menuProps}
         >
           {options}

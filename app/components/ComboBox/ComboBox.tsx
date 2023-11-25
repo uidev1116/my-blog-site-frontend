@@ -15,6 +15,8 @@ type Props<T> = UseComboboxProps<T> & {
     inputProps: ReturnType<ReturnType<typeof useCombobox>['getInputProps']>,
   ) => React.ReactNode;
   renderMenu: (
+    isOpen: ReturnType<typeof useCombobox>['isOpen'],
+    items: T[],
     menuProps: ReturnType<ReturnType<typeof useCombobox>['getMenuProps']>,
     options: ReturnType<Props<T>['renderOption']>,
   ) => React.ReactNode;
@@ -86,9 +88,7 @@ export default function ComboBox<T>({
   return (
     <div className={className}>
       {renderInput(getInputProps())}
-      {isOpen &&
-        items.length > 0 &&
-        renderMenu(getMenuProps(), renderOptions())}
+      {renderMenu(isOpen, items, getMenuProps(), renderOptions())}
     </div>
   );
 }

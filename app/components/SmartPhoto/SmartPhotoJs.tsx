@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import SmartPhoto from 'smartphoto';
 import deepmerge from 'deepmerge';
-// import 'smartphoto/css/smartphoto.min.css';
+import 'smartphoto/css/smartphoto.min.css';
 
 type SmartPhotoParameters = ConstructorParameters<typeof SmartPhoto>;
 type SelectorOrElements = SmartPhotoParameters[0];

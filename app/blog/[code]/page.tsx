@@ -3,7 +3,6 @@ import { formatISO9075, format } from 'date-fns';
 import { getBlogEntries, getTagRelationalEntries, getBlogEntry } from '../api';
 import {
   UnitIndex,
-  Badge,
   DocumentOutlierJs,
   Container,
   EntryList,

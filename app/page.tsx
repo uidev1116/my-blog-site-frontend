@@ -4,14 +4,7 @@ import { getBlogEntries, getOGP } from '@/app/api';
 import { Metadata } from 'next';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { openGraph, ...rest } = await getOGP();
-  return {
-    ...rest,
-    openGraph: {
-      ...openGraph,
-      type: 'website',
-    },
-  };
+  return await getOGP();
 }
 
 export default async function HomePage() {

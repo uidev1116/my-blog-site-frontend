@@ -5,14 +5,7 @@ import { getOGP } from '../api';
 import { Suspense } from 'react';
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { openGraph, ...rest } = await getOGP({ blog: 'blog' });
-  return {
-    ...rest,
-    openGraph: {
-      ...openGraph,
-      type: 'website',
-    },
-  };
+  return await getOGP({ blog: 'blog' });
 }
 
 export default async function BlogIndexPage() {

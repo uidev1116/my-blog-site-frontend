@@ -13,20 +13,10 @@ type Props = {
 export async function generateMetadata({
   searchParams,
 }: Props): Promise<Metadata> {
-  const { openGraph, ...rest } = await getOGP({
+  return await getOGP({
     blog: 'blog',
     searchParams: objToSearchParams(searchParams),
   });
-  return {
-    ...rest,
-    openGraph: {
-      ...openGraph,
-      type: 'website',
-    },
-    robots: {
-      index: false,
-    },
-  };
 }
 
 export default async function BlogSearchPage({ searchParams }: Props) {

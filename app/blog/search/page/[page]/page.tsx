@@ -15,22 +15,11 @@ export async function generateMetadata({
   params,
   searchParams,
 }: Props): Promise<Metadata> {
-  const { openGraph, ...rest } = await getOGP({
+  return await getOGP({
     blog: 'blog',
     page: parseInt(params.page, 10),
     searchParams: objToSearchParams(searchParams),
   });
-
-  return {
-    ...rest,
-    openGraph: {
-      ...openGraph,
-      type: 'website',
-    },
-    robots: {
-      index: false,
-    },
-  };
 }
 
 export default async function BlogSearchPage({ params, searchParams }: Props) {

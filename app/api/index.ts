@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { API_HOST, API_KEY } from '../config/acms';
+import { API_HOST, API_KEY, MEDIA_BASE_URL } from '../config/acms';
 import type { Blog, Entry } from '../types';
 import { deleteNewLine, truncate } from '../utils';
 import { AcmsContext, acmsPath } from '../lib';
@@ -193,10 +193,25 @@ export async function getOGP(acmsContext: AcmsContext = {}): Promise<Metadata> {
     image = '',
     'image@x': imageX = 0,
     'image@y': imageY = 0,
-    type,
   } = await res.json();
 
-  const imageUrl = `${API_HOST}/media/${image}`;
+  const { entry, page, tag, searchParams } = acmsContext;
+
+  function isNoIndex() {
+    if (page != null) {
+      return true;
+    }
+
+    if (tag != null) {
+      return true;
+    }
+
+    if (searchParams != null && searchParams.get('keyword') !== null) {
+      return true;
+    }
+
+    return false;
+  }
 
   return {
     metadataBase: new URL(BASE_URL),
@@ -206,31 +221,34 @@ export async function getOGP(acmsContext: AcmsContext = {}): Promise<Metadata> {
     openGraph: {
       title,
       description: deleteNewLine(truncate(description, 350)),
-      url: 'https://uidev.jp',
+      url: BASE_URL,
       siteName: name,
       images: [
         {
-          url: imageUrl,
+          url: `${MEDIA_BASE_URL}${image}`,
           width: imageX,
           height: imageY,
         },
       ],
       locale: 'ja_JP',
-      type: type,
+      type: entry ? 'article' : 'website',
     },
     twitter: {
-      card: 'summary',
+      card: 'summary_large_image',
       title,
       description: deleteNewLine(truncate(description, 350)),
       creator: `@${twitterAccount}`,
       images: {
-        url: imageUrl,
+        url: `${MEDIA_BASE_URL}${image}`,
       },
     },
     formatDetection: {
       email: false,
       address: false,
       telephone: false,
+    },
+    robots: {
+      ...(isNoIndex() ? { index: false } : {}),
     },
   };
 }

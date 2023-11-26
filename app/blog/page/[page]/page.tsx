@@ -10,12 +10,7 @@ export async function generateMetadata({
 }: {
   params: { page: string };
 }): Promise<Metadata> {
-  return {
-    ...(await getOGP({ blog: 'blog', page: parseInt(params.page, 10) })),
-    robots: {
-      index: false,
-    },
-  };
+  return await getOGP({ blog: 'blog', page: parseInt(params.page, 10) });
 }
 
 export async function generateStaticParams() {

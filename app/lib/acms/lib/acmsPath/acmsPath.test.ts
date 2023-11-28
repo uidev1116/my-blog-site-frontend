@@ -3,15 +3,18 @@ import { acmsPath } from '.';
 
 test('work with blog context', () => {
   expect(acmsPath({ blog: 'blog' })).toBe('/blog');
+  expect(acmsPath({ blog: 1 })).toBe('/bid/1');
 });
 
 test('work with category context', () => {
   expect(acmsPath({ category: 'category' })).toBe('/category');
   expect(acmsPath({ category: ['hoge', 'fuga'] })).toBe('/hoge/fuga');
+  expect(acmsPath({ blog: 1, category: 2 })).toBe('/bid/1/cid/2');
 });
 
 test('work with entry context', () => {
   expect(acmsPath({ entry: 'entry-1.html' })).toBe('/entry-1.html');
+  expect(acmsPath({ entry: 3 })).toBe('/eid/3');
 });
 
 test('work with keyword context', () => {

@@ -1,5 +1,9 @@
-import { encodeUri } from '../../utils';
+import { encodeUri } from '../../../../utils';
 import { AcmsContext } from './types';
+
+function isNumber(value: any): value is number {
+  return typeof value === 'number';
+}
 
 export default function acmsPath(acmsContext: AcmsContext = {}) {
   let path = [
@@ -19,10 +23,16 @@ export default function acmsPath(acmsContext: AcmsContext = {}) {
     }
 
     if (key === 'blog') {
+      if (isNumber(value)) {
+        return `${path}/bid/${value}`;
+      }
       return `${path}/${(value as string).split('/').map(encodeUri).join('/')}`;
     }
 
     if (key === 'category') {
+      if (isNumber(value)) {
+        return `${path}/cid/${value}`;
+      }
       if (Array.isArray(value)) {
         return `${path}/${value.map(encodeUri).join('/')}`;
       }
@@ -30,6 +40,9 @@ export default function acmsPath(acmsContext: AcmsContext = {}) {
     }
 
     if (key === 'entry') {
+      if (isNumber(value)) {
+        return `${path}/eid/${value}`;
+      }
       return `${path}/${encodeUri(value as string)}`;
     }
 

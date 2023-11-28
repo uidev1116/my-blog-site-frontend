@@ -1,8 +1,7 @@
-import { API_HOST, API_KEY } from '@/app/config/acms';
-import { acmsPath } from '@/app/lib/acmsPath';
-import { encodeUri } from '@/app/utils';
+import { resolveRequestCache } from '@/app/utils';
 import type { BlogEntry, Tag } from '@/app/types';
-import type { AcmsContext } from '@/app/lib/acmsPath';
+import type { AcmsContext } from '@/app/lib/acms/lib/acmsPath';
+import acmsClient from '@/app/lib/acms';
 
 type EntriesResponse = {
   entries: BlogEntry[];
@@ -41,25 +40,10 @@ function normalizePath(path: string) {
 export async function getBlogEntries(
   acmsContext: AcmsContext = {},
 ): Promise<EntriesResponse> {
-  const endpoint = new URL(
-    acmsPath({ ...acmsContext, blog: 'blog', api: 'summary_index' }),
-    API_HOST,
+  const { entry: entries = [], pager } = await acmsClient.get(
+    { ...acmsContext, blog: 'blog', api: 'summary_index' },
+    { requestInit: { cache: resolveRequestCache() } },
   );
-  const res = await fetch(endpoint, {
-    headers: new Headers({
-      'X-API-KEY': API_KEY,
-    }),
-    cache: 'no-cache',
-  });
-
-  // The return value is *not* serialized
-  // You can return Date, Map, Set, etc.
-  if (!res.ok) {
-    // This will activate the closest `error.js` Error Boundary
-    throw new Error('Failed to fetch data');
-  }
-
-  const { entry: entries = [], pager } = await res.json();
 
   return {
     entries: entries.map((entry: any) => ({
@@ -123,24 +107,16 @@ export async function getBlogEntries(
 }
 
 export async function getTagRelationalEntries(
-  code: string,
+  entryCode: string,
 ): Promise<BlogEntry[]> {
-  const endpoint = `${API_HOST}/blog/${code}/api/tag_relational_index/`;
-  const res = await fetch(endpoint, {
-    headers: new Headers({
-      'X-API-KEY': API_KEY,
-    }),
-    cache: 'no-cache',
-  });
-
-  // The return value is *not* serialized
-  // You can return Date, Map, Set, etc.
-  if (!res.ok) {
-    // This will activate the closest `error.js` Error Boundary
-    throw new Error('Failed to fetch data');
-  }
-
-  const { 'entry:loop': entries = [] } = await res.json();
+  const { 'entry:loop': entries = [] } = await acmsClient.get(
+    {
+      blog: 'blog',
+      entry: entryCode,
+      api: 'tag_relational_index',
+    },
+    { requestInit: { cache: resolveRequestCache() } },
+  );
 
   return entries.map((entry: any) => ({
     id: entry.eid,
@@ -160,22 +136,18 @@ export async function getTagRelationalEntries(
   }));
 }
 
-export async function getBlogEntry(code: string): Promise<BlogEntry | null> {
-  const res = await fetch(`${API_HOST}/blog/${code}/api/body_detail/`, {
-    headers: new Headers({
-      'X-API-KEY': API_KEY,
-    }),
-    cache: 'no-cache',
-  });
+export async function getBlogEntry(
+  entryCode: string,
+): Promise<BlogEntry | null> {
+  const { entry: entries } = await acmsClient.get(
+    {
+      blog: 'blog',
+      entry: entryCode,
+      api: 'body_detail',
+    },
+    { requestInit: { cache: resolveRequestCache() } },
+  );
 
-  // The return value is *not* serialized
-  // You can return Date, Map, Set, etc.
-  if (!res.ok) {
-    // This will activate the closest `error.js` Error Boundary
-    throw new Error('Failed to fetch data');
-  }
-
-  const { entry: entries } = await res.json();
   if (!entries.length) {
     return null;
   }
@@ -219,25 +191,15 @@ export async function getBlogEntry(code: string): Promise<BlogEntry | null> {
 }
 
 export async function getTagFilter(tags: string[]): Promise<TagFilterResponse> {
-  const endpoint = `${API_HOST}/blog/tag/${tags
-    .map(encodeUri)
-    .join('/')}/api/tag_filter/`;
-  const res = await fetch(endpoint, {
-    headers: new Headers({
-      'X-API-KEY': API_KEY,
-    }),
-    cache: 'no-cache',
-  });
-
-  // The return value is *not* serialized
-  // You can return Date, Map, Set, etc.
-  if (!res.ok) {
-    // This will activate the closest `error.js` Error Boundary
-    throw new Error('Failed to fetch data');
-  }
-
   const { 'selected:loop': selected = [], 'choice:loop': selectable = [] } =
-    await res.json();
+    await acmsClient.get(
+      {
+        blog: 'blog',
+        tag: tags,
+        api: 'tag_filter',
+      },
+      { requestInit: { cache: resolveRequestCache() } },
+    );
 
   return {
     selected: selected.map(

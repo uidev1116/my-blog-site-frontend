@@ -1,1 +1,1 @@
-export * from './acmsPath';
+export * from './acms/lib/acmsPath';

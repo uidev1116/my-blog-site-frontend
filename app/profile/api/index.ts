@@ -1,22 +1,16 @@
-import { API_HOST, API_KEY } from '@/app/config/acms';
+import acmsClient from '@/app/lib/acms';
 import type { Entry } from '@/app/types';
+import { resolveRequestCache } from '@/app/utils';
 
 export async function getProfileEntry(): Promise<Entry | null> {
-  const res = await fetch(`${API_HOST}/profile/api/body_detail/`, {
-    headers: new Headers({
-      'X-API-KEY': API_KEY,
-    }),
-    cache: 'no-cache',
-  });
+  const { entry: entries } = await acmsClient.get(
+    {
+      category: 'profile',
+      api: 'body_detail',
+    },
+    { requestInit: { cache: resolveRequestCache() } },
+  );
 
-  // The return value is *not* serialized
-  // You can return Date, Map, Set, etc.
-  if (!res.ok) {
-    // This will activate the closest `error.js` Error Boundary
-    throw new Error('Failed to fetch data');
-  }
-
-  const { entry: entries } = await res.json();
   if (!entries.length) {
     return null;
   }

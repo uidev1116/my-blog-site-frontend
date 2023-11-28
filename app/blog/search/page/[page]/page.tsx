@@ -3,7 +3,7 @@ import { getBlogEntries } from '../../../api';
 import { Metadata } from 'next';
 import { getMetadata } from '@/app/api';
 import { objToSearchParams } from '@/app/utils';
-import { acmsPath } from '@/app/lib/acmsPath';
+import { acmsPath } from '@/app/lib/acms/lib/acmsPath';
 import { Suspense } from 'react';
 
 type Props = {

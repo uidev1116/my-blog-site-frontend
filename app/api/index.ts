@@ -1,9 +1,10 @@
 import { Metadata } from 'next';
-import { API_HOST, API_KEY, MEDIA_BASE_URL } from '../config/acms';
-import type { Blog, Entry, RootBlog } from '../types';
-import { deleteNewLine, truncate } from '../utils';
+import { MEDIA_BASE_URL } from '../config/acms';
+import type { Entry, RootBlog } from '../types';
+import { deleteNewLine, resolveRequestCache, truncate } from '../utils';
 import { AcmsContext, acmsPath } from '../lib';
 import { BASE_URL } from '../config';
+import acmsClient from '../lib/acms';
 
 type EntriesResponse = {
   indexPath: string;
@@ -37,22 +38,16 @@ type Ogp = {
 };
 
 export async function getBlogEntries(): Promise<EntriesResponse> {
-  const endpoint = `${API_HOST}/api/summary_top_index/`;
-  const res = await fetch(endpoint, {
-    headers: new Headers({
-      'X-API-KEY': API_KEY,
-    }),
-    cache: 'no-cache',
-  });
-
-  // The return value is *not* serialized
-  // You can return Date, Map, Set, etc.
-  if (!res.ok) {
-    // This will activate the closest `error.js` Error Boundary
-    throw new Error('Failed to fetch data');
-  }
-
-  const { indexUrl, indexBlogName, entry: entries = [] } = await res.json();
+  const {
+    indexUrl,
+    indexBlogName,
+    entry: entries = [],
+  } = await acmsClient.get<any>(
+    {
+      api: 'summary_top_index',
+    },
+    { requestInit: { cache: resolveRequestCache() } },
+  );
 
   return {
     indexPath: new URL(indexUrl).pathname,
@@ -84,22 +79,12 @@ export async function getBlogEntries(): Promise<EntriesResponse> {
 }
 
 export async function getGlobalNavigation(): Promise<GlobalNavigation[]> {
-  const endpoint = `${API_HOST}/api/navigation_global/`;
-  const res = await fetch(endpoint, {
-    headers: new Headers({
-      'X-API-KEY': API_KEY,
-    }),
-    cache: 'no-cache',
-  });
-
-  // The return value is *not* serialized
-  // You can return Date, Map, Set, etc.
-  if (!res.ok) {
-    // This will activate the closest `error.js` Error Boundary
-    throw new Error('Failed to fetch data');
-  }
-
-  const { 'navigation:loop': navs = [] } = await res.json();
+  const { 'navigation:loop': navs = [] } = await acmsClient.get(
+    {
+      api: 'navigation_global',
+    },
+    { requestInit: { cache: resolveRequestCache() } },
+  );
 
   return navs
     .filter((nav: any) => Array.isArray(nav) === false)
@@ -112,22 +97,12 @@ export async function getGlobalNavigation(): Promise<GlobalNavigation[]> {
 }
 
 export async function getFooterNavigation(): Promise<FooterNavigation[]> {
-  const endpoint = `${API_HOST}/api/navigation_footer/`;
-  const res = await fetch(endpoint, {
-    headers: new Headers({
-      'X-API-KEY': API_KEY,
-    }),
-    cache: 'no-cache',
-  });
-
-  // The return value is *not* serialized
-  // You can return Date, Map, Set, etc.
-  if (!res.ok) {
-    // This will activate the closest `error.js` Error Boundary
-    throw new Error('Failed to fetch data');
-  }
-
-  const { 'navigation:loop': navs = [] } = await res.json();
+  const { 'navigation:loop': navs = [] } = await acmsClient.get(
+    {
+      api: 'navigation_footer',
+    },
+    { requestInit: { cache: resolveRequestCache() } },
+  );
 
   return navs
     .filter((nav: any) => Array.isArray(nav) === false)
@@ -140,19 +115,6 @@ export async function getFooterNavigation(): Promise<FooterNavigation[]> {
 }
 
 export async function getRootBlog(): Promise<RootBlog> {
-  const endpoint = `${API_HOST}/bid/1/api/BF_ctx/`;
-  const res = await fetch(endpoint, {
-    headers: new Headers({
-      'X-API-KEY': API_KEY,
-    }),
-    cache: 'no-cache',
-  });
-
-  if (!res.ok) {
-    // This will activate the closest `error.js` Error Boundary
-    throw new Error('Failed to fetch data');
-  }
-
   const {
     id,
     code = '',
@@ -167,7 +129,13 @@ export async function getRootBlog(): Promise<RootBlog> {
     github_account: githubAccount,
     youtube_account: youtubeAccount,
     google_site_verification: googleSiteVerification,
-  } = await res.json();
+  } = await acmsClient.get(
+    {
+      blog: 1,
+      api: 'BF_ctx',
+    },
+    { requestInit: { cache: resolveRequestCache() } },
+  );
 
   return {
     id,
@@ -188,21 +156,6 @@ export async function getRootBlog(): Promise<RootBlog> {
 }
 
 export async function getOgp(acmsContext: AcmsContext = {}): Promise<Ogp> {
-  const endpoint = new URL(acmsPath({ ...acmsContext, api: 'ogp' }), API_HOST);
-  const res = await fetch(endpoint, {
-    headers: new Headers({
-      'X-API-KEY': API_KEY,
-    }),
-    cache: 'no-cache',
-  });
-
-  // The return value is *not* serialized
-  // You can return Date, Map, Set, etc.
-  if (!res.ok) {
-    // This will activate the closest `error.js` Error Boundary
-    throw new Error('Failed to fetch data');
-  }
-
   const {
     title = '',
     description = '',
@@ -210,7 +163,10 @@ export async function getOgp(acmsContext: AcmsContext = {}): Promise<Ogp> {
     image: imagePath = '',
     'image@x': imageWidth = 0,
     'image@y': imageHeight = 0,
-  } = await res.json();
+  } = await acmsClient.get(
+    { ...acmsContext, api: 'ogp' },
+    { requestInit: { cache: resolveRequestCache() } },
+  );
 
   return {
     title,

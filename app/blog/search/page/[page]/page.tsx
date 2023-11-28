@@ -1,7 +1,7 @@
 import { Container, EmptyState, EntryList, Pagination } from '@/app/components';
 import { getBlogEntries } from '../../../api';
 import { Metadata } from 'next';
-import { getOGP } from '@/app/api';
+import { getMetadata } from '@/app/api';
 import { objToSearchParams } from '@/app/utils';
 import { acmsPath } from '@/app/lib/acmsPath';
 import { Suspense } from 'react';
@@ -15,7 +15,7 @@ export async function generateMetadata({
   params,
   searchParams,
 }: Props): Promise<Metadata> {
-  return await getOGP({
+  return await getMetadata({
     blog: 'blog',
     page: parseInt(params.page, 10),
     searchParams: objToSearchParams(searchParams),

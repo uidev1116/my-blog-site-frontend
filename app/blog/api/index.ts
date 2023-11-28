@@ -1,11 +1,11 @@
 import { API_HOST, API_KEY } from '@/app/config/acms';
 import { acmsPath } from '@/app/lib/acmsPath';
 import { encodeUri } from '@/app/utils';
-import type { Entry, Tag } from '@/app/types';
+import type { BlogEntry, Tag } from '@/app/types';
 import type { AcmsContext } from '@/app/lib/acmsPath';
 
 type EntriesResponse = {
-  entries: Entry[];
+  entries: BlogEntry[];
   pager?: {
     firstPage: number;
     lastPage: number;
@@ -122,7 +122,9 @@ export async function getBlogEntries(
   };
 }
 
-export async function getTagRelationalEntries(code: string): Promise<Entry[]> {
+export async function getTagRelationalEntries(
+  code: string,
+): Promise<BlogEntry[]> {
   const endpoint = `${API_HOST}/blog/${code}/api/tag_relational_index/`;
   const res = await fetch(endpoint, {
     headers: new Headers({
@@ -158,7 +160,7 @@ export async function getTagRelationalEntries(code: string): Promise<Entry[]> {
   }));
 }
 
-export async function getBlogEntry(code: string): Promise<Entry | null> {
+export async function getBlogEntry(code: string): Promise<BlogEntry | null> {
   const res = await fetch(`${API_HOST}/blog/${code}/api/body_detail/`, {
     headers: new Headers({
       'X-API-KEY': API_KEY,
@@ -200,6 +202,18 @@ export async function getBlogEntry(code: string): Promise<Entry | null> {
         path: new URL(url).pathname,
       }),
     ),
+    blog: {
+      id: entries[0].blog.id,
+      code: entries[0].blog.code,
+      status: entries[0].blog.status,
+      sort: entries[0].blog.sort,
+      name: entries[0].blog.name,
+      pbid: entries[0].blog.pbid,
+      indexing: entries[0].blog.indexing,
+      path: new URL(entries[0].blog.url).pathname,
+      createdAt: new Date(entries[0].blog['date#']),
+      ogpImageBasePath: entries[0].blog['ogp_image_base@path'],
+    },
     units: entries[0].unit,
   };
 }

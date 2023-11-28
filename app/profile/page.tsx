@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { getProfileEntry } from './api';
 import { UnitIndex, Container } from '../components';
 import { Metadata } from 'next';
-import { getOGP } from '../api';
+import { getMetadata } from '../api';
 import dynamic from 'next/dynamic';
 
 const SmartPhotoJs = dynamic(
@@ -11,7 +11,7 @@ const SmartPhotoJs = dynamic(
 );
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { openGraph, ...rest } = await getOGP({ category: 'profile' });
+  const { openGraph, ...rest } = await getMetadata({ category: 'profile' });
   return {
     ...rest,
     openGraph: {

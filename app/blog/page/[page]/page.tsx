@@ -2,7 +2,7 @@ import { Container, EmptyState, EntryList, Pagination } from '@/app/components';
 import { range } from '@/app/utils';
 import { getBlogEntries } from '../../api';
 import { Metadata } from 'next';
-import { getOGP } from '@/app/api';
+import { getMetadata } from '@/app/api';
 import { Suspense } from 'react';
 
 export async function generateMetadata({
@@ -10,7 +10,7 @@ export async function generateMetadata({
 }: {
   params: { page: string };
 }): Promise<Metadata> {
-  return await getOGP({ blog: 'blog', page: parseInt(params.page, 10) });
+  return await getMetadata({ blog: 'blog', page: parseInt(params.page, 10) });
 }
 
 export async function generateStaticParams() {

@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { API_HOST, API_KEY, MEDIA_BASE_URL } from '../config/acms';
-import type { Blog, Entry } from '../types';
+import type { Blog, Entry, RootBlog } from '../types';
 import { deleteNewLine, truncate } from '../utils';
 import { AcmsContext, acmsPath } from '../lib';
 import { BASE_URL } from '../config';
@@ -23,6 +23,17 @@ type FooterNavigation = {
   level: number;
   url: string;
   target: '_blank' | '';
+};
+
+type Ogp = {
+  title: string;
+  description: string;
+  keywords: string;
+  image?: {
+    path: string;
+    width: number;
+    height: number;
+  };
 };
 
 export async function getBlogEntries(): Promise<EntriesResponse> {
@@ -128,8 +139,8 @@ export async function getFooterNavigation(): Promise<FooterNavigation[]> {
     }));
 }
 
-export async function getBlog(blogId: number = 1): Promise<Blog> {
-  const endpoint = `${API_HOST}/bid/${blogId}/api/BF_ctx/`;
+export async function getRootBlog(): Promise<RootBlog> {
+  const endpoint = `${API_HOST}/bid/1/api/BF_ctx/`;
   const res = await fetch(endpoint, {
     headers: new Headers({
       'X-API-KEY': API_KEY,
@@ -151,7 +162,11 @@ export async function getBlog(blogId: number = 1): Promise<Blog> {
     parent: pbid,
     indexing,
     generated_datetime: generatedDatetime,
+    facebook_account: facebookAccount,
     twitter_account: twitterAccount,
+    github_account: githubAccount,
+    youtube_account: youtubeAccount,
+    google_site_verification: googleSiteVerification,
   } = await res.json();
 
   return {
@@ -164,11 +179,15 @@ export async function getBlog(blogId: number = 1): Promise<Blog> {
     indexing,
     path: '/',
     createdAt: new Date(generatedDatetime),
+    facebookAccount,
     twitterAccount,
+    githubAccount,
+    youtubeAccount,
+    googleSiteVerification,
   };
 }
 
-export async function getOGP(acmsContext: AcmsContext = {}): Promise<Metadata> {
+export async function getOgp(acmsContext: AcmsContext = {}): Promise<Ogp> {
   const endpoint = new URL(acmsPath({ ...acmsContext, api: 'ogp' }), API_HOST);
   const res = await fetch(endpoint, {
     headers: new Headers({
@@ -176,8 +195,6 @@ export async function getOGP(acmsContext: AcmsContext = {}): Promise<Metadata> {
     }),
     cache: 'no-cache',
   });
-
-  const { name, twitterAccount } = await getBlog(1);
 
   // The return value is *not* serialized
   // You can return Date, Map, Set, etc.
@@ -190,12 +207,35 @@ export async function getOGP(acmsContext: AcmsContext = {}): Promise<Metadata> {
     title = '',
     description = '',
     keywords = '',
-    image = '',
-    'image@x': imageX = 0,
-    'image@y': imageY = 0,
+    image: imagePath = '',
+    'image@x': imageWidth = 0,
+    'image@y': imageHeight = 0,
   } = await res.json();
 
-  const { entry, page, tag, searchParams } = acmsContext;
+  return {
+    title,
+    description,
+    keywords,
+    ...(imagePath !== ''
+      ? {
+          image: {
+            path: imagePath,
+            width: imageWidth,
+            height: imageHeight,
+          },
+        }
+      : {}),
+  };
+}
+
+export async function getMetadata(
+  acmsContext: AcmsContext = {},
+): Promise<Metadata> {
+  const { title, description, keywords, image } = await getOgp(acmsContext);
+
+  const { name, twitterAccount, googleSiteVerification } = await getRootBlog();
+
+  const { blog, category, entry, page, tag, searchParams } = acmsContext;
 
   function isNoIndex() {
     if (page != null) {
@@ -221,15 +261,19 @@ export async function getOGP(acmsContext: AcmsContext = {}): Promise<Metadata> {
     openGraph: {
       title,
       description: deleteNewLine(truncate(description, 350)),
-      url: BASE_URL,
+      url: acmsPath({ blog, category, entry }) || '/',
       siteName: name,
-      images: [
-        {
-          url: `${MEDIA_BASE_URL}${image}`,
-          width: imageX,
-          height: imageY,
-        },
-      ],
+      ...(image
+        ? {
+            images: [
+              {
+                url: `${MEDIA_BASE_URL}${image.path}`,
+                width: image.width,
+                height: image.height,
+              },
+            ],
+          }
+        : {}),
       locale: 'ja_JP',
       type: entry ? 'article' : 'website',
     },
@@ -238,10 +282,19 @@ export async function getOGP(acmsContext: AcmsContext = {}): Promise<Metadata> {
       title,
       description: deleteNewLine(truncate(description, 350)),
       creator: `@${twitterAccount}`,
-      images: {
-        url: `${MEDIA_BASE_URL}${image}`,
-      },
+      ...(image
+        ? {
+            image: `${MEDIA_BASE_URL}${image.path}`,
+          }
+        : {}),
     },
+    ...(googleSiteVerification
+      ? {
+          verification: {
+            google: googleSiteVerification,
+          },
+        }
+      : {}),
     formatDetection: {
       email: false,
       address: false,

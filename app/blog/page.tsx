@@ -1,11 +1,11 @@
 import { Container, EmptyState, EntryList, Pagination } from '@/app/components';
 import { getBlogEntries } from './api';
 import { Metadata } from 'next';
-import { getOGP } from '../api';
+import { getMetadata } from '../api';
 import { Suspense } from 'react';
 
 export async function generateMetadata(): Promise<Metadata> {
-  return await getOGP({ blog: 'blog' });
+  return await getMetadata({ blog: 'blog' });
 }
 
 export default async function BlogIndexPage() {

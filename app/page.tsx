@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { EmptyState, Container, EntryList } from '@/app/components';
-import { getBlogEntries, getOGP } from '@/app/api';
+import { getBlogEntries, getMetadata } from '@/app/api';
 import { Metadata } from 'next';
 
 export async function generateMetadata(): Promise<Metadata> {
-  return await getOGP();
+  return await getMetadata();
 }
 
 export default async function HomePage() {

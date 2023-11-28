@@ -9,8 +9,9 @@ import {
   TagList,
 } from '@/app/components';
 import { Metadata } from 'next';
-import { getOGP } from '@/app/api';
+import { getMetadata } from '@/app/api';
 import dynamic from 'next/dynamic';
+import { acmsPath } from '@/app/lib';
 
 const SmartPhotoJs = dynamic(
   () => import('@/app/components/SmartPhoto/SmartPhotoJs'),
@@ -22,7 +23,21 @@ export async function generateMetadata({
 }: {
   params: { code: string };
 }): Promise<Metadata> {
-  return await getOGP({ blog: 'blog', entry: params.code });
+  const { openGraph, twitter, ...rest } = await getMetadata({
+    blog: 'blog',
+    entry: params.code,
+  });
+  // OGP画像は動的生成した画像を利用する
+  delete openGraph?.images;
+  delete twitter?.images;
+  return {
+    ...rest,
+    openGraph,
+    twitter,
+    alternates: {
+      canonical: acmsPath({ blog: 'blog', entry: params.code }),
+    },
+  };
 }
 
 export async function generateStaticParams() {

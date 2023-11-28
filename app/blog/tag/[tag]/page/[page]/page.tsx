@@ -9,7 +9,7 @@ import {
 import { getBlogEntries } from '../../../../api';
 import { range } from '@/app/utils';
 import { Metadata } from 'next';
-import { getOGP } from '@/app/api';
+import { getMetadata } from '@/app/api';
 import { Suspense } from 'react';
 
 type Props = {
@@ -19,7 +19,7 @@ type Props = {
 export async function generateMetadata({
   params: { tag, page },
 }: Props): Promise<Metadata> {
-  return await getOGP({
+  return await getMetadata({
     blog: 'blog',
     page: parseInt(page, 10),
     tag: [decodeURIComponent(tag)],

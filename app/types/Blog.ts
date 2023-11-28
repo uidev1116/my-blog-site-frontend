@@ -10,5 +10,17 @@ export type Blog = {
   indexing: 'on' | 'off';
   path: string;
   createdAt: Date;
+};
+
+export type RootBlog = Blog & {
   twitterAccount?: string;
+  facebookAccount?: string;
+  githubAccount?: string;
+  youtubeAccount?: string;
+  googleAnalytics?: string;
+  googleSiteVerification?: string;
+};
+
+export type BlogBlog = Blog & {
+  ogpImageBasePath?: string;
 };

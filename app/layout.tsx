@@ -1,4 +1,5 @@
-import { Header, Footer } from './components';
+import { Suspense } from 'react';
+import { Header, Footer, NextNProgress } from './components';
 import './globals.css';
 
 export default function RootLayout({
@@ -12,6 +13,12 @@ export default function RootLayout({
         <Header />
         {children}
         <Footer />
+        <Suspense>
+          <NextNProgress
+            color="#fde047" // primary color by tailwind.config.js
+            showSpinner={false}
+          />
+        </Suspense>
       </body>
     </html>
   );

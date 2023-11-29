@@ -9,6 +9,7 @@ export * from './EmptyState';
 export * from './EntryList';
 export * from './Footer';
 export * from './Header';
+export * from './NextNProgress';
 export * from './Pagination';
 export * from './SmartPhoto';
 export * from './TagList';

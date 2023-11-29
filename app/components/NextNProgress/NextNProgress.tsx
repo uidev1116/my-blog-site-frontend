@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useSearchParams } from 'next/navigation';
-import * as NProgress from 'nprogress';
+import NProgress from 'nprogress';
 import { useEffect } from 'react';
 
 type Props = {

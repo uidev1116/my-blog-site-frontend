@@ -3,7 +3,7 @@ import { AcmsResponse } from '../types';
 export default class AcmsFetchError<T = any> extends Error {
   code: string;
   request: RequestInfo;
-  response: Response;
+  response: AcmsResponse<T>;
 
   constructor(
     message: string,

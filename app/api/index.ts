@@ -207,7 +207,10 @@ export async function getMetadata(
       return true;
     }
 
-    if (searchParams != null && searchParams.get('keyword') !== null) {
+    if (
+      searchParams != null &&
+      new URLSearchParams(searchParams).get('keyword') !== null
+    ) {
       return true;
     }
 

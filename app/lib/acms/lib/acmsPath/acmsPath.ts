@@ -36,7 +36,7 @@ export default function acmsPath(acmsContext: AcmsContext = {}) {
         return `${path}/cid/${value}`;
       }
       if (Array.isArray(value)) {
-        return `${path}/${value.map(encodeUri).join('/')}`;
+        return `${path}/${(value as string[]).map(encodeUri).join('/')}`;
       }
       return `${path}/${encodeUri(value as string)}`;
     }
@@ -84,7 +84,7 @@ export default function acmsPath(acmsContext: AcmsContext = {}) {
 
     if (Array.isArray(value)) {
       return value.length > 0
-        ? `${path}/${key}/${value.map(encodeUri).join('/')}`
+        ? `${path}/${key}/${(value as string[]).map(encodeUri).join('/')}`
         : path;
     }
 

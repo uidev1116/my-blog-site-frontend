@@ -40,10 +40,12 @@ function normalizePath(path: string) {
 export async function getBlogEntries(
   acmsContext: AcmsContext = {},
 ): Promise<EntriesResponse> {
-  const { entry: entries = [], pager } = await acmsClient.get(
+  const { data } = await acmsClient.get(
     { ...acmsContext, blog: 'blog', api: 'summary_index' },
     { requestInit: { cache: resolveRequestCache() } },
   );
+
+  const { entry: entries = [], pager } = data;
 
   return {
     entries: entries.map((entry: any) => ({
@@ -109,7 +111,7 @@ export async function getBlogEntries(
 export async function getTagRelationalEntries(
   entryCode: string,
 ): Promise<BlogEntry[]> {
-  const { 'entry:loop': entries = [] } = await acmsClient.get(
+  const { data } = await acmsClient.get(
     {
       blog: 'blog',
       entry: entryCode,
@@ -117,6 +119,8 @@ export async function getTagRelationalEntries(
     },
     { requestInit: { cache: resolveRequestCache() } },
   );
+
+  const { 'entry:loop': entries = [] } = data;
 
   return entries.map((entry: any) => ({
     id: entry.eid,
@@ -139,7 +143,7 @@ export async function getTagRelationalEntries(
 export async function getBlogEntry(
   entryCode: string,
 ): Promise<BlogEntry | null> {
-  const { entry: entries } = await acmsClient.get(
+  const { data } = await acmsClient.get(
     {
       blog: 'blog',
       entry: entryCode,
@@ -147,6 +151,8 @@ export async function getBlogEntry(
     },
     { requestInit: { cache: resolveRequestCache() } },
   );
+
+  const { entry: entries } = data;
 
   if (!entries.length) {
     return null;
@@ -191,15 +197,17 @@ export async function getBlogEntry(
 }
 
 export async function getTagFilter(tags: string[]): Promise<TagFilterResponse> {
+  const { data } = await acmsClient.get(
+    {
+      blog: 'blog',
+      tag: tags,
+      api: 'tag_filter',
+    },
+    { requestInit: { cache: resolveRequestCache() } },
+  );
+
   const { 'selected:loop': selected = [], 'choice:loop': selectable = [] } =
-    await acmsClient.get(
-      {
-        blog: 'blog',
-        tag: tags,
-        api: 'tag_filter',
-      },
-      { requestInit: { cache: resolveRequestCache() } },
-    );
+    data;
 
   return {
     selected: selected.map(

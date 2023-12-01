@@ -3,13 +3,15 @@ import type { Entry } from '@/app/types';
 import { resolveRequestCache } from '@/app/utils';
 
 export async function getProfileEntry(): Promise<Entry | null> {
-  const { entry: entries } = await acmsClient.get(
+  const { data } = await acmsClient.get(
     {
       category: 'profile',
       api: 'body_detail',
     },
     { requestInit: { cache: resolveRequestCache() } },
   );
+
+  const { entry: entries } = data;
 
   if (!entries.length) {
     return null;

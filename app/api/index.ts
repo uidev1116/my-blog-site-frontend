@@ -38,16 +38,13 @@ type Ogp = {
 };
 
 export async function getBlogEntries(): Promise<EntriesResponse> {
-  const {
-    indexUrl,
-    indexBlogName,
-    entry: entries = [],
-  } = await acmsClient.get<any>(
+  const { data } = await acmsClient.get(
     {
       api: 'summary_top_index',
     },
     { requestInit: { cache: resolveRequestCache() } },
   );
+  const { indexUrl, indexBlogName, entry: entries = [] } = data;
 
   return {
     indexPath: new URL(indexUrl).pathname,
@@ -79,12 +76,14 @@ export async function getBlogEntries(): Promise<EntriesResponse> {
 }
 
 export async function getGlobalNavigation(): Promise<GlobalNavigation[]> {
-  const { 'navigation:loop': navs = [] } = await acmsClient.get(
+  const { data } = await acmsClient.get(
     {
       api: 'navigation_global',
     },
     { requestInit: { cache: resolveRequestCache() } },
   );
+
+  const { 'navigation:loop': navs = [] } = data;
 
   return navs
     .filter((nav: any) => Array.isArray(nav) === false)
@@ -97,12 +96,14 @@ export async function getGlobalNavigation(): Promise<GlobalNavigation[]> {
 }
 
 export async function getFooterNavigation(): Promise<FooterNavigation[]> {
-  const { 'navigation:loop': navs = [] } = await acmsClient.get(
+  const { data } = await acmsClient.get(
     {
       api: 'navigation_footer',
     },
     { requestInit: { cache: resolveRequestCache() } },
   );
+
+  const { 'navigation:loop': navs = [] } = data;
 
   return navs
     .filter((nav: any) => Array.isArray(nav) === false)
@@ -115,6 +116,14 @@ export async function getFooterNavigation(): Promise<FooterNavigation[]> {
 }
 
 export async function getRootBlog(): Promise<RootBlog> {
+  const { data } = await acmsClient.get(
+    {
+      blog: 1,
+      api: 'BF_ctx',
+    },
+    { requestInit: { cache: resolveRequestCache() } },
+  );
+
   const {
     id,
     code = '',
@@ -129,13 +138,7 @@ export async function getRootBlog(): Promise<RootBlog> {
     github_account: githubAccount,
     youtube_account: youtubeAccount,
     google_site_verification: googleSiteVerification,
-  } = await acmsClient.get(
-    {
-      blog: 1,
-      api: 'BF_ctx',
-    },
-    { requestInit: { cache: resolveRequestCache() } },
-  );
+  } = data;
 
   return {
     id,
@@ -156,6 +159,11 @@ export async function getRootBlog(): Promise<RootBlog> {
 }
 
 export async function getOgp(acmsContext: AcmsContext = {}): Promise<Ogp> {
+  const { data } = await acmsClient.get(
+    { ...acmsContext, api: 'ogp' },
+    { requestInit: { cache: resolveRequestCache() } },
+  );
+
   const {
     title = '',
     description = '',
@@ -163,10 +171,7 @@ export async function getOgp(acmsContext: AcmsContext = {}): Promise<Ogp> {
     image: imagePath = '',
     'image@x': imageWidth = 0,
     'image@y': imageHeight = 0,
-  } = await acmsClient.get(
-    { ...acmsContext, api: 'ogp' },
-    { requestInit: { cache: resolveRequestCache() } },
-  );
+  } = data;
 
   return {
     title,

@@ -15,6 +15,7 @@
     "@types/react": "18.2.15",
     "@types/react-dom": "18.2.7",
     "clsx": "^2.0.0",
+    "cross-fetch": "^4.0.0",
     "date-fns": "^2.30.0",
     "deepmerge": "^4.3.1",
     "document-outliner": "^1.1.3",

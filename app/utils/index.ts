@@ -1,6 +1,9 @@
 export { default as deleteNewLine } from './deleteNewLine';
+export { default as isDateString } from './isDateString';
 export { default as isExternalLink } from './isExternalLink';
 export { default as groupByUnitGroup } from './groupByUnitGroup';
+export { default as isNumber } from './isNumber';
+export { default as isObject } from './isObject';
 export { default as isString } from './isString';
 export { default as encodeUri } from './encodeUri';
 export { default as range } from './range';

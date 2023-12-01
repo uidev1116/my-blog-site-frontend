@@ -63,10 +63,12 @@ export default class AcmsClient {
       endpoint = new URL(acmsPath({ ...acmsContextOrUrl }), this.baseUrl);
     }
 
-    const fetch = createFetch(this.apiKey);
+    const fetch = createFetch();
 
     try {
-      const { request, response } = await fetch(endpoint, requestInit);
+      const request = this.createRequest(endpoint, requestInit);
+      const response = await fetch(request);
+
       const { ok, status, statusText, headers } = response;
       const data = await response[responseType]();
       const acmsResponse: AcmsResponse<T> = {
@@ -97,6 +99,16 @@ export default class AcmsClient {
     } catch (error) {
       return Promise.reject(new Error(`Network Error.\n  Details: ${error}`));
     }
+  }
+
+  private createRequest(input: URL | RequestInfo, init?: RequestInit) {
+    const headers = new Headers(init?.headers);
+
+    if (!headers.has('X-API-KEY')) {
+      headers.set('X-API-KEY', this.apiKey);
+    }
+
+    return new Request(input, { ...init, headers });
   }
 
   public async get<T = any>(

@@ -7,7 +7,7 @@ export default function acmsPath(acmsContext: AcmsContext = {}) {
     'blog',
     'category',
     'entry',
-    'uid',
+    'user',
     'tag',
     'field',
     'span',
@@ -48,6 +48,10 @@ export default function acmsPath(acmsContext: AcmsContext = {}) {
       return `${path}/${encodeUri(value as string)}`;
     }
 
+    if (key === 'user') {
+      return `${path}/uid/${value as number}`;
+    }
+
     if (key === 'field') {
       return `${path}/field/${(value as string)
         .split('/')
@@ -75,7 +79,13 @@ export default function acmsPath(acmsContext: AcmsContext = {}) {
       if (acmsContext.span != null) {
         return path;
       }
-      return `${path}/${(value as Required<AcmsContext>['date']).join('/')}`;
+      const { year, month, day } = value as Required<AcmsContext>['date'];
+      return [year, month, day].reduce((path, value) => {
+        if (value == null) {
+          return path;
+        }
+        return `${path}/${value}`;
+      }, path);
     }
 
     if (key === 'page') {

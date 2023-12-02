@@ -23,9 +23,9 @@ describe('entry', () => {
   });
 });
 
-describe('uid', () => {
-  test('work with uid context', () => {
-    expect(acmsPath({ uid: 1 })).toBe('uid/1');
+describe('user', () => {
+  test('work with user context', () => {
+    expect(acmsPath({ user: 1 })).toBe('uid/1');
   });
 });
 
@@ -96,14 +96,22 @@ describe('span', () => {
 
 describe('date', () => {
   test('work with date context', () => {
-    expect(acmsPath({ blog: 'blog', category: 'category', date: [2015] })).toBe(
-      'blog/category/2015',
-    );
     expect(
-      acmsPath({ blog: 'blog', category: 'category', date: [2015, 12] }),
+      acmsPath({ blog: 'blog', category: 'category', date: { year: 2015 } }),
+    ).toBe('blog/category/2015');
+    expect(
+      acmsPath({
+        blog: 'blog',
+        category: 'category',
+        date: { year: 2015, month: 12 },
+      }),
     ).toBe('blog/category/2015/12');
     expect(
-      acmsPath({ blog: 'blog', category: 'category', date: [2015, 12, 19] }),
+      acmsPath({
+        blog: 'blog',
+        category: 'category',
+        date: { year: 2015, month: 12, day: 19 },
+      }),
     ).toBe('blog/category/2015/12/19');
   });
 });

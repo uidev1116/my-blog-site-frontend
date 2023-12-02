@@ -1,7 +1,7 @@
 import { isString } from '@/app/utils';
 import { AcmsContext, acmsPath } from '../..';
 import { getMessageFromResponse } from '../utils';
-import createFetch from '../lib/fetch';
+import createFetch, { createHeaders, createRequest } from '../lib/fetch';
 import { AcmsClientConfig, AcmsResponse } from '../types';
 import { AcmsFetchError } from '.';
 
@@ -17,12 +17,11 @@ export default class AcmsClient {
   constructor({
     baseUrl,
     apiKey,
-    options = {},
+    ...options
   }: {
     baseUrl: string;
     apiKey: string;
-    options?: Partial<AcmsClientConfig>;
-  }) {
+  } & Partial<AcmsClientConfig>) {
     if (!baseUrl) {
       throw new Error('baseUrl is required.');
     }
@@ -52,21 +51,13 @@ export default class AcmsClient {
   ): Promise<AcmsResponse<T>> {
     const config = { ...this.config, ...options };
     const { requestInit, responseType } = config;
-
-    let endpoint: URL;
-
-    if (isString(acmsContextOrUrl)) {
-      endpoint = new URL(acmsContextOrUrl, this.baseUrl);
-    } else if (acmsContextOrUrl instanceof URL) {
-      endpoint = new URL(acmsContextOrUrl, this.baseUrl);
-    } else {
-      endpoint = new URL(acmsPath({ ...acmsContextOrUrl }), this.baseUrl);
-    }
-
     const fetch = createFetch();
 
     try {
-      const request = this.createRequest(endpoint, requestInit);
+      const request = this.createRequest(
+        this.createUrl(acmsContextOrUrl),
+        requestInit,
+      );
       const response = await fetch(request);
 
       const { ok, status, statusText, headers } = response;
@@ -102,13 +93,23 @@ export default class AcmsClient {
   }
 
   private createRequest(input: URL | RequestInfo, init?: RequestInit) {
-    const headers = new Headers(init?.headers);
+    const headers = createHeaders(init?.headers);
 
     if (!headers.has('X-API-KEY')) {
       headers.set('X-API-KEY', this.apiKey);
     }
 
-    return new Request(input, { ...init, headers });
+    return createRequest(input, { ...init, headers });
+  }
+
+  private createUrl(acmsContextOrUrl: AcmsContext | URL | string) {
+    if (isString(acmsContextOrUrl)) {
+      return new URL(acmsContextOrUrl, this.baseUrl);
+    }
+    if (acmsContextOrUrl instanceof URL) {
+      return new URL(acmsContextOrUrl, this.baseUrl);
+    }
+    return new URL(acmsPath({ ...acmsContextOrUrl }), this.baseUrl);
   }
 
   public async get<T = any>(

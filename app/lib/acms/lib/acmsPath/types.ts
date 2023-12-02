@@ -1,15 +1,13 @@
-// To-do: field, span
+// To-do: fieldをより簡単に書けるようにする
 export type AcmsContext = {
   blog?: string | number;
   category?: string | string[] | number;
   entry?: string | number;
-  uid?: number;
+  user?: number;
   tag?: string[];
   field?: string;
-  start?: string | Date;
   span?: { start?: string | Date; end?: string | Date };
-  end?: string | Date;
-  date?: number[];
+  date?: { year?: number; month?: number; day?: number };
   page?: number;
   order?: string;
   limit?: number;

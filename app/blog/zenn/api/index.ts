@@ -2,7 +2,7 @@ import { ZennArticle } from '@/app/types';
 
 const ZENN_URL = 'https://zenn.dev';
 const ZENN_API_HOST = `${ZENN_URL}/api/`;
-const ZENN_USER_NAME = '';
+const ZENN_USER_NAME = 'uidev1116';
 
 export type ZennArticleResponse = {
   articles: ZennArticle[];

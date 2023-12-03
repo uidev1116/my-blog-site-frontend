@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { getZennArticles } from './api';
 
 export async function generateMetadata(): Promise<Metadata> {
-  return await getMetadata({ blog: 'blog' });
+  return await getMetadata({ blog: 'blog', category: 'zenn' });
 }
 
 export default async function ZennArticlesPage() {

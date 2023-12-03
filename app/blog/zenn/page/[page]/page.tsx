@@ -10,8 +10,16 @@ import { getMetadata } from '@/app/api';
 import Link from 'next/link';
 import { getZennArticles } from '../../api';
 
-export async function generateMetadata(): Promise<Metadata> {
-  return await getMetadata({ blog: 'blog' });
+export async function generateMetadata({
+  params,
+}: {
+  params: { page: string };
+}): Promise<Metadata> {
+  return await getMetadata({
+    blog: 'blog',
+    category: 'zenn',
+    page: parseInt(params.page, 10),
+  });
 }
 
 export default async function ZennArticlesPage({

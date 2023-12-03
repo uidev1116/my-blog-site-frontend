@@ -31,11 +31,11 @@ export default async function HomePage() {
             <div className="flex justify-end">
               <Link
                 href={indexPath}
-                className="inline-flex items-center rounded-lg bg-stone-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-stone-900 focus:outline-none focus:ring-4 focus:ring-stone-300 dark:bg-stone-900 dark:hover:bg-stone-700 dark:focus:ring-stone-900"
+                className="flex h-10 items-center justify-center rounded-lg border border-gray-300 bg-white px-4 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
               >
                 {`${indexBlogName}一覧`}
                 <svg
-                  className="ml-2 h-3.5 w-3.5"
+                  className="ms-2 h-3.5 w-3.5 rtl:rotate-180"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"

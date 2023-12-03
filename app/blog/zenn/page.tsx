@@ -35,7 +35,7 @@ export default async function ZennArticlesPage() {
                 <Tab>
                   <Link
                     href="/blog/zenn/"
-                    className="inline-block rounded-t-lg border-b-2 border-primary border-transparent p-4"
+                    className="inline-block rounded-t-lg border-b-2 border-primary p-4"
                     aria-current="page"
                   >
                     Zenn

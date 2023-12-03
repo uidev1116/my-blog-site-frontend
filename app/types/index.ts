@@ -1,5 +1,6 @@
 export * from './enums';
 export * from './units';
+export * from './zenn';
 export * from './Blog';
 export * from './Category';
 export * from './Entry';

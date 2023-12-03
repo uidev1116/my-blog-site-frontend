@@ -5,6 +5,8 @@ import {
   Container,
   EmptyState,
   EntryList,
+  TabList,
+  Tab,
 } from '@/app/components';
 import { getBlogEntries } from '../../api';
 import { getAllBlogTags } from '../api';
@@ -49,41 +51,72 @@ export default async function BlogIndexPage({ params: { tag } }: Props) {
   return (
     <Container>
       <main>
-        <div className="flex flex-col gap-12">
-          <div>
-            <div className="mb-4 flex items-center justify-between">
-              <div className="m-1 inline-flex flex-1">
-                <span>
-                  <span className="text-sm">タグ:</span>
-                </span>
-                <span className="inline-flex flex-1 flex-wrap items-center gap-2 px-3 py-0.5 text-sm">
-                  <span>
-                    <Badge>{tagName}</Badge>
-                  </span>
-                </span>
-              </div>
-              <div>
-                <span className="text-sm text-gray-700 hover:text-primary-darkest">
-                  <Link href="/blog/">全て表示する</Link>
-                </span>
-              </div>
+        <div>
+          <div className="flex flex-col gap-10">
+            <TabList>
+              <Tab>
+                <Link
+                  href="/blog/"
+                  className="inline-block rounded-t-lg border-b-2 border-primary border-transparent p-4"
+                  aria-current="page"
+                >
+                  Blog
+                </Link>
+              </Tab>
+              <Tab>
+                <Link
+                  href="/blog/zenn/"
+                  className="inline-block rounded-t-lg border-b-2 border-transparent p-4 hover:border-gray-300 hover:text-gray-600 dark:hover:text-gray-300"
+                >
+                  Zenn
+                </Link>
+              </Tab>
+            </TabList>
+            <div>
+              {entries.length > 0 ? (
+                <div className="flex flex-col gap-10">
+                  <div>
+                    <div className="mb-4 flex items-center justify-between">
+                      <div className="m-1 inline-flex flex-1">
+                        <span>
+                          <span className="text-sm">タグ:</span>
+                        </span>
+                        <span className="inline-flex flex-1 flex-wrap items-center gap-2 px-3 py-0.5 text-sm">
+                          <span>
+                            <Badge>{tagName}</Badge>
+                          </span>
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-sm text-gray-700 hover:text-primary-darkest">
+                          <Link href="/blog/">全て表示する</Link>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-12">
+                    <div>
+                      <EntryList entries={entries} />
+                    </div>
+                    {pager !== undefined && pager.pages.length > 0 && (
+                      <Suspense>
+                        <div className="flex justify-center">
+                          <Pagination
+                            currentPage={1}
+                            previous={pager?.previous}
+                            pages={pager?.pages}
+                            next={pager.next}
+                          />
+                        </div>
+                      </Suspense>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <EmptyState />
+              )}
             </div>
           </div>
-          <div>
-            <EntryList entries={entries} />
-          </div>
-          {pager !== undefined && pager.pages.length > 0 && (
-            <Suspense>
-              <div className="flex justify-center">
-                <Pagination
-                  currentPage={1}
-                  previous={pager?.previous}
-                  pages={pager?.pages}
-                  next={pager.next}
-                />
-              </div>
-            </Suspense>
-          )}
         </div>
       </main>
     </Container>

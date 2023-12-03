@@ -1,8 +1,16 @@
-import { Container, EmptyState, EntryList, Pagination } from '@/app/components';
+import {
+  Container,
+  EmptyState,
+  EntryList,
+  Pagination,
+  TabList,
+  Tab,
+} from '@/app/components';
 import { getBlogEntries } from './api';
 import { Metadata } from 'next';
 import { getMetadata } from '../api';
 import { Suspense } from 'react';
+import Link from 'next/link';
 
 export async function generateMetadata(): Promise<Metadata> {
   return await getMetadata({ blog: 'blog' });
@@ -11,35 +19,56 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function BlogIndexPage() {
   const { entries, pager } = await getBlogEntries();
 
-  if (entries.length === 0) {
-    return (
-      <Container>
-        <main>
-          <EmptyState />
-        </main>
-      </Container>
-    );
-  }
-
   return (
     <Container>
       <main>
-        <div className="flex flex-col gap-12">
+        <div>
           <div>
-            <EntryList entries={entries} />
-          </div>
-          {pager !== undefined && pager.pages.length > 0 && (
-            <Suspense>
-              <div className="flex justify-center">
-                <Pagination
-                  currentPage={1}
-                  previous={pager?.previous}
-                  pages={pager?.pages}
-                  next={pager.next}
-                />
+            <div className="flex flex-col gap-10">
+              <TabList>
+                <Tab>
+                  <Link
+                    href="/blog/"
+                    className="inline-block rounded-t-lg border-b-2 border-primary border-transparent p-4"
+                    aria-current="page"
+                  >
+                    Blog
+                  </Link>
+                </Tab>
+                <Tab>
+                  <Link
+                    href="/blog/zenn/"
+                    className="inline-block rounded-t-lg border-b-2 border-transparent p-4 hover:border-gray-300 hover:text-gray-600 dark:hover:text-gray-300"
+                  >
+                    Zenn
+                  </Link>
+                </Tab>
+              </TabList>
+              <div>
+                {entries.length > 0 ? (
+                  <div className="flex flex-col gap-12">
+                    <div>
+                      <EntryList entries={entries} />
+                    </div>
+                    {pager !== undefined && pager.pages.length > 0 && (
+                      <Suspense>
+                        <div className="flex justify-center">
+                          <Pagination
+                            currentPage={1}
+                            previous={pager?.previous}
+                            pages={pager?.pages}
+                            next={pager.next}
+                          />
+                        </div>
+                      </Suspense>
+                    )}
+                  </div>
+                ) : (
+                  <EmptyState />
+                )}
               </div>
-            </Suspense>
-          )}
+            </div>
+          </div>
         </div>
       </main>
     </Container>

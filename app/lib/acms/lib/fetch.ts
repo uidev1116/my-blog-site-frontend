@@ -7,19 +7,16 @@ export default function createFetch(): typeof fetch {
   return fetch;
 }
 
-export function createHeaders(init?: HeadersInit | undefined) {
+export function createHeaders(...args: ConstructorParameters<typeof Headers>) {
   if (typeof Headers === 'undefined') {
-    return new polyfill.Headers(init);
+    return new polyfill.Headers(...args);
   }
-  return new Headers(init);
+  return new Headers(...args);
 }
 
-export function createRequest(
-  input: URL | RequestInfo,
-  init?: RequestInit | undefined,
-) {
+export function createRequest(...args: ConstructorParameters<typeof Request>) {
   if (typeof Request === 'undefined') {
-    return new polyfill.Request(input, init);
+    return new polyfill.Request(...args);
   }
-  return new Request(input, init);
+  return new Request(...args);
 }

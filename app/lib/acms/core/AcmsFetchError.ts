@@ -1,9 +1,9 @@
 import { AcmsResponse } from '../types';
 
 export default class AcmsFetchError<T = any> extends Error {
-  code: string;
-  request: RequestInfo;
-  response: AcmsResponse<T>;
+  public code: string;
+  public request: Request;
+  public response: AcmsResponse<T>;
 
   constructor(
     message: string,

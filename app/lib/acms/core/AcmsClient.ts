@@ -4,6 +4,7 @@ import { getMessageFromResponse } from '../utils';
 import createFetch, { createHeaders, createRequest } from '../lib/fetch';
 import { AcmsClientConfig, AcmsResponse } from '../types';
 import { AcmsFetchError } from '.';
+import isAcmsFetchError from '../lib/isAcmsFetchError';
 
 const defaultOptions: AcmsClientConfig = {
   responseType: 'json',
@@ -116,6 +117,13 @@ export default class AcmsClient {
     acmsContextOrUrl: AcmsContext | URL | string,
     options: Partial<AcmsClientConfig> = {},
   ): Promise<AcmsResponse<T>> {
-    return this.request<T>(acmsContextOrUrl, options);
+    return this.request<T>(acmsContextOrUrl, {
+      ...options,
+      requestInit: { ...options.requestInit, method: 'GET' },
+    });
+  }
+
+  public static isAcmsFetchError(payload: any) {
+    return isAcmsFetchError(payload);
   }
 }

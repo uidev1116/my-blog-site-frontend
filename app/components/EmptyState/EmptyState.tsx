@@ -5,7 +5,7 @@ export default function EmptyState({
   children = <p>お探しの記事が見つかりませんでした。</p>,
 }: Props) {
   return (
-    <div className="container mx-auto flex flex-wrap items-center justify-between rounded-md bg-white dark:bg-slate-500">
+    <div className="mx-auto flex flex-wrap items-center justify-between rounded-md bg-white dark:bg-slate-500">
       <div className="flex w-full justify-center rounded-md border-2 border-dashed border-slate-200 p-20 dark:border-slate-100">
         <div className="text-center">
           <div className="mb-4 grid place-items-center">

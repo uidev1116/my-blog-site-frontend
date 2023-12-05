@@ -2,7 +2,7 @@
 
 import type { Entry } from '@/app/types';
 import type { UseComboboxActions, UseComboboxStateChange } from 'downshift';
-import { ComponentProps, useState } from 'react';
+import { ComponentProps, Suspense, useState } from 'react';
 import { encodeUri } from '@/app/utils';
 import { clsx } from 'clsx';
 import { ReadonlyURLSearchParams, useRouter } from 'next/navigation';
@@ -155,18 +155,20 @@ export default function BlogSearchForm() {
   }
 
   return (
-    <form action="" role="search" onSubmit={handleSubmit}>
-      <ComboBox
-        id="search-navbar"
-        items={entries}
-        onInputValueChange={handleInputValueChange}
-        onSelectedItemChange={handleSelectedItemChange}
-        itemToString={itemToString}
-        renderInput={renderInput}
-        renderMenu={renderMenu}
-        renderOption={renderOption}
-        onPageChange={handlePageChange}
-      />
-    </form>
+    <Suspense>
+      <form action="" role="search" onSubmit={handleSubmit}>
+        <ComboBox
+          id="search-navbar"
+          items={entries}
+          onInputValueChange={handleInputValueChange}
+          onSelectedItemChange={handleSelectedItemChange}
+          itemToString={itemToString}
+          renderInput={renderInput}
+          renderMenu={renderMenu}
+          renderOption={renderOption}
+          onPageChange={handlePageChange}
+        />
+      </form>
+    </Suspense>
   );
 }

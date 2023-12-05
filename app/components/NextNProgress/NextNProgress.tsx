@@ -166,6 +166,7 @@ export default function NextNProgress({
             (anchor as HTMLAnchorElement).target === '_blank';
           const isBlob = newUrl.startsWith('blob:');
           const isAnchor = isAnchorOfCurrentUrl(currentUrl, newUrl);
+
           if (
             newUrl === currentUrl ||
             isAnchor ||
@@ -178,18 +179,6 @@ export default function NextNProgress({
             [].forEach.call(npgclass, function (el: Element) {
               el.classList.remove('nprogress-busy');
             });
-          } else {
-            NProgress.start();
-            (function (history) {
-              const pushState = history.pushState;
-              history.pushState = function () {
-                NProgress.done();
-                [].forEach.call(npgclass, function (el: Element) {
-                  el.classList.remove('nprogress-busy');
-                });
-                return pushState.apply(history, arguments as any);
-              };
-            })(window.history);
           }
         }
       } catch (err) {

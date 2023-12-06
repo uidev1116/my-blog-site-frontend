@@ -1,5 +1,6 @@
 'use client';
 
+import { usePageChange } from '@/app/hooks';
 import {
   documentOutliner,
   externalLinks,
@@ -7,10 +8,10 @@ import {
   scrollHint,
   smartPhoto,
 } from '@/app/lib/buildIn';
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 
-export default function BuildInJs() {
-  useEffect(() => {
+function BuildInJs() {
+  usePageChange(() => {
     if (typeof window !== 'undefined') {
       ((context: Document | Element) => {
         externalLinks(context);
@@ -20,6 +21,14 @@ export default function BuildInJs() {
         documentOutliner(context);
       })(document);
     }
-  }, []);
+  });
   return null;
+}
+
+export default function BuildInJsSuspense() {
+  return (
+    <Suspense fallback={null}>
+      <BuildInJs />
+    </Suspense>
+  );
 }

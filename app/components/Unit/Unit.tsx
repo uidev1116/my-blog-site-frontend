@@ -3,12 +3,14 @@ import {
   isMediaUnit,
   isRichEditorUnit,
   isTableUnit,
+  isOpenStreetMapUnit,
 } from '@/app/types';
 import {
   TextUnit,
   MediaUnit,
   RichEditorUnit,
   TableUnit,
+  OpenStreetMapUnit,
 } from '@/app/components';
 import type { Unit as UnitType } from '@/app/types';
 
@@ -33,5 +35,9 @@ export default function Unit({ unit }: Props) {
     return <RichEditorUnit {...unit} />;
   }
 
-  return <></>;
+  if (isOpenStreetMapUnit(unit)) {
+    return <OpenStreetMapUnit {...unit} />;
+  }
+
+  return null;
 }

@@ -1,9 +1,12 @@
 import type { Unit, TableUnit } from '@/app/types';
 
-export default function TableUnit({ align, table }: Unit<TableUnit>) {
+export default function TableUnit({ table }: Unit<TableUnit>) {
   return (
     <div>
-      <div dangerouslySetInnerHTML={{ __html: table }} />
+      <div
+        className="my-[2em] overflow-x-auto"
+        dangerouslySetInnerHTML={{ __html: table }}
+      />
     </div>
   );
 }

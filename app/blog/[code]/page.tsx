@@ -1,22 +1,10 @@
 import { notFound } from 'next/navigation';
 import { formatISO9075, format } from 'date-fns';
 import { getBlogEntries, getTagRelationalEntries, getBlogEntry } from '../api';
-import {
-  UnitIndex,
-  DocumentOutlierJs,
-  Container,
-  EntryList,
-  TagList,
-} from '@/app/components';
+import { UnitIndex, Container, EntryList, TagList } from '@/app/components';
 import { Metadata } from 'next';
 import { getMetadata } from '@/app/api';
-import dynamic from 'next/dynamic';
 import { acmsPath } from '@/app/lib';
-
-const SmartPhotoJs = dynamic(
-  () => import('@/app/components/SmartPhoto/SmartPhotoJs'),
-  { ssr: false },
-);
 
 export async function generateMetadata({
   params,
@@ -99,22 +87,11 @@ export default async function BlogDetailPage({
                       />
                     </div>
                   </div>
-                  <div className="js-outline">
+                  <div className="js-outline" data-target=".js-outline-yield">
                     <UnitIndex units={entry.units} />
                   </div>
-                  <DocumentOutlierJs
-                    options={{
-                      listClassName:
-                        'pl-4 [&.level-1]:relative [&.level-1]:border-l [&.level-1]:border-gray-200 [&.level-1]:dark:border-gray-700 ',
-                      itemClassName:
-                        "before:content[''] before:absolute before:w-2.5 before:h-2.5 before:bg-gray-200 before:rounded-full before:mt-3 before:-left-1.5 before:border-2 before:border-white before:dark:border-gray-900 before:dark:bg-gray-700 [.level-1>&]:before:w-3 [.level-1>&]:before:h-3 [.level-1>&]:before:border",
-                      linkClassName:
-                        'block text-gray-900 focus:ring-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:focus:ring-gray-700 bg-white text-sm/base my-2 font-medium hover:text-primary-darkest focus:z-10 focus:text-primary-darkest focus:outline-none',
-                    }}
-                  />
                 </div>
               )}
-              <SmartPhotoJs />
             </article>
           </div>
         </main>

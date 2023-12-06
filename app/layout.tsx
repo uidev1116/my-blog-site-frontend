@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Header, Footer, NextNProgress } from './components';
+import { Header, Footer, NextNProgress, BuildInJs } from './components';
 import './globals.css';
 
 export default function RootLayout({
@@ -10,6 +10,7 @@ export default function RootLayout({
   return (
     <html lang="ja" className="scroll-pt-2 scroll-smooth">
       <body>
+        <BuildInJs />
         <Header />
         {children}
         <Footer />

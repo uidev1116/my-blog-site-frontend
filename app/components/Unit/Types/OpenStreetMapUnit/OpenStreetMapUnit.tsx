@@ -1,7 +1,6 @@
 import type { Unit, OpenStreetMapUnit } from '@/app/types';
 
 export default function OpenStreetMapUnit({
-  align,
   displaySize,
   lat,
   lng,
@@ -11,9 +10,9 @@ export default function OpenStreetMapUnit({
   y,
 }: Unit<OpenStreetMapUnit>) {
   return (
-    <div className={`column-map-${align} js_notStyle ${displaySize}`}>
+    <div className="w-100">
       <div
-        className="js-open-street-map"
+        className="js-open-street-map max-w-full"
         data-lazy="true"
         data-lat={lat}
         data-lng={lng}

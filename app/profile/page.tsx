@@ -3,12 +3,6 @@ import { getProfileEntry } from './api';
 import { UnitIndex, Container } from '../components';
 import { Metadata } from 'next';
 import { getMetadata } from '../api';
-import dynamic from 'next/dynamic';
-
-const SmartPhotoJs = dynamic(
-  () => import('../components/SmartPhoto/SmartPhotoJs'),
-  { ssr: false },
-);
 
 export async function generateMetadata(): Promise<Metadata> {
   const { openGraph, ...rest } = await getMetadata({ category: 'profile' });
@@ -39,7 +33,6 @@ export default async function ProfilePage() {
               </h1>
             </header>
             {entry.units !== undefined && <UnitIndex units={entry.units} />}
-            <SmartPhotoJs />
           </article>
         </div>
       </main>

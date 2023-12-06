@@ -1,3 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.smartphoto {
+  @apply !z-[1001];
+}

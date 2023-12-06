@@ -1,10 +1,33 @@
-import nl2br from 'react-nl2br';
 import ReactMarkdown from 'react-markdown';
+import parse, {
+  HTMLReactParserOptions,
+  domToReact,
+  Element,
+  attributesToProps,
+  DOMNode,
+} from 'html-react-parser';
 import type { Unit, TextUnit } from '@/app/types';
+import { nl2br } from '@/app/utils';
+import Link from 'next/link';
+
+const options: HTMLReactParserOptions = {
+  replace(domNode) {
+    if (domNode instanceof Element && domNode.attribs) {
+      if (domNode.tagName === 'a') {
+        const { href, ...rest } = domNode.attribs;
+        return (
+          <Link href={href} {...attributesToProps(rest)}>
+            {domToReact(domNode.children as DOMNode[], options)}
+          </Link>
+        );
+      }
+    }
+  },
+};
 
 function getClassName(attr: string) {
   // class="〇〇"を取り出す。
-  return attr.trim().substring(6, attr.trim().length - 1);
+  return attr.trim().substring(6, attr.trim().length - 1) || undefined;
 }
 
 function line2List(string: string): React.ReactElement[] {
@@ -24,11 +47,9 @@ export default function TextUnit({
 }: Unit<TextUnit>) {
   if (tag === 'p') {
     return (
-      <p
-        id={extendTag || undefined}
-        className={getClassName(attr) || undefined}
-        dangerouslySetInnerHTML={{ __html: nl2br(text) }}
-      />
+      <p id={extendTag || undefined} className={getClassName(attr)}>
+        {parse(nl2br(text), options)}
+      </p>
     );
   } else if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tag)) {
     const Heading = tag as Extract<
@@ -36,36 +57,32 @@ export default function TextUnit({
       'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
     >;
     return (
-      <Heading
-        id={extendTag || undefined}
-        className={getClassName(attr) || undefined}
-        dangerouslySetInnerHTML={{ __html: nl2br(text) }}
-      />
+      <Heading id={extendTag || undefined} className={getClassName(attr)}>
+        {parse(nl2br(text), options)}
+      </Heading>
     );
   } else if (['ul', 'ol'].includes(tag)) {
     const List = tag as Extract<typeof tag, 'ol' | 'ul'>;
-    return (
-      <List className={getClassName(attr) || undefined}>{line2List(text)}</List>
-    );
+    return <List className={getClassName(attr)}>{line2List(text)}</List>;
   } else if (tag === 'blockquote') {
     return (
-      <blockquote className={getClassName(attr) || undefined}>
-        <p dangerouslySetInnerHTML={{ __html: nl2br(text) }} />
+      <blockquote className={getClassName(attr)}>
+        <p>{parse(nl2br(text), options)}</p>
       </blockquote>
     );
   } else if (tag === 'pre') {
     return (
-      <pre className="line-numbers">
-        <code className={getClassName(attr) || undefined}>{text}</code>
+      <pre>
+        <code className={getClassName(attr)}>{text}</code>
       </pre>
     );
   } else if (tag === 'none') {
-    return text;
+    return <>{parse(text, options)}</>;
   } else if (tag === 'markdown') {
     return <ReactMarkdown>{text}</ReactMarkdown>;
   } else if (tag === 'wysiwyg') {
-    return <div dangerouslySetInnerHTML={{ __html: text }} />;
+    return <>{parse(text, options)}</>;
   }
 
-  return <p dangerouslySetInnerHTML={{ __html: nl2br(text) }} />;
+  return null;
 }

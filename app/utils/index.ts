@@ -5,6 +5,7 @@ export { default as groupByUnitGroup } from './groupByUnitGroup';
 export { default as isNumber } from './isNumber';
 export { default as isObject } from './isObject';
 export { default as isString } from './isString';
+export { default as nl2br } from './nl2br';
 export { default as encodeUri } from './encodeUri';
 export { default as range } from './range';
 export { default as resolveRequestCache } from './resolveRequestCache';

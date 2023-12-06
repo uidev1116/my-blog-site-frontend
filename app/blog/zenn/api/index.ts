@@ -19,7 +19,17 @@ export async function getZennArticles(
     page: page.toString(),
   });
   const endpoint = new URL(`${ZENN_API_HOST}articles/?${searchParams}`);
-  const res = await fetch(endpoint, { next: { revalidate: 3600 } });
+  const res = await fetch(endpoint, {
+    next: {
+      revalidate: 3600,
+    },
+  });
+
+  if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
+    throw new Error('Failed to fetch data');
+  }
+
   const { articles, next_page } = await res.json();
 
   return {

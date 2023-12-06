@@ -9,6 +9,7 @@ import { Metadata } from 'next';
 import { getMetadata } from '@/app/api';
 import Link from 'next/link';
 import { getZennArticles } from '../../api';
+import { range } from '@/app/utils';
 
 export async function generateMetadata({
   params,
@@ -20,6 +21,26 @@ export async function generateMetadata({
     category: 'zenn',
     page: parseInt(params.page, 10),
   });
+}
+
+async function getZennArticlesPageAmount() {
+  let pageAmount = 1;
+  while (true) {
+    const { nextPage } = await getZennArticles(pageAmount);
+    if (nextPage === null) {
+      break;
+    }
+    pageAmount++;
+  }
+  return pageAmount;
+}
+
+export async function generateStaticParams() {
+  const pageAmount = await getZennArticlesPageAmount();
+
+  return range(1, pageAmount).map((page) => ({
+    page: page.toString(),
+  }));
 }
 
 export default async function ZennArticlesPage({
@@ -49,7 +70,7 @@ export default async function ZennArticlesPage({
                 <Tab>
                   <Link
                     href="/blog/zenn/"
-                    className="inline-block rounded-t-lg border-b-2 border-primary border-transparent p-4"
+                    className="inline-block rounded-t-lg border-b-2 border-primary p-4"
                     aria-current="page"
                   >
                     Zenn

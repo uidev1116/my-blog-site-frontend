@@ -5,7 +5,7 @@ import { useUrlMatch } from '@/app/hooks';
 
 import { BASE_URL } from '@/app/config';
 import clsx from 'clsx';
-import { useMemo } from 'react';
+import { Suspense, useMemo } from 'react';
 
 type Props = {
   href: string;
@@ -14,7 +14,7 @@ type Props = {
   children?: React.ReactNode;
 };
 
-export default function NavLink({ href, target, rel, children }: Props) {
+function NavLinkBase({ href, target, rel, children }: Props) {
   const url = new URL(href, BASE_URL);
   const { isMatchFull, isMatchStart } = useUrlMatch(url);
 
@@ -42,5 +42,13 @@ export default function NavLink({ href, target, rel, children }: Props) {
     >
       {children}
     </Link>
+  );
+}
+
+export default function NavLink(props: Props) {
+  return (
+    <Suspense fallback={null}>
+      <NavLinkBase {...props} />
+    </Suspense>
   );
 }

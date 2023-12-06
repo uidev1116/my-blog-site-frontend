@@ -110,16 +110,14 @@ export default async function BlogIndexPage({
                     <EntryList entries={entries} />
                   </div>
                   {pager !== undefined && pager.pages.length > 0 && (
-                    <Suspense>
-                      <div className="flex justify-center">
-                        <Pagination
-                          currentPage={1}
-                          previous={pager?.previous}
-                          pages={pager?.pages}
-                          next={pager.next}
-                        />
-                      </div>
-                    </Suspense>
+                    <div className="flex justify-center">
+                      <Pagination
+                        currentPage={1}
+                        previous={pager?.previous}
+                        pages={pager?.pages}
+                        next={pager.next}
+                      />
+                    </div>
                   )}
                 </div>
               ) : (

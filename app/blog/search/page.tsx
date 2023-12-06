@@ -80,11 +80,9 @@ export default async function BlogSearchPage({ searchParams }: Props) {
                     <EntryList entries={entries} />
                   </div>
                   {pager !== undefined && pager.pages.length > 0 && (
-                    <Suspense>
-                      <div className="flex justify-center">
-                        <Pagination {...paginationProps} />
-                      </div>
-                    </Suspense>
+                    <div className="flex justify-center">
+                      <Pagination {...paginationProps} />
+                    </div>
                   )}
                 </div>
               ) : (

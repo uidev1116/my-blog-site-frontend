@@ -17,57 +17,53 @@ export default async function Header() {
             </span>
           </a>
           <div className="flex md:order-2">
-            <Suspense>
-              <Collapse
-                toggle="navbar-search"
-                className="mr-1 rounded-lg p-2.5 text-sm text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-700 md:hidden"
+            <Collapse
+              toggle="navbar-search"
+              className="mr-1 rounded-lg p-2.5 text-sm text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-700 md:hidden"
+            >
+              <svg
+                className="h-5 w-5"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 20 20"
               >
-                <svg
-                  className="h-5 w-5"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                  />
-                </svg>
-                <span className="sr-only">Search</span>
-              </Collapse>
-            </Suspense>
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                />
+              </svg>
+              <span className="sr-only">Search</span>
+            </Collapse>
             <div className="hidden md:block">
               <div className="w-72">
                 <BlogSearchForm />
               </div>
             </div>
-            <Suspense>
-              <Collapse
-                toggle="navbar-search"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-lg p-2 text-sm text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600 md:hidden"
+            <Collapse
+              toggle="navbar-search"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-lg p-2 text-sm text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600 md:hidden"
+            >
+              <span className="sr-only">Open main menu</span>
+              <svg
+                className="h-5 w-5"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 17 14"
               >
-                <span className="sr-only">Open main menu</span>
-                <svg
-                  className="h-5 w-5"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 17 14"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M1 1h15M1 7h15M1 13h15"
-                  />
-                </svg>
-              </Collapse>
-            </Suspense>
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M1 1h15M1 7h15M1 13h15"
+                />
+              </svg>
+            </Collapse>
           </div>
           <div
             className="hidden w-full items-center justify-between md:order-1 md:flex md:w-auto"
@@ -77,25 +73,23 @@ export default async function Header() {
               <BlogSearchForm />
             </div>
             {data.length > 0 && (
-              <Suspense>
-                <ul className="mt-4 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 font-medium dark:border-gray-700 dark:bg-gray-800 md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:p-0 md:dark:bg-gray-900">
-                  {data.map((navigation) => (
-                    <li key={navigation.url}>
-                      <NavLink
-                        href={navigation.url}
-                        target={navigation.target || undefined}
-                        rel={
-                          navigation.target === '_blank'
-                            ? 'noreferrer'
-                            : undefined
-                        }
-                      >
-                        {navigation.label}
-                      </NavLink>
-                    </li>
-                  ))}
-                </ul>
-              </Suspense>
+              <ul className="mt-4 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 font-medium dark:border-gray-700 dark:bg-gray-800 md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:p-0 md:dark:bg-gray-900">
+                {data.map((navigation) => (
+                  <li key={navigation.url}>
+                    <NavLink
+                      href={navigation.url}
+                      target={navigation.target || undefined}
+                      rel={
+                        navigation.target === '_blank'
+                          ? 'noreferrer'
+                          : undefined
+                      }
+                    >
+                      {navigation.label}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
         </div>

@@ -2,7 +2,7 @@
 
 import { usePathname, useSearchParams } from 'next/navigation';
 import NProgress from 'nprogress';
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 
 type Props = {
   /**
@@ -72,7 +72,7 @@ type Props = {
   showAtBottom?: boolean;
 };
 
-export default function NextNProgress({
+function NextNProgress({
   color: propColor,
   height: propHeight,
   showSpinner,
@@ -215,4 +215,12 @@ export default function NextNProgress({
   }, [pathname, searchParams]);
 
   return styles;
+}
+
+export default function NextNProgressSuspense(props: Props) {
+  return (
+    <Suspense fallback={null}>
+      <NextNProgress {...props} />
+    </Suspense>
+  );
 }

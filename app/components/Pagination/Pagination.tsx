@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useMemo } from 'react';
+import { Suspense, useMemo } from 'react';
 
 type Props = {
   currentPage: number;
@@ -22,12 +22,7 @@ type Props = {
   };
 };
 
-export default function Pagination({
-  currentPage,
-  pages,
-  previous,
-  next,
-}: Props) {
+function Pagination({ currentPage, pages, previous, next }: Props) {
   const searchParams = useSearchParams();
   const queryString = useMemo(
     () => (searchParams.toString() ? `?${searchParams.toString()}` : ''),
@@ -105,5 +100,13 @@ export default function Pagination({
         )}
       </ul>
     </nav>
+  );
+}
+
+export default function PaginationSuspense(props: Props) {
+  return (
+    <Suspense fallback={null}>
+      <Pagination {...props} />
+    </Suspense>
   );
 }

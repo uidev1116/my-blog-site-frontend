@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { initCollapses } from 'flowbite';
 
 import type { ComponentProps } from 'react';
@@ -14,7 +14,7 @@ type Props = Omit<
   children?: React.ReactNode;
 };
 
-export default function Collapse({ toggle, children, ...props }: Props) {
+function Collapse({ toggle, children, ...props }: Props) {
   useEffect(() => {
     initCollapses();
   }, []);
@@ -35,5 +35,13 @@ export default function Collapse({ toggle, children, ...props }: Props) {
     >
       {children}
     </button>
+  );
+}
+
+export default function CollapseSuspense(props: Props) {
+  return (
+    <Suspense fallback={null}>
+      <Collapse {...props} />
+    </Suspense>
   );
 }

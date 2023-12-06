@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment } from 'react';
+import { Fragment, Suspense } from 'react';
 import { ReadonlyURLSearchParams } from 'next/navigation';
 import {
   useCombobox,
@@ -33,7 +33,7 @@ type Props<T> = UseComboboxProps<T> & {
   ) => void;
 };
 
-export default function ComboBox<T>({
+function ComboBox<T>({
   className = 'relative',
   renderInput,
   renderMenu,
@@ -90,5 +90,13 @@ export default function ComboBox<T>({
       {renderInput(getInputProps())}
       {renderMenu(isOpen, items, getMenuProps(), renderOptions())}
     </div>
+  );
+}
+
+export default function ComboBoxSuspense<T>(props: Props<T>) {
+  return (
+    <Suspense fallback={null}>
+      <ComboBox<T> {...props} />
+    </Suspense>
   );
 }

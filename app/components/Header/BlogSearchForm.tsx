@@ -155,20 +155,18 @@ export default function BlogSearchForm() {
   }
 
   return (
-    <Suspense>
-      <form action="" role="search" onSubmit={handleSubmit}>
-        <ComboBox
-          id="search-navbar"
-          items={entries}
-          onInputValueChange={handleInputValueChange}
-          onSelectedItemChange={handleSelectedItemChange}
-          itemToString={itemToString}
-          renderInput={renderInput}
-          renderMenu={renderMenu}
-          renderOption={renderOption}
-          onPageChange={handlePageChange}
-        />
-      </form>
-    </Suspense>
+    <form action="" role="search" onSubmit={handleSubmit}>
+      <ComboBox
+        id="search-navbar"
+        items={entries}
+        onInputValueChange={handleInputValueChange}
+        onSelectedItemChange={handleSelectedItemChange}
+        itemToString={itemToString}
+        renderInput={renderInput}
+        renderMenu={renderMenu}
+        renderOption={renderOption}
+        onPageChange={handlePageChange}
+      />
+    </form>
   );
 }

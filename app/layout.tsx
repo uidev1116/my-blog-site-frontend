@@ -14,12 +14,10 @@ export default function RootLayout({
         <Header />
         {children}
         <Footer />
-        <Suspense>
-          <NextNProgress
-            color="#fde047" // primary color by tailwind.config.js
-            showSpinner={false}
-          />
-        </Suspense>
+        <NextNProgress
+          color="#fde047" // primary color by tailwind.config.js
+          showSpinner={false}
+        />
       </body>
     </html>
   );

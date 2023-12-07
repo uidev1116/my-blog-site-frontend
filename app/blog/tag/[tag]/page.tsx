@@ -83,7 +83,7 @@ export default async function BlogIndexPage({ params: { tag } }: Props) {
                         </span>
                         <span className="inline-flex flex-1 flex-wrap items-center gap-2 px-3 py-0.5 text-sm">
                           <span>
-                            <Badge>{tagName}</Badge>
+                            <Badge>#{tagName}</Badge>
                           </span>
                         </span>
                       </div>

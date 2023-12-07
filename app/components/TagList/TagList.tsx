@@ -16,7 +16,7 @@ export default function TagList({ tags = [], isLink = false }: Props) {
             condition={isLink}
             wrapper={(children) => <Link href={tag.path}>{children}</Link>}
           >
-            <Badge>{tag.name}</Badge>
+            <Badge>#{tag.name}</Badge>
           </ConditionalWrapper>
         </li>
       ))}

@@ -2,7 +2,7 @@
 
 import type { Entry } from '@/app/types';
 import type { UseComboboxActions, UseComboboxStateChange } from 'downshift';
-import { ComponentProps, Suspense, useState } from 'react';
+import { ComponentProps, useState } from 'react';
 import { encodeUri } from '@/app/utils';
 import { clsx } from 'clsx';
 import { ReadonlyURLSearchParams, useRouter } from 'next/navigation';

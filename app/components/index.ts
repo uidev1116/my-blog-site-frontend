@@ -11,6 +11,7 @@ export * from './Footer';
 export * from './Header';
 export * from './NextNProgress';
 export * from './Pagination';
+export * from './ShareSocialMedia';
 export * from './Tabs';
 export * from './TagList';
 export * from './Unit';

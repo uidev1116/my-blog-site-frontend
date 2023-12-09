@@ -7,9 +7,9 @@ const defaultOptions: ConfigType = {
   listClassName:
     'pl-4 [&.level-1]:relative [&.level-1]:border-l [&.level-1]:border-gray-200 [&.level-1]:dark:border-gray-700 ',
   itemClassName:
-    "before:content[''] before:absolute before:w-2.5 before:h-2.5 before:bg-gray-200 before:rounded-full before:mt-3 before:-left-1.5 before:border-2 before:border-white before:dark:border-gray-900 before:dark:bg-gray-700 [.level-1>&]:before:w-3 [.level-1>&]:before:h-3 [.level-1>&]:before:border",
+    "before:content[''] before:absolute before:w-2.5 before:h-2.5 before:bg-gray-200 before:rounded-full before:mt-2 before:-left-1.5 before:border-2 before:border-white before:dark:border-gray-900 before:dark:bg-gray-700 [.level-1>&]:before:w-3 [.level-1>&]:before:h-3 [.level-1>&]:before:border",
   linkClassName:
-    'block text-gray-900 focus:ring-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:focus:ring-gray-700 bg-white text-sm/base my-2 font-medium hover:text-primary-darkest focus:z-10 focus:text-primary-darkest focus:outline-none',
+    'block focus:ring-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white dark:focus:ring-gray-700 bg-white text-sm/base my-2 font-medium focus:z-10 focus:outline-none',
   anchorName: 'heading-$1',
   exceptClass: 'js-except',
   levelLimit: 5,

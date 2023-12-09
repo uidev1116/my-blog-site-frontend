@@ -81,10 +81,8 @@ export default async function BlogDetailPage({
                   </div>
                 )}
                 <div>
-                  <div className="border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-700">
-                    <h2 className="mb-3 text-xl font-bold dark:text-white">
-                      目次
-                    </h2>
+                  <div className="border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-700">
+                    <h2 className="mb-3 font-bold dark:text-white">目次</h2>
                     <nav
                       className="js-outline-yield break-words"
                       aria-label="目次"

@@ -1,6 +1,7 @@
 import { Tag } from '@/app/types';
 import { Badge, ConditionalWrapper } from '..';
 import Link from 'next/link';
+import clsx from 'clsx';
 
 type Props = {
   tags: Tag[];
@@ -14,9 +15,20 @@ export default function TagList({ tags = [], isLink = false }: Props) {
         <li key={tag.name}>
           <ConditionalWrapper
             condition={isLink}
-            wrapper={(children) => <Link href={tag.path}>{children}</Link>}
+            wrapper={(children) => (
+              <Link href={tag.path} className="group">
+                {children}
+              </Link>
+            )}
           >
-            <Badge>#{tag.name}</Badge>
+            <Badge
+              className={clsx({
+                ['group-hover:bg-yellow-200 dark:group-hover:bg-yellow-300']:
+                  isLink,
+              })}
+            >
+              #{tag.name}
+            </Badge>
           </ConditionalWrapper>
         </li>
       ))}

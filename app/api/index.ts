@@ -269,3 +269,18 @@ export async function getMetadata(
     },
   };
 }
+
+export async function getGaTrackingId(): Promise<string> {
+  if (process.env.NODE_ENV !== 'production') {
+    return '';
+  }
+  const { data } = await acmsClient.get(
+    {
+      blog: 1,
+      api: 'BF_ctx',
+    },
+    { requestInit: { cache: resolveRequestCache() } },
+  );
+
+  return data.ga_tracking_id || '';
+}

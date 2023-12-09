@@ -1,8 +1,13 @@
-import { Suspense } from 'react';
-import { Header, Footer, NextNProgress, BuildInJs } from './components';
+import {
+  Header,
+  Footer,
+  NextNProgress,
+  BuildInJs,
+  GoogleAnalytics,
+} from './components';
 import './globals.css';
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -18,6 +23,7 @@ export default function RootLayout({
           color="#fde047" // primary color by tailwind.config.js
           showSpinner={false}
         />
+        <GoogleAnalytics />
       </body>
     </html>
   );

@@ -8,6 +8,7 @@ export * from './Container';
 export * from './EmptyState';
 export * from './EntryList';
 export * from './Footer';
+export * from './GoogleAnalytics';
 export * from './Header';
 export * from './NextNProgress';
 export * from './Pagination';

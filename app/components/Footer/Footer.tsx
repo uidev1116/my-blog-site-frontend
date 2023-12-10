@@ -9,7 +9,7 @@ export default async function Footer() {
         <span className="text-sm text-gray-500 dark:text-gray-400 sm:text-center">
           © 2023{' '}
           <a href="/" className="hover:underline">
-            uidev.jp
+            blog.uidev.jp
           </a>
           . All Rights Reserved.
         </span>

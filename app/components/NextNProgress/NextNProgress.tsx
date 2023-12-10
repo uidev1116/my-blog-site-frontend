@@ -169,7 +169,7 @@ function NextNProgress({
 
           if (
             newUrl === currentUrl ||
-            isAnchor ||
+            isAnchor === false ||
             isExternalLink ||
             isBlob ||
             event.ctrlKey

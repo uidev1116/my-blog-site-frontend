@@ -1,5 +1,6 @@
 'use client';
 
+import { isExternalLink } from '@/app/utils';
 import { usePathname, useSearchParams } from 'next/navigation';
 import NProgress from 'nprogress';
 import { Suspense, useEffect } from 'react';
@@ -159,27 +160,26 @@ function NextNProgress({
         const target = event.target as HTMLElement;
         const anchor = findClosestAnchor(target);
         const newUrl = anchor?.href;
-        if (newUrl) {
-          const currentUrl = window.location.href;
-          // const newUrl = (anchor as HTMLAnchorElement).href;
-          const isExternalLink =
-            (anchor as HTMLAnchorElement).target === '_blank';
-          const isBlob = newUrl.startsWith('blob:');
-          const isAnchor = isAnchorOfCurrentUrl(currentUrl, newUrl);
+        if (!newUrl) {
+          return;
+        }
 
-          if (
-            newUrl === currentUrl ||
-            isAnchor === false ||
-            isExternalLink ||
-            isBlob ||
-            event.ctrlKey
-          ) {
-            NProgress.start();
-            NProgress.done();
-            [].forEach.call(npgclass, function (el: Element) {
-              el.classList.remove('nprogress-busy');
-            });
-          }
+        const currentUrl = window.location.href;
+        const isExtarnalLink = isExternalLink(newUrl);
+        const isTargetBlank = (anchor as HTMLAnchorElement).target === '_blank';
+        const isBlob = newUrl.startsWith('blob:');
+        const isAnchor = isAnchorOfCurrentUrl(currentUrl, newUrl);
+
+        if (isAnchor || isExtarnalLink || isTargetBlank) {
+          return;
+        }
+
+        if (newUrl === currentUrl || isBlob || event.ctrlKey) {
+          NProgress.start();
+          NProgress.done();
+          [].forEach.call(npgclass, function (el: Element) {
+            el.classList.remove('nprogress-busy');
+          });
         }
       } catch (err) {
         // Log the error in development only!
@@ -210,6 +210,7 @@ function NextNProgress({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   useEffect(() => {
+    console.log('router change');
     NProgress.start();
     NProgress.done();
   }, [pathname, searchParams]);

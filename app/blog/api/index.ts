@@ -108,6 +108,28 @@ export async function getBlogEntries(
   };
 }
 
+export async function getAllBlogEntries(): Promise<BlogEntry[]> {
+  const { data } = await acmsClient.get(
+    { blog: 'blog', api: 'summary_blog_all' },
+    { requestInit: { cache: resolveRequestCache() } },
+  );
+
+  const { entry: entries = [] } = data;
+
+  return entries.map((entry: any) => ({
+    id: entry.id,
+    code: entry.code,
+    sort: entry.sort,
+    csort: entry.csort,
+    usort: entry.usort,
+    status: entry.status,
+    title: entry.title,
+    path: new URL(entry.url).pathname,
+    isNew: entry.isNew,
+    createdAt: new Date(entry['date#']),
+  }));
+}
+
 export async function getTagRelationalEntries(
   entryCode: string,
 ): Promise<BlogEntry[]> {

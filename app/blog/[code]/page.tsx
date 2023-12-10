@@ -1,6 +1,10 @@
 import { notFound } from 'next/navigation';
 import { formatISO9075, format } from 'date-fns';
-import { getBlogEntries, getTagRelationalEntries, getBlogEntry } from '../api';
+import {
+  getAllBlogEntries,
+  getTagRelationalEntries,
+  getBlogEntry,
+} from '../api';
 import {
   UnitIndex,
   Container,
@@ -36,7 +40,7 @@ export async function generateMetadata({
 }
 
 export async function generateStaticParams() {
-  const { entries } = await getBlogEntries();
+  const entries = await getAllBlogEntries();
 
   return entries.map((entry) => ({
     code: entry.code,

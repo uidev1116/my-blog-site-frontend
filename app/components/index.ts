@@ -5,6 +5,7 @@ export * from './Collapse';
 export * from './ComboBox';
 export * from './ConditionalWrapper';
 export * from './Container';
+export * from './CreatedTime';
 export * from './EmptyState';
 export * from './EntryList';
 export * from './Footer';

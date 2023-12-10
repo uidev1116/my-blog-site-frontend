@@ -210,7 +210,6 @@ function NextNProgress({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   useEffect(() => {
-    console.log('router change');
     NProgress.start();
     NProgress.done();
   }, [pathname, searchParams]);

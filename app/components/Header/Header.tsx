@@ -4,6 +4,7 @@ import NavLink from './NavLink';
 import { getGlobalNavigation } from '@/app/api';
 import BlogSearchForm from './BlogSearchForm';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default async function Header() {
   const data = await getGlobalNavigation();
@@ -12,7 +13,7 @@ export default async function Header() {
       <nav className="left-0 top-0 border-b border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-900">
         <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
           <Link href="/" className="flex items-center">
-            <img src="/logo.svg" alt="uidev logo" width="105" height="30" />
+            <Image src="/logo.svg" alt="uidev logo" width="105" height="30" />
           </Link>
           <div className="flex md:order-2">
             <Collapse

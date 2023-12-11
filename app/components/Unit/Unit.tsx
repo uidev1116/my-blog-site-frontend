@@ -4,6 +4,7 @@ import {
   isRichEditorUnit,
   isTableUnit,
   isOpenStreetMapUnit,
+  isQuoteUnit,
 } from '@/app/types';
 import {
   TextUnit,
@@ -11,6 +12,7 @@ import {
   RichEditorUnit,
   TableUnit,
   OpenStreetMapUnit,
+  QuoteUnit,
 } from '@/app/components';
 import type { Unit as UnitType } from '@/app/types';
 
@@ -37,6 +39,10 @@ export default function Unit({ unit }: Props) {
 
   if (isOpenStreetMapUnit(unit)) {
     return <OpenStreetMapUnit {...unit} />;
+  }
+
+  if (isQuoteUnit(unit)) {
+    return <QuoteUnit {...unit} />;
   }
 
   return null;

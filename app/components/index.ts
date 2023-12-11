@@ -13,6 +13,7 @@ export * from './GoogleAnalytics';
 export * from './Header';
 export * from './NextNProgress';
 export * from './Pagination';
+export * from './RichLink';
 export * from './ShareSocialMedia';
 export * from './Tabs';
 export * from './TagList';

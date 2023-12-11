@@ -2,18 +2,19 @@ import Image from 'next/image';
 import nl2br from 'react-nl2br';
 import { ConditionalWrapper } from '../../..';
 import type { Unit, MediaUnit } from '@/app/types';
-import { MEDIA_BASE_URL } from '@/app/config/acms';
+import { ASSETS_HOST, MEDIA_BASE_URL } from '@/app/config/acms';
 
 export default function MediaUnit({ media }: Unit<MediaUnit>) {
   const render = () => {
     if (media.type === 'image' || media.type === 'svg') {
+      const { pathname } = new URL(media.link);
       return (
         <>
           <ConditionalWrapper
             condition={media.link !== ''}
             wrapper={(children) => (
               <a
-                href={media.link}
+                href={new URL(pathname, ASSETS_HOST).toString()}
                 className="js-smartphoto"
                 data-group={media.eid}
                 data-caption={media.caption.replace(/\r?\n/g, '')}
@@ -23,7 +24,7 @@ export default function MediaUnit({ media }: Unit<MediaUnit>) {
             )}
           >
             <Image
-              src={`${MEDIA_BASE_URL}${media.path}`}
+              src={new URL(media.path, MEDIA_BASE_URL).toString()}
               width={media.x}
               height={media.y || undefined}
               alt={media.alt}
@@ -38,7 +39,7 @@ export default function MediaUnit({ media }: Unit<MediaUnit>) {
           <a href={media.link} target="_blank" rel="noreferrer noopener">
             {media.thumbnail && media.useIcon === false ? (
               <Image
-                src={`${MEDIA_BASE_URL}${media.thumbnail}`}
+                src={new URL(media.path, MEDIA_BASE_URL).toString()}
                 alt={media.alt}
               />
             ) : (

@@ -4,7 +4,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'backend.uidev.jp',
+        hostname: process.env.ACMS_ASSETS_HOST,
       },
     ],
   },

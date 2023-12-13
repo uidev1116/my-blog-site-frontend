@@ -29,6 +29,8 @@ export default forwardRef<HTMLAnchorElement, Props>(function RichLink(
               className="h-full w-full object-cover"
               src={imageSrc}
               alt={`${siteName}のサムネイル画像`}
+              width="120"
+              height="120"
             />
           </div>
         </div>

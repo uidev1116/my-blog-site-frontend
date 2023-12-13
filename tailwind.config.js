@@ -38,7 +38,7 @@ module.exports = {
       typography: {
         DEFAULT: {
           css: {
-            'tbody th': {
+            'table th': {
               color: 'var(--tw-format-headings)',
               fontWeight: 600,
               verticalAlign: 'bottom',

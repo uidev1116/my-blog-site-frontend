@@ -13,7 +13,7 @@ export default async function Header() {
       <nav className="left-0 top-0 border-b border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-900">
         <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
           <Link href="/" className="flex items-center">
-            <Image src="/logo.svg" alt="uidev logo" width="105" height="30" />
+            <Image src="/logo.svg" alt="UiDev logo" width="105" height="30" />
           </Link>
           <div className="flex md:order-2">
             <Collapse
@@ -39,7 +39,7 @@ export default async function Header() {
             </Collapse>
             <div className="hidden md:block">
               <div className="w-72">
-                <BlogSearchForm />
+                <BlogSearchForm id="blog-search-form" />
               </div>
             </div>
             <Collapse
@@ -69,7 +69,7 @@ export default async function Header() {
             id="navbar-search"
           >
             <div className="mt-3 md:hidden">
-              <BlogSearchForm />
+              <BlogSearchForm id="mobile-blog-search-form" />
             </div>
             {data.length > 0 && (
               <ul className="mt-4 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 font-medium dark:border-gray-700 dark:bg-gray-800 md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:p-0 md:dark:bg-gray-900">

@@ -8,6 +8,10 @@ import { clsx } from 'clsx';
 import { ReadonlyURLSearchParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 
+type Props = {
+  id: string;
+};
+
 const ComboBox = dynamic(
   () => import('@/app/components/ComboBox').then((mod) => mod.ComboBox<Entry>),
   { ssr: false },
@@ -22,7 +26,7 @@ async function getEntries(keyword: string) {
   return entries as Entry[];
 }
 
-export default function BlogSearchForm() {
+export default function BlogSearchForm({ id }: Props) {
   const router = useRouter();
   const [entries, setEntries] = useState<Entry[]>([]);
 
@@ -54,8 +58,11 @@ export default function BlogSearchForm() {
   }
 
   function renderInput(
-    inputProps: Parameters<ComponentProps<typeof ComboBox>['renderInput']>[0],
+    ...args: Parameters<ComponentProps<typeof ComboBox>['renderInput']>
   ) {
+    const [inputProps] = args;
+    // aria-labelledbyは不要なので削除する
+    delete inputProps['aria-labelledby'];
     return (
       <div>
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -88,11 +95,9 @@ export default function BlogSearchForm() {
   }
 
   function renderMenu(
-    isOpen: Parameters<ComponentProps<typeof ComboBox>['renderMenu']>[0],
-    items: Parameters<ComponentProps<typeof ComboBox>['renderMenu']>[1],
-    menuProps: Parameters<ComponentProps<typeof ComboBox>['renderMenu']>[2],
-    options: Parameters<ComponentProps<typeof ComboBox>['renderMenu']>[3],
+    ...args: Parameters<ComponentProps<typeof ComboBox>['renderMenu']>
   ) {
+    const [isOpen, items, menuProps, options] = args;
     return (
       <div>
         <ul
@@ -111,13 +116,9 @@ export default function BlogSearchForm() {
   }
 
   function renderOption(
-    optionProps: Parameters<ComponentProps<typeof ComboBox>['renderOption']>[0],
-    entry: Parameters<ComponentProps<typeof ComboBox>['renderOption']>[1],
-    isHighlighted: Parameters<
-      ComponentProps<typeof ComboBox>['renderOption']
-    >[2],
-    isSelected: Parameters<ComponentProps<typeof ComboBox>['renderOption']>[3],
+    ...args: Parameters<ComponentProps<typeof ComboBox>['renderOption']>
   ) {
+    const [optionProps, entry, isHighlighted, isSelected] = args;
     return (
       <li
         className={clsx(
@@ -155,9 +156,9 @@ export default function BlogSearchForm() {
   }
 
   return (
-    <form action="" role="search" onSubmit={handleSubmit}>
+    <form id={id} action="" role="search" onSubmit={handleSubmit}>
       <ComboBox
-        id="search-navbar"
+        id={`${id}-combobox`}
         items={entries}
         onInputValueChange={handleInputValueChange}
         onSelectedItemChange={handleSelectedItemChange}

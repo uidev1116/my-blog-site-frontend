@@ -6,11 +6,13 @@ import {
   UseComboboxStateChange,
   useCombobox,
 } from 'downshift';
-import { ComponentProps, useRef, useState, useTransition } from 'react';
+import { ComponentProps, useRef } from 'react';
 import { encodeUri } from '@/app/utils';
 import { clsx } from 'clsx';
 import { ReadonlyURLSearchParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import useBlogEntriesSwrMutation from '@/app/hooks/useBlogEntriesSwrMutation/useBlogEntriesSwrMutation';
+import { Spinner } from '@/app/components/Spinner';
 
 type Props = {
   id: string;
@@ -21,19 +23,10 @@ const ComboBox = dynamic(
   { ssr: false },
 );
 
-async function getEntries(keyword: string) {
-  const res = await fetch(`/api/blog/?keyword=${encodeUri(keyword)}`);
-  if (!res.ok) {
-    throw new Error('Failed to fetch data');
-  }
-  const { entries } = await res.json();
-  return entries as Entry[];
-}
-
 export default function BlogSearchForm({ id }: Props) {
   const router = useRouter();
-  const [_, startTransition] = useTransition();
-  const [entries, setEntries] = useState<Entry[]>([]);
+  const { entries, error, trigger, reset, isMutating } =
+    useBlogEntriesSwrMutation();
 
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -59,19 +52,9 @@ export default function BlogSearchForm({ id }: Props) {
     inputValue,
   }: UseComboboxStateChange<Entry>) {
     if (inputValue === undefined || inputValue === '') {
-      return setEntries([]);
+      return reset();
     }
-    let entries: Entry[] = [];
-    try {
-      entries = await getEntries(inputValue);
-    } catch (error) {
-      entries = [];
-      console.error(error);
-    }
-
-    startTransition(() => {
-      setEntries(entries);
-    });
+    await trigger({ keyword: inputValue });
   }
 
   function itemToString(item: Entry | null) {
@@ -106,12 +89,17 @@ export default function BlogSearchForm({ id }: Props) {
           <span className="sr-only">検索アイコン</span>
         </div>
         <input
-          type="search"
+          type="text"
           name="keyword"
-          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 focus:border-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary dark:focus:ring-primary"
+          className="block w-full rounded-lg border border-gray-300 bg-gray-50 py-2 pl-10 pr-8 text-sm text-gray-900 focus:border-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary dark:focus:ring-primary"
           placeholder="検索..."
           {...inputProps}
         />
+        {isMutating && (
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+            <Spinner />
+          </div>
+        )}
       </div>
     );
   }
@@ -131,7 +119,7 @@ export default function BlogSearchForm({ id }: Props) {
           )}
           {...getMenuProps()}
         >
-          {menuItems}
+          {!error && menuItems}
         </ul>
       </div>
     );

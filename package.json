@@ -35,7 +35,8 @@
     "react-markdown": "^8.0.7",
     "react-nl2br": "^1.0.4",
     "scroll-hint": "^1.2.5",
-    "smartphoto": "^1.6.5"
+    "smartphoto": "^1.6.5",
+    "swr": "^2.2.4"
   },
   "devDependencies": {
     "@types/gtag.js": "^0.0.18",

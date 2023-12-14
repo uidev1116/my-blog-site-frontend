@@ -2,7 +2,7 @@ import { Collapse } from '@/app/components';
 import NavLink from './NavLink';
 
 import { getGlobalNavigation } from '@/app/api';
-import BlogSearchForm from './BlogSearchForm';
+import { BlogSearchForm } from '@/app/components';
 import Link from 'next/link';
 import Image from 'next/image';
 

@@ -177,9 +177,11 @@ export default function BlogSearchForm({ id }: Props) {
     setInputValue(keyword);
   }
 
-  function handleStateChange({ type }: UseComboboxStateChange<Entry>) {
-    if (type === useCombobox.stateChangeTypes.InputKeyDownEnter) {
-      navigateToSearchPage();
+  function handleStateChange(change: UseComboboxStateChange<Entry>) {
+    if (change.type === useCombobox.stateChangeTypes.InputKeyDownEnter) {
+      if (change?.selectedItem == null) {
+        navigateToSearchPage();
+      }
     }
   }
 

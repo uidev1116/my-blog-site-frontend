@@ -1,8 +1,12 @@
 'use client';
 
 import type { Entry } from '@/app/types';
-import type { UseComboboxActions, UseComboboxStateChange } from 'downshift';
-import { ComponentProps, useState } from 'react';
+import {
+  UseComboboxActions,
+  UseComboboxStateChange,
+  useCombobox,
+} from 'downshift';
+import { ComponentProps, useRef, useState, useTransition } from 'react';
 import { encodeUri } from '@/app/utils';
 import { clsx } from 'clsx';
 import { ReadonlyURLSearchParams, useRouter } from 'next/navigation';
@@ -28,14 +32,27 @@ async function getEntries(keyword: string) {
 
 export default function BlogSearchForm({ id }: Props) {
   const router = useRouter();
+  const [_, startTransition] = useTransition();
   const [entries, setEntries] = useState<Entry[]>([]);
+
+  const formRef = useRef<HTMLFormElement>(null);
+
+  function navigateToSearchPage() {
+    if (formRef.current === null) {
+      return;
+    }
+    const formData = new FormData(formRef.current);
+    const keyword = formData.get('keyword');
+
+    if (keyword === null || keyword === '') {
+      return;
+    }
+    router.push(`/blog/search/?keyword=${encodeUri(keyword)}`);
+  }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    router.push(
-      `/blog/search/?keyword=${encodeUri(formData.get('search') as string)}`,
-    );
+    navigateToSearchPage();
   }
 
   async function handleInputValueChange({
@@ -44,13 +61,17 @@ export default function BlogSearchForm({ id }: Props) {
     if (inputValue === undefined || inputValue === '') {
       return setEntries([]);
     }
+    let entries: Entry[] = [];
     try {
-      const entries = await getEntries(inputValue);
-      setEntries(entries);
+      entries = await getEntries(inputValue);
     } catch (error) {
+      entries = [];
       console.error(error);
-      setEntries([]);
     }
+
+    startTransition(() => {
+      setEntries(entries);
+    });
   }
 
   function itemToString(item: Entry | null) {
@@ -60,9 +81,10 @@ export default function BlogSearchForm({ id }: Props) {
   function renderInput(
     ...args: Parameters<ComponentProps<typeof ComboBox>['renderInput']>
   ) {
-    const [inputProps] = args;
-    // aria-labelledbyは不要なので削除する
-    delete inputProps['aria-labelledby'];
+    const [getInputProps] = args;
+    // aria-labelledby属性は不要なので削除する
+    const { 'aria-labelledby': _, ...inputProps } = getInputProps();
+
     return (
       <div>
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -84,8 +106,8 @@ export default function BlogSearchForm({ id }: Props) {
           <span className="sr-only">検索アイコン</span>
         </div>
         <input
-          type="text"
-          name="search"
+          type="search"
+          name="keyword"
           className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2 pl-10 text-sm text-gray-900 focus:border-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary dark:focus:ring-primary"
           placeholder="検索..."
           {...inputProps}
@@ -97,7 +119,7 @@ export default function BlogSearchForm({ id }: Props) {
   function renderMenu(
     ...args: Parameters<ComponentProps<typeof ComboBox>['renderMenu']>
   ) {
-    const [isOpen, items, menuProps, options] = args;
+    const [isOpen, items, getMenuProps, menuItems] = args;
     return (
       <div>
         <ul
@@ -107,28 +129,28 @@ export default function BlogSearchForm({ id }: Props) {
               hidden: !(isOpen && items.length),
             },
           )}
-          {...menuProps}
+          {...getMenuProps()}
         >
-          {options}
+          {menuItems}
         </ul>
       </div>
     );
   }
 
-  function renderOption(
-    ...args: Parameters<ComponentProps<typeof ComboBox>['renderOption']>
+  function renderMenuItem(
+    ...args: Parameters<ComponentProps<typeof ComboBox>['renderMenuItem']>
   ) {
-    const [optionProps, entry, isHighlighted, isSelected] = args;
+    const [getItemProps, item, index, highlightedIndex, selectedItem] = args;
     return (
       <li
         className={clsx(
-          isHighlighted && 'bg-primary text-white',
-          isSelected && 'font-bold',
+          highlightedIndex === index && 'bg-gray-100',
+          selectedItem === item && 'font-bold',
           'flex flex-col px-3 py-2 shadow-sm',
         )}
-        {...optionProps}
+        {...getItemProps({ item, index })}
       >
-        <span>{entry.title}</span>
+        <span>{item.title}</span>
       </li>
     );
   }
@@ -155,8 +177,14 @@ export default function BlogSearchForm({ id }: Props) {
     setInputValue(keyword);
   }
 
+  function handleStateChange({ type }: UseComboboxStateChange<Entry>) {
+    if (type === useCombobox.stateChangeTypes.InputKeyDownEnter) {
+      navigateToSearchPage();
+    }
+  }
+
   return (
-    <form id={id} action="" role="search" onSubmit={handleSubmit}>
+    <form ref={formRef} id={id} action="" role="search" onSubmit={handleSubmit}>
       <ComboBox
         id={`${id}-combobox`}
         items={entries}
@@ -165,8 +193,9 @@ export default function BlogSearchForm({ id }: Props) {
         itemToString={itemToString}
         renderInput={renderInput}
         renderMenu={renderMenu}
-        renderOption={renderOption}
+        renderMenuItem={renderMenuItem}
         onPageChange={handlePageChange}
+        onStateChange={handleStateChange}
       />
     </form>
   );

@@ -17,6 +17,7 @@ type Props<T> = UseComboboxProps<T> & {
   renderMenu: (
     isOpen: ReturnType<typeof useCombobox>['isOpen'],
     items: T[],
+    inputValue: ReturnType<typeof useCombobox>['inputValue'],
     getMenuProps: ReturnType<typeof useCombobox>['getMenuProps'],
     menuItems: ReturnType<Props<T>['renderMenuItem']>,
   ) => React.ReactNode;
@@ -26,6 +27,7 @@ type Props<T> = UseComboboxProps<T> & {
     index: number,
     highlightedIndex: number,
     selectedItem: T | null,
+    inputValue: ReturnType<typeof useCombobox>['inputValue'],
   ) => React.ReactNode;
   onPageChange?: (
     pathname: string,
@@ -45,6 +47,7 @@ function ComboBox<T>({
   const { items = [] } = useComboboxProps;
   const {
     isOpen,
+    inputValue,
     getMenuProps,
     getInputProps,
     highlightedIndex,
@@ -82,6 +85,7 @@ function ComboBox<T>({
           index,
           highlightedIndex,
           selectedItem,
+          inputValue,
         )}
       </Fragment>
     ));
@@ -90,7 +94,7 @@ function ComboBox<T>({
   return (
     <div className={className}>
       {renderInput(getInputProps)}
-      {renderMenu(isOpen, items, getMenuProps, renderMenuItems())}
+      {renderMenu(isOpen, items, inputValue, getMenuProps, renderMenuItems())}
     </div>
   );
 }

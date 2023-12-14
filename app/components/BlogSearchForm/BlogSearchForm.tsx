@@ -107,19 +107,25 @@ export default function BlogSearchForm({ id }: Props) {
   function renderMenu(
     ...args: Parameters<ComponentProps<typeof ComboBox>['renderMenu']>
   ) {
-    const [isOpen, items, getMenuProps, menuItems] = args;
+    const [isOpen, items, inputValue, getMenuProps, menuItems] = args;
     return (
       <div>
         <ul
           className={clsx(
             'absolute z-10 mt-1 max-h-80 w-full overflow-scroll bg-white p-0 shadow-md',
             {
-              hidden: !(isOpen && items.length),
+              hidden: !isOpen,
             },
           )}
           {...getMenuProps()}
         >
-          {!error && menuItems}
+          {error ? (
+            <li className="flex flex-col px-3 py-2 shadow-sm">
+              <span className="font-sm">記事の検索に失敗しました。</span>
+            </li>
+          ) : (
+            menuItems
+          )}
         </ul>
       </div>
     );

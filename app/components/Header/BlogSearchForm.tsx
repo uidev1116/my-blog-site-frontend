@@ -47,7 +47,7 @@ export default function BlogSearchForm({ id }: Props) {
     if (keyword === null || keyword === '') {
       return;
     }
-    router.push(`/blog/search/?keyword=${encodeUri(keyword)}`);
+    router.push(`/blog/search/?keyword=${encodeUri(keyword as string)}`);
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {

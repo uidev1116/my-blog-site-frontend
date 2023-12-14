@@ -18,7 +18,7 @@ type Props<T> = UseComboboxProps<T> & {
     isOpen: ReturnType<typeof useCombobox>['isOpen'],
     items: T[],
     getMenuProps: ReturnType<typeof useCombobox>['getMenuProps'],
-    options: ReturnType<Props<T>['renderOption']>,
+    menuItems: ReturnType<Props<T>['renderMenuItem']>,
   ) => React.ReactNode;
   renderMenuItem: (
     getItemProps: ReturnType<typeof useCombobox>['getItemProps'],

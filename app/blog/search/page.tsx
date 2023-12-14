@@ -11,8 +11,9 @@ import { Metadata } from 'next';
 import { getMetadata } from '@/app/api';
 import { objToSearchParams } from '@/app/utils';
 import { acmsPath } from '@/app/lib/acms/lib/acmsPath';
-import { Suspense } from 'react';
 import Link from 'next/link';
+
+export const dynamic = 'force-dynamic';
 
 type Props = {
   searchParams: { [key: string]: string | string[] | undefined };

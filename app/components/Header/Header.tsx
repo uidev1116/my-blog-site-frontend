@@ -68,28 +68,32 @@ export default async function Header() {
             className="hidden w-full items-center justify-between md:order-1 md:flex md:w-auto"
             id="navbar-search"
           >
-            <div className="mt-3 md:hidden">
-              <BlogSearchForm id="mobile-blog-search-form" />
+            <div className="mt-3 space-y-4 md:mt-0 md:space-y-0">
+              <div className="md:hidden">
+                <BlogSearchForm id="mobile-blog-search-form" />
+              </div>
+              <div>
+                {data.length > 0 && (
+                  <ul className="mt-4 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 font-medium dark:border-gray-700 dark:bg-gray-800 md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:p-0 md:dark:bg-gray-900">
+                    {data.map((navigation) => (
+                      <li key={navigation.url}>
+                        <NavLink
+                          href={navigation.url}
+                          target={navigation.target || undefined}
+                          rel={
+                            navigation.target === '_blank'
+                              ? 'noreferrer'
+                              : undefined
+                          }
+                        >
+                          {navigation.label}
+                        </NavLink>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
-            {data.length > 0 && (
-              <ul className="mt-4 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 font-medium dark:border-gray-700 dark:bg-gray-800 md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:p-0 md:dark:bg-gray-900">
-                {data.map((navigation) => (
-                  <li key={navigation.url}>
-                    <NavLink
-                      href={navigation.url}
-                      target={navigation.target || undefined}
-                      rel={
-                        navigation.target === '_blank'
-                          ? 'noreferrer'
-                          : undefined
-                      }
-                    >
-                      {navigation.label}
-                    </NavLink>
-                  </li>
-                ))}
-              </ul>
-            )}
           </div>
         </div>
       </nav>

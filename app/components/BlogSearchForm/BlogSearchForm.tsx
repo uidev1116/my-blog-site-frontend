@@ -91,7 +91,7 @@ export default function BlogSearchForm({ id }: Props) {
         <input
           type="text"
           name="keyword"
-          className="block w-full rounded-lg border border-gray-300 bg-gray-50 py-2 pl-10 pr-8 text-sm text-gray-900 focus:border-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary dark:focus:ring-primary"
+          className="block w-full rounded-lg border border-gray-300 bg-gray-50 py-2 pl-10 pr-8 text-base text-gray-900 focus:border-primary focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary dark:focus:ring-primary"
           placeholder="検索..."
           {...inputProps}
         />
@@ -107,7 +107,7 @@ export default function BlogSearchForm({ id }: Props) {
   function renderMenu(
     ...args: Parameters<ComponentProps<typeof ComboBox>['renderMenu']>
   ) {
-    const [isOpen, items, inputValue, getMenuProps, menuItems] = args;
+    const [isOpen, , , getMenuProps, menuItems] = args;
     return (
       <div>
         <ul

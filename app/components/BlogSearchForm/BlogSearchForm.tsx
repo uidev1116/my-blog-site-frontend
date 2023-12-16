@@ -29,6 +29,7 @@ export default function BlogSearchForm({ id }: Props) {
     useBlogEntriesSwrMutation();
 
   const formRef = useRef<HTMLFormElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   function navigateToSearchPage() {
     if (formRef.current === null) {
@@ -41,6 +42,7 @@ export default function BlogSearchForm({ id }: Props) {
       return;
     }
     router.push(`/blog/search/?keyword=${encodeUri(keyword as string)}`);
+    inputRef.current?.blur();
   }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -66,7 +68,9 @@ export default function BlogSearchForm({ id }: Props) {
   ) {
     const [getInputProps] = args;
     // aria-labelledby属性は不要なので削除する
-    const { 'aria-labelledby': _, ...inputProps } = getInputProps();
+    const { 'aria-labelledby': _, ...inputProps } = getInputProps({
+      ref: inputRef,
+    });
 
     return (
       <div>
@@ -157,6 +161,7 @@ export default function BlogSearchForm({ id }: Props) {
     }
 
     router.push(selectedItem.path);
+    inputRef.current?.blur();
   }
 
   function handlePageChange(

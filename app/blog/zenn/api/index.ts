@@ -1,5 +1,4 @@
 import { ZennArticle } from '@/app/types';
-import { utcToZonedTime } from 'date-fns-tz';
 
 const ZENN_URL = 'https://zenn.dev';
 const ZENN_API_HOST = `${ZENN_URL}/api/`;
@@ -39,7 +38,7 @@ export async function getZennArticles(
       postType: article.post_type,
       title: article.title,
       slug: article.slug,
-      publishedAt: utcToZonedTime(new Date(article.published_at), 'Asia/Tokyo'),
+      publishedAt: new Date(article.published_at),
       articleType: article.article_type,
       emoji: article.emoji,
       url: `${ZENN_URL}${article.path}`,

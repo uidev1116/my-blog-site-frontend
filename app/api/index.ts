@@ -5,7 +5,6 @@ import { deleteNewLine, resolveRequestCache, truncate } from '../utils';
 import { AcmsContext, acmsPath } from '../lib';
 import { BASE_URL } from '../config';
 import acmsClient from '../lib/acms';
-import { utcToZonedTime } from 'date-fns-tz';
 
 type EntriesResponse = {
   indexPath: string;
@@ -60,11 +59,11 @@ export async function getBlogEntries(): Promise<EntriesResponse> {
       title: entry.title,
       path: new URL(entry.url).pathname,
       isNew: entry.isNew,
-      createdAt: utcToZonedTime(new Date(entry['date#']), 'Asia/Tokyo'),
-      updatedAt: utcToZonedTime(new Date(entry['udate#']), 'Asia/Tokyo'),
-      postedAt: utcToZonedTime(new Date(entry['pdate#']), 'Asia/Tokyo'),
-      startAt: utcToZonedTime(new Date(entry['sdate#']), 'Asia/Tokyo'),
-      endAt: utcToZonedTime(new Date(entry['edate#']), 'Asia/Tokyo'),
+      createdAt: new Date(entry['date#']),
+      updatedAt: new Date(entry['udate#']),
+      postedAt: new Date(entry['pdate#']),
+      startAt: new Date(entry['sdate#']),
+      endAt: new Date(entry['edate#']),
       summary: entry.summary || '',
       tags: (entry.tag || []).map(
         ({ name, url }: { name: string; url: string }) => ({
@@ -150,7 +149,7 @@ export async function getRootBlog(): Promise<RootBlog> {
     pbid,
     indexing,
     path: '/',
-    createdAt: utcToZonedTime(new Date(generatedDatetime), 'Asia/Tokyo'),
+    createdAt: new Date(generatedDatetime),
     facebookAccount,
     twitterAccount,
     githubAccount,

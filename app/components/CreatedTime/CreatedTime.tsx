@@ -10,8 +10,6 @@ import {
   format,
   formatISO9075,
 } from 'date-fns';
-import { utcToZonedTime } from 'date-fns-tz';
-import { Suspense } from 'react';
 
 type Props = Omit<React.ComponentProps<'time'>, 'dateTime'> & {
   createdAt: Date;
@@ -57,19 +55,11 @@ function formatCreatedAt(date: Date, base: Date) {
   return format(date, 'yyyy/MM/dd');
 }
 
-function CreatedTime({ createdAt, className }: Props) {
-  const now = utcToZonedTime(new Date(), 'Asia/Tokyo');
+export default function CreatedTime({ createdAt, className }: Props) {
+  const now = new Date();
   return (
-    <time dateTime={formatISO9075(createdAt)} className={className}>
-      {formatCreatedAt(createdAt, now)}
+    <time dateTime={formatISO9075(new Date(createdAt))} className={className}>
+      {formatCreatedAt(new Date(createdAt), now)}
     </time>
-  );
-}
-
-export default function CreatedTimeSuspence(props: Props) {
-  return (
-    <Suspense fallback={null}>
-      <CreatedTime {...props} />
-    </Suspense>
   );
 }

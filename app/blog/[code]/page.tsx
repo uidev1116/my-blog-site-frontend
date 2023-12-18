@@ -42,12 +42,6 @@ export async function generateMetadata({
 export async function generateStaticParams() {
   const entries = await getAllBlogEntries();
 
-  console.log(
-    entries.map((entry) => ({
-      code: entry.code,
-    })),
-  );
-
   return entries.map((entry) => ({
     code: entry.code,
   }));

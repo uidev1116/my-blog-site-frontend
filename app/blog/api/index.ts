@@ -109,12 +109,10 @@ export async function getBlogEntries(
 }
 
 export async function getAllBlogEntries(): Promise<BlogEntry[]> {
-  const { data, request } = await acmsClient.get(
+  const { data } = await acmsClient.get(
     { blog: 'blog', api: 'summary_blog_all' },
     { requestInit: { cache: resolveRequestCache() } },
   );
-
-  console.log(request.url);
 
   const { entry: entries = [] } = data;
 

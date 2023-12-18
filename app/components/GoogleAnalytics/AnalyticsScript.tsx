@@ -27,9 +27,7 @@ export default function AnalyticsScript({ trackingId }: Props) {
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
-          gtag('config', '${trackingId}', {
-            page_path: window.location.pathname,
-          });
+          gtag('config', '${trackingId}');
         `}
       </Script>
     </>

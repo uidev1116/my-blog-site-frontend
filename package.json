@@ -32,8 +32,9 @@
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "18.2.0",
     "react-icons": "^4.10.1",
-    "react-markdown": "^8.0.7",
+    "react-markdown": "^9.0.1",
     "react-nl2br": "^1.0.4",
+    "rehype-raw": "^7.0.0",
     "scroll-hint": "^1.2.5",
     "smartphoto": "^1.6.5",
     "swr": "^2.2.4"

@@ -1,4 +1,5 @@
 import ReactMarkdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 import parse, {
   HTMLReactParserOptions,
   domToReact,
@@ -79,7 +80,7 @@ export default function TextUnit({
   } else if (tag === 'none') {
     return <>{parse(text, options)}</>;
   } else if (tag === 'markdown') {
-    return <ReactMarkdown>{text}</ReactMarkdown>;
+    return <ReactMarkdown rehypePlugins={[rehypeRaw]}>{text}</ReactMarkdown>;
   } else if (tag === 'wysiwyg') {
     return <>{parse(text, options)}</>;
   }

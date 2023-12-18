@@ -2,6 +2,7 @@ import { resolveRequestCache } from '@/app/utils';
 import type { BlogEntry, Tag } from '@/app/types';
 import type { AcmsContext } from '@/app/lib/acms/lib/acmsPath';
 import acmsClient from '@/app/lib/acms';
+import { utcToZonedTime } from 'date-fns-tz';
 
 type EntriesResponse = {
   entries: BlogEntry[];
@@ -58,11 +59,11 @@ export async function getBlogEntries(
       title: entry.title,
       path: new URL(entry.url).pathname,
       isNew: entry.isNew,
-      createdAt: new Date(entry['date#']),
-      updatedAt: new Date(entry['udate#']),
-      postedAt: new Date(entry['pdate#']),
-      startAt: new Date(entry['sdate#']),
-      endAt: new Date(entry['edate#']),
+      createdAt: utcToZonedTime(new Date(entry['date#']), 'Asia/Tokyo'),
+      updatedAt: utcToZonedTime(new Date(entry['udate#']), 'Asia/Tokyo'),
+      postedAt: utcToZonedTime(new Date(entry['pdate#']), 'Asia/Tokyo'),
+      startAt: utcToZonedTime(new Date(entry['sdate#']), 'Asia/Tokyo'),
+      endAt: utcToZonedTime(new Date(entry['edate#']), 'Asia/Tokyo'),
       summary: entry.summary || '',
       tags: (entry.tag || []).map(
         ({ name, url }: { name: string; url: string }) => ({
@@ -126,7 +127,7 @@ export async function getAllBlogEntries(): Promise<BlogEntry[]> {
     title: entry.title,
     path: new URL(entry.url).pathname,
     isNew: entry.isNew,
-    createdAt: new Date(entry['date#']),
+    createdAt: utcToZonedTime(new Date(entry['date#']), 'Asia/Tokyo'),
   }));
 }
 
@@ -153,11 +154,11 @@ export async function getTagRelationalEntries(
     status: entry.status,
     title: entry.title,
     path: new URL(entry.url).pathname,
-    createdAt: new Date(entry['date#']),
-    updatedAt: new Date(entry['udate#']),
-    postedAt: new Date(entry['pdate#']),
-    startAt: new Date(entry['sdate#']),
-    endAt: new Date(entry['edate#']),
+    createdAt: utcToZonedTime(new Date(entry['date#']), 'Asia/Tokyo'),
+    updatedAt: utcToZonedTime(new Date(entry['udate#']), 'Asia/Tokyo'),
+    postedAt: utcToZonedTime(new Date(entry['pdate#']), 'Asia/Tokyo'),
+    startAt: utcToZonedTime(new Date(entry['sdate#']), 'Asia/Tokyo'),
+    endAt: utcToZonedTime(new Date(entry['edate#']), 'Asia/Tokyo'),
     summary: entry.summary || '',
   }));
 }
@@ -190,11 +191,11 @@ export async function getBlogEntry(
     title: entries[0].title,
     path: new URL(entries[0].url).pathname,
     isNew: entries[0].isNew,
-    createdAt: new Date(entries[0]['date#']),
-    updatedAt: new Date(entries[0]['udate#']),
-    postedAt: new Date(entries[0]['pdate#']),
-    startAt: new Date(entries[0]['sdate#']),
-    endAt: new Date(entries[0]['edate#']),
+    createdAt: utcToZonedTime(new Date(entries[0]['date#']), 'Asia/Tokyo'),
+    updatedAt: utcToZonedTime(new Date(entries[0]['udate#']), 'Asia/Tokyo'),
+    postedAt: utcToZonedTime(new Date(entries[0]['pdate#']), 'Asia/Tokyo'),
+    startAt: utcToZonedTime(new Date(entries[0]['sdate#']), 'Asia/Tokyo'),
+    endAt: utcToZonedTime(new Date(entries[0]['edate#']), 'Asia/Tokyo'),
     summary: entries[0].summary,
     tags: (entries[0].tag || []).map(
       ({ name, url }: { name: string; url: string }) => ({
@@ -211,7 +212,10 @@ export async function getBlogEntry(
       pbid: entries[0].blog.pbid,
       indexing: entries[0].blog.indexing,
       path: new URL(entries[0].blog.url).pathname,
-      createdAt: new Date(entries[0].blog['date#']),
+      createdAt: utcToZonedTime(
+        new Date(entries[0].blog['date#']),
+        'Asia/Tokyo',
+      ),
       ogpImageBasePath: entries[0].blog['ogp_image_base@path'],
     },
     units: entries[0].unit,

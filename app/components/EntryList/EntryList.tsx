@@ -27,10 +27,10 @@ export default function EntryList({
               <Card>
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    {/* <CreatedTime
+                    <CreatedTime
                       createdAt={entry.createdAt}
                       className="text-sm font-light text-gray-600 dark:text-gray-400"
-                    /> */}
+                    />
                   </div>
                   <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                     {entry.title}

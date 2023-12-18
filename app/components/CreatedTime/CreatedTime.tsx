@@ -10,6 +10,7 @@ import {
   format,
   formatISO9075,
 } from 'date-fns';
+import { utcToZonedTime } from 'date-fns-tz';
 
 type Props = Omit<React.ComponentProps<'time'>, 'dateTime'> & {
   createdAt: Date;
@@ -56,7 +57,7 @@ function formatCreatedAt(date: Date, base: Date) {
 }
 
 export default function CreatedTime({ createdAt, className }: Props) {
-  const now = new Date();
+  const now = utcToZonedTime(new Date(), 'Asia/Tokyo');
   return (
     <time dateTime={formatISO9075(createdAt)} className={className}>
       {formatCreatedAt(createdAt, now)}

@@ -1,5 +1,6 @@
 import { ZennArticle } from '@/app/types';
 import { Badge, Card, CardFooter, CardHeader, CreatedTime } from '..';
+import { formatISO9075 } from 'date-fns';
 
 type Props = {
   articles: ZennArticle[];
@@ -20,7 +21,7 @@ export default function ZennArticleList({
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CreatedTime
-                      createdAt={article.publishedAt}
+                      createdAt={formatISO9075(article.publishedAt)}
                       className="text-sm font-light text-gray-600 dark:text-gray-400"
                     />
                   </div>

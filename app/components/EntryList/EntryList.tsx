@@ -1,12 +1,14 @@
 import { Entry } from '@/app/types';
 import Link from 'next/link';
-import { Card, CardBody, CardFooter, CardHeader, TagList } from '..';
-import dynamic from 'next/dynamic';
-
-const CreatedTime = dynamic(
-  () => import('@/app/components/CreatedTime').then((mod) => mod.CreatedTime),
-  { ssr: false },
-);
+import {
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  CreatedTime,
+  TagList,
+} from '..';
+import { formatISO9075 } from 'date-fns';
 
 type Props = {
   entries: Entry[];
@@ -27,7 +29,7 @@ export default function EntryList({
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CreatedTime
-                      createdAt={entry.createdAt}
+                      createdAt={formatISO9075(entry.createdAt)}
                       className="text-sm font-light text-gray-600 dark:text-gray-400"
                     />
                   </div>

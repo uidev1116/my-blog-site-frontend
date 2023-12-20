@@ -12,7 +12,7 @@ import {
 } from 'date-fns';
 
 type Props = Omit<React.ComponentProps<'time'>, 'dateTime'> & {
-  createdAt: Date;
+  createdAt: string;
 };
 
 function formatCreatedAt(date: Date, base: Date) {

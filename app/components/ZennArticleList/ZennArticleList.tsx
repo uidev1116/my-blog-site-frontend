@@ -1,6 +1,12 @@
 import { ZennArticle } from '@/app/types';
-import { Badge, Card, CardFooter, CardHeader, CreatedTime } from '..';
+import { Badge, Card, CardFooter, CardHeader } from '..';
 import { formatISO9075 } from 'date-fns';
+import dynamic from 'next/dynamic';
+
+const CreatedTime = dynamic(
+  () => import('@/app/components/CreatedTime').then((mod) => mod.CreatedTime),
+  { ssr: false },
+);
 
 type Props = {
   articles: ZennArticle[];

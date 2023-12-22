@@ -53,13 +53,14 @@ export default async function BlogDetailPage({
   params: { code: string };
 }) {
   const { code } = params;
-  const entry = await getBlogEntry(code);
+  const [entry, relationalEntries] = await Promise.all([
+    getBlogEntry(code),
+    getTagRelationalEntries(code),
+  ]);
 
   if (entry === null) {
     notFound();
   }
-
-  const relationalEntries = await getTagRelationalEntries(code);
 
   return (
     <>

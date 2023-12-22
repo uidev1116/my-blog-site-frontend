@@ -192,9 +192,10 @@ export async function getOgp(acmsContext: AcmsContext = {}): Promise<Ogp> {
 export async function getMetadata(
   acmsContext: AcmsContext = {},
 ): Promise<Metadata> {
-  const { title, description, keywords, image } = await getOgp(acmsContext);
-
-  const { name, twitterAccount, googleSiteVerification } = await getRootBlog();
+  const [
+    { title, description, keywords, image },
+    { name, twitterAccount, googleSiteVerification },
+  ] = await Promise.all([getOgp(acmsContext), getRootBlog()]);
 
   const { blog, category, entry, page, tag, searchParams } = acmsContext;
 

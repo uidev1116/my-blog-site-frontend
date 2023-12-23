@@ -5,6 +5,7 @@ import { deleteNewLine, resolveRequestCache, truncate } from '../utils';
 import { AcmsContext, acmsPath } from '../lib';
 import { BASE_URL } from '../config';
 import acmsClient from '../lib/acms';
+import { get } from 'http';
 
 type EntriesResponse = {
   indexPath: string;
@@ -12,14 +13,14 @@ type EntriesResponse = {
   entries: Entry[];
 };
 
-type GlobalNavigation = {
+export type GlobalNavigation = {
   label: string;
   level: number;
   url: string;
   target: '_blank' | '';
 };
 
-type FooterNavigation = {
+export type FooterNavigation = {
   label: string;
   level: number;
   url: string;
@@ -138,6 +139,7 @@ export async function getRootBlog(): Promise<RootBlog> {
     github_account: githubAccount,
     youtube_account: youtubeAccount,
     google_site_verification: googleSiteVerification,
+    ga_tracking_id: gaId = '',
   } = data;
 
   return {
@@ -155,6 +157,7 @@ export async function getRootBlog(): Promise<RootBlog> {
     githubAccount,
     youtubeAccount,
     googleSiteVerification,
+    gaId,
   };
 }
 
@@ -271,17 +274,7 @@ export async function getMetadata(
   };
 }
 
-export async function getGaTrackingId(): Promise<string> {
-  if (process.env.NODE_ENV !== 'production') {
-    return '';
-  }
-  const { data } = await acmsClient.get(
-    {
-      blog: 1,
-      api: 'BF_ctx',
-    },
-    { requestInit: { cache: resolveRequestCache() } },
-  );
-
-  return data.ga_tracking_id || '';
+export async function getGaId(): Promise<string> {
+  const { gaId } = await getRootBlog();
+  return gaId;
 }

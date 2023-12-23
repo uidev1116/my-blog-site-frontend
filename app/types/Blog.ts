@@ -19,6 +19,7 @@ export type RootBlog = Blog & {
   youtubeAccount?: string;
   googleAnalytics?: string;
   googleSiteVerification?: string;
+  gaId: string;
 };
 
 export type BlogBlog = Blog & {

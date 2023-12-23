@@ -1,13 +1,16 @@
 import { Collapse } from '@/app/components';
 import NavLink from './NavLink';
 
-import { getGlobalNavigation } from '@/app/api';
+import type { GlobalNavigation } from '@/app/api';
 import { BlogSearchForm } from '@/app/components';
 import Link from 'next/link';
 import Image from 'next/image';
 
-export default async function Header() {
-  const data = await getGlobalNavigation();
+type Props = {
+  navigations: GlobalNavigation[];
+};
+
+export default async function Header({ navigations }: Props) {
   return (
     <header>
       <nav className="left-0 top-0 border-b border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-900">
@@ -73,9 +76,9 @@ export default async function Header() {
                 <BlogSearchForm id="mobile-blog-search-form" />
               </div>
               <div>
-                {data.length > 0 && (
+                {navigations.length > 0 && (
                   <ul className="mt-4 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 font-medium dark:border-gray-700 dark:bg-gray-800 md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:p-0 md:dark:bg-gray-900">
-                    {data.map((navigation) => (
+                    {navigations.map((navigation) => (
                       <li key={navigation.url}>
                         <NavLink
                           href={navigation.url}

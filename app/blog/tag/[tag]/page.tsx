@@ -88,7 +88,7 @@ export default async function BlogIndexPage({ params: { tag } }: Props) {
                         </span>
                       </div>
                       <div>
-                        <span className="text-sm text-gray-700 hover:text-primary-darkest">
+                        <span className="text-sm text-gray-700 hover:text-primary">
                           <Link href="/blog/">全て表示する</Link>
                         </span>
                       </div>

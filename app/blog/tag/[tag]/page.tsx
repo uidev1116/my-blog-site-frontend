@@ -1,8 +1,7 @@
-import { getBlogEntries } from '../../api';
-import { getAllBlogTags } from '../api';
+import { getBlogEntries } from '@/app/blog/api';
 import { Metadata } from 'next';
 import { getMetadata } from '@/app/api';
-import BlogIndexRoute from '../../routes/BlogIndexRoute';
+import BlogIndexRoute from '@/app/blog/routes/BlogIndexRoute';
 
 type Props = {
   params: { tag: string };

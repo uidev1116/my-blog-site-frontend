@@ -1,4 +1,4 @@
-import { getAllBlogTags } from '../api';
+import { getAllBlogTags } from '@/app/blog/tag/api';
 
 export async function generateStaticParams() {
   const tags = await getAllBlogTags();

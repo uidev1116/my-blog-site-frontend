@@ -17,13 +17,6 @@ export async function generateMetadata({
   });
 }
 
-export async function generateStaticParams() {
-  const tags = await getAllBlogTags();
-  return tags.map((tag) => ({
-    tag,
-  }));
-}
-
 export default async function BlogIndexPage({ params }: Props) {
   const tag = decodeURIComponent(params.tag);
   const { entries, pager } = await getBlogEntries({ tag: [tag] });

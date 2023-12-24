@@ -5,7 +5,6 @@ import { deleteNewLine, resolveRequestCache, truncate } from '../utils';
 import { AcmsContext, acmsPath } from '../lib';
 import { BASE_URL } from '../config';
 import acmsClient from '../lib/acms';
-import { get } from 'http';
 
 type EntriesResponse = {
   indexPath: string;

@@ -32,9 +32,9 @@ export default function EntryList({
                       className="text-sm font-light text-gray-600 dark:text-gray-400"
                     />
                   </div>
-                  <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                  <h3 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                     {entry.title}
-                  </h5>
+                  </h3>
                 </CardHeader>
                 {entry.summary && (
                   <CardBody className="flex-1">

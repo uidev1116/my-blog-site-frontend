@@ -16,7 +16,13 @@ export default async function Header({ navigations }: Props) {
       <nav className="left-0 top-0 border-b border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-900">
         <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
           <Link href="/" className="flex items-center">
-            <Image src="/logo.svg" alt="UiDev logo" width="105" height="30" />
+            <Image
+              src="/logo.svg"
+              alt="UiDev logo"
+              width="105"
+              height="30"
+              priority
+            />
           </Link>
           <div className="flex md:order-2">
             <Collapse

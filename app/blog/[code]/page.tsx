@@ -1,3 +1,4 @@
+import { draftMode } from 'next/headers';
 import { notFound } from 'next/navigation';
 import {
   getAllBlogEntries,
@@ -8,15 +9,20 @@ import { Metadata } from 'next';
 import { getMetadata } from '@/app/api';
 import { acmsPath } from '@/app/lib';
 import BlogDetailRoute from '../routes/BlogDetailRoute';
+import { PREVIEW_KEY } from '@/app/config/acms';
 
 export async function generateMetadata({
   params,
 }: {
   params: { code: string };
 }): Promise<Metadata> {
+  const { isEnabled } = draftMode();
   const { openGraph, twitter, ...rest } = await getMetadata({
     blog: 'blog',
     entry: params.code,
+    ...(isEnabled
+      ? { searchParams: new URLSearchParams({ previewKey: PREVIEW_KEY }) }
+      : {}),
   });
   // OGP画像は動的生成した画像を利用する
   delete openGraph?.images;
@@ -45,9 +51,10 @@ export default async function BlogDetailPage({
   params: { code: string };
 }) {
   const { code } = params;
+  const { isEnabled } = draftMode();
   const [entry, relationalEntries] = await Promise.all([
-    getBlogEntry(code),
-    getTagRelationalEntries(code),
+    getBlogEntry(code, isEnabled),
+    getTagRelationalEntries(code, isEnabled),
   ]);
 
   if (entry === null) {

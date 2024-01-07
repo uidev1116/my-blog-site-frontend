@@ -2,6 +2,7 @@ import { resolveRequestCache } from '@/app/utils';
 import type { BlogEntry, Tag } from '@/app/types';
 import type { AcmsContext } from '@/app/lib/acms/lib/acmsPath';
 import acmsClient from '@/app/lib/acms';
+import { PREVIEW_KEY } from '@/app/config/acms';
 
 type EntriesResponse = {
   entries: BlogEntry[];
@@ -132,12 +133,16 @@ export async function getAllBlogEntries(): Promise<BlogEntry[]> {
 
 export async function getTagRelationalEntries(
   entryCode: string,
+  isPreview: boolean = false,
 ): Promise<BlogEntry[]> {
   const { data } = await acmsClient.get(
     {
       blog: 'blog',
       entry: entryCode,
       api: 'tag_relational_index',
+      ...(isPreview
+        ? { searchParams: new URLSearchParams({ previewKey: PREVIEW_KEY }) }
+        : {}),
     },
     { requestInit: { cache: resolveRequestCache() } },
   );
@@ -164,12 +169,16 @@ export async function getTagRelationalEntries(
 
 export async function getBlogEntry(
   entryCode: string,
+  isPreview: boolean = false,
 ): Promise<BlogEntry | null> {
   const { data } = await acmsClient.get(
     {
       blog: 'blog',
       entry: entryCode,
       api: 'body_detail',
+      ...(isPreview
+        ? { searchParams: new URLSearchParams({ previewKey: PREVIEW_KEY }) }
+        : {}),
     },
     { requestInit: { cache: resolveRequestCache() } },
   );

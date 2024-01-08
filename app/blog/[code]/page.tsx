@@ -52,15 +52,13 @@ export default async function BlogDetailPage({
 }) {
   const { code } = params;
   const { isEnabled } = draftMode();
-  const [entry, relationalEntries] = await Promise.all([
-    getBlogEntry(code, isEnabled),
-    getTagRelationalEntries(code, isEnabled),
-  ]);
+  const entry = await getBlogEntry(code, isEnabled);
 
   if (entry === null) {
     notFound();
   }
 
+  const relationalEntries = await getTagRelationalEntries(entry.code);
   return (
     <BlogDetailRoute entry={entry} relationalEntries={relationalEntries} />
   );

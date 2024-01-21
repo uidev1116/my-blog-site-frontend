@@ -1,8 +1,8 @@
+import acmsPath from '@uidev1116/acms-js-sdk/acmsPath';
 import { getBlogEntries } from '../api';
 import { Metadata } from 'next';
 import { getMetadata } from '@/app/api';
 import { objToSearchParams } from '@/app/utils';
-import { acmsPath } from '@/app/lib/acms/lib/acmsPath';
 import BlogIndexRoute from '../routes/BlogIndexRoute';
 
 export const dynamic = 'force-dynamic';

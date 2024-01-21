@@ -7,7 +7,7 @@ import {
 } from '../api';
 import { Metadata } from 'next';
 import { getMetadata } from '@/app/api';
-import { acmsPath } from '@/app/lib';
+import acmsPath from '@uidev1116/acms-js-sdk/acmsPath';
 import BlogDetailRoute from '../routes/BlogDetailRoute';
 import { PREVIEW_KEY } from '@/app/config/acms';
 

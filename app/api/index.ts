@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { MEDIA_BASE_URL } from '../config/acms';
 import type { Entry, RootBlog } from '../types';
 import { deleteNewLine, resolveRequestCache, truncate } from '../utils';
-import { AcmsContext, acmsPath } from '../lib';
+import acmsPath, { type AcmsContext } from '@uidev1116/acms-js-sdk/acmsPath';
 import { BASE_URL } from '../config';
 import acmsClient from '../lib/acms';
 

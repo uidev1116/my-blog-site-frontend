@@ -1,6 +1,6 @@
 import { resolveRequestCache } from '@/app/utils';
 import type { BlogEntry, Tag } from '@/app/types';
-import type { AcmsContext } from '@/app/lib/acms/lib/acmsPath';
+import type { AcmsContext } from '@uidev1116/acms-js-sdk/acmsPath';
 import acmsClient from '@/app/lib/acms';
 import { PREVIEW_KEY } from '@/app/config/acms';
 

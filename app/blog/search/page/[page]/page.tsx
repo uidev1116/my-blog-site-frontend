@@ -2,7 +2,7 @@ import { getBlogEntries } from '../../../api';
 import { Metadata } from 'next';
 import { getMetadata } from '@/app/api';
 import { objToSearchParams } from '@/app/utils';
-import { acmsPath } from '@/app/lib/acms/lib/acmsPath';
+import acmsPath from '@uidev1116/acms-js-sdk/acmsPath';
 import BlogIndexRoute from '@/app/blog/routes/BlogIndexRoute';
 
 type Props = {

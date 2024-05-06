@@ -8,6 +8,16 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      // Basic redirect
+      {
+        source: '/blog/entry-106.html',
+        destination: '/blog/ablogcms-next-rss-feed.html',
+        permanent: true,
+      },
+    ];
+  },
   trailingSlash: true,
 };
 

@@ -1,4 +1,4 @@
-import { Metadata } from 'next';
+import { Metadata, MetadataRoute } from 'next';
 import { MEDIA_BASE_URL } from '../config/acms';
 import type { Entry, RootBlog } from '../types';
 import { deleteNewLine, resolveRequestCache, truncate } from '../utils';
@@ -276,4 +276,20 @@ export async function getMetadata(
 export async function getGaId(): Promise<string> {
   const { gaId } = await getRootBlog();
   return gaId;
+}
+
+export async function getSitemap(): Promise<MetadataRoute.Sitemap> {
+  const { data } = await acmsClient.get(
+    {
+      api: 'sitemap',
+    },
+    { requestInit: { cache: resolveRequestCache() } },
+  );
+
+  const { 'url:loop': urls = [] } = data;
+
+  return urls.map((url: any) => ({
+    url: new URL(new URL(url.loc).pathname, BASE_URL).toString(),
+    lastModified: url.lastmod,
+  }));
 }

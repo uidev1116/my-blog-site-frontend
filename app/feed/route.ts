@@ -1,4 +1,4 @@
-import { Feed, FeedOptions } from 'feed';
+import { Feed } from 'feed';
 import { getOgp } from '../api';
 import { deleteNewLine, truncate } from '../utils';
 import { BASE_URL } from '../config';
@@ -6,8 +6,7 @@ import { getRssFeed } from './api';
 import { MEDIA_BASE_URL } from '../config/acms';
 
 export async function GET() {
-  const ogp = await getOgp();
-  const rss = await getRssFeed();
+  const [ogp, rss] = await Promise.all([getOgp(), getRssFeed()]);
 
   const feed = new Feed({
     title: ogp.title,

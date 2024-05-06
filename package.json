@@ -24,6 +24,7 @@
     "downshift": "^8.2.2",
     "eslint": "8.45.0",
     "eslint-config-next": "13.4.12",
+    "feed": "^4.2.2",
     "flowbite": "^2.2.0",
     "html-react-parser": "^5.0.7",
     "leaflet": "^1.9.4",

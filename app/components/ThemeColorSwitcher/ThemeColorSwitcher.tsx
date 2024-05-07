@@ -1,7 +1,7 @@
 'use client';
 
 import { useLocalStorage } from '@/app/hooks';
-import { isBrowser } from '@/app/utils';
+import clsx from 'clsx';
 import { initDropdowns } from 'flowbite';
 import React, { useEffect, useState } from 'react';
 
@@ -10,7 +10,6 @@ const colorThemes = [
     name: 'light',
     icon: (
       <svg
-        className="text-gray-800 dark:text-white"
         aria-hidden="true"
         xmlns="http://www.w3.org/2000/svg"
         width="24"
@@ -32,7 +31,6 @@ const colorThemes = [
     name: 'dark',
     icon: (
       <svg
-        className="text-gray-800 dark:text-white"
         aria-hidden="true"
         xmlns="http://www.w3.org/2000/svg"
         width="24"
@@ -54,7 +52,6 @@ const colorThemes = [
     name: 'system',
     icon: (
       <svg
-        className="text-gray-800 dark:text-white"
         aria-hidden="true"
         xmlns="http://www.w3.org/2000/svg"
         width="24"
@@ -137,7 +134,13 @@ function ThemeColorSwitcher() {
       <button
         id="themeColorSwitcher"
         data-dropdown-toggle="theme-color-switcher"
-        className="itext-gray-500 inline-flex h-10 w-10 items-center justify-center rounded-lg p-2.5 text-sm hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
+        className={clsx(
+          'inline-flex h-10 w-10 items-center justify-center rounded-lg p-2.5 text-sm hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:hover:bg-gray-700 dark:focus:ring-gray-700',
+          {
+            'text-primary': colorTheme !== undefined,
+            'text-gray-800 dark:text-white': colorTheme === undefined,
+          },
+        )}
         type="button"
       >
         {renderIcon(colorTheme)}
@@ -150,20 +153,23 @@ function ThemeColorSwitcher() {
           className="py-2 text-sm text-gray-700 dark:text-gray-200"
           aria-labelledby="themeColorSwitcher"
         >
-          {colorThemes.map((colorTheme) => (
-            <li key={colorTheme.name}>
+          {colorThemes.map((theme) => (
+            <li
+              key={theme.name}
+              className={clsx('group', {
+                'is-selected': theme.name === colorTheme,
+              })}
+            >
               <button
                 type="button"
-                className="block w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                className="block w-full px-4 py-2 text-gray-800 hover:bg-gray-100 group-[.is-selected]:text-primary dark:text-white dark:hover:bg-gray-600"
                 onClick={() =>
-                  changeColorTheme(
-                    colorTheme.name as 'light' | 'dark' | 'system',
-                  )
+                  changeColorTheme(theme.name as 'light' | 'dark' | 'system')
                 }
               >
                 <span className="flex items-center gap-x-2">
-                  <span>{colorTheme.icon}</span>
-                  <span className="font-bold">{colorTheme.name}</span>
+                  <span>{theme.icon}</span>
+                  <span className="font-bold">{theme.name}</span>
                 </span>
               </button>
             </li>

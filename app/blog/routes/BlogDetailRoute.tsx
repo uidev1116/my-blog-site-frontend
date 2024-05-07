@@ -27,7 +27,7 @@ export default function BlogDetailRoute({ entry, relationalEntries }: Props) {
                     {entry.title}
                   </h1>
                 </div>
-                <div className="text-right text-sm">
+                <div className="text-right text-sm text-black dark:text-white">
                   公開日:{' '}
                   <time dateTime={formatISO9075(entry.createdAt)}>
                     {format(entry.createdAt, 'yyyy/MM/dd')}
@@ -39,7 +39,7 @@ export default function BlogDetailRoute({ entry, relationalEntries }: Props) {
                   </div>
                 )}
                 <div>
-                  <div className="border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-700">
+                  <div className="border border-gray-200 bg-white p-4 shadow dark:border-gray-700 dark:bg-gray-900">
                     <h2 className="mb-3 font-bold dark:text-white">目次</h2>
                     <nav
                       className="js-outline-yield break-words"

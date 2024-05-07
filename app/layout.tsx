@@ -17,7 +17,7 @@ export default async function RootLayout({
 
   return (
     <html lang="ja" className="scroll-pt-2 scroll-smooth">
-      <body>
+      <body className="bg-white dark:bg-gray-900">
         <BuildInJs />
         <Header navigations={globalNavigations} />
         {children}

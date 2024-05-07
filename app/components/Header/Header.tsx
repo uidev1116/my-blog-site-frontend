@@ -1,4 +1,4 @@
-import { Collapse } from '@/app/components';
+import { Collapse, ThemeColorSwitcher } from '@/app/components';
 import NavLink from './NavLink';
 
 import type { GlobalNavigation } from '@/app/api';
@@ -47,8 +47,13 @@ export default async function Header({ navigations }: Props) {
               <span className="sr-only">Search</span>
             </Collapse>
             <div className="hidden md:block">
-              <div className="w-72">
-                <BlogSearchForm id="blog-search-form" />
+              <div className="flex items-center gap-x-2">
+                <div>
+                  <ThemeColorSwitcher />
+                </div>
+                <div className="w-72">
+                  <BlogSearchForm id="blog-search-form" />
+                </div>
               </div>
             </div>
             <Collapse

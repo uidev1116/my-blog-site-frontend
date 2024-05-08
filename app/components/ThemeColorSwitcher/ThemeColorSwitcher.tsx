@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  ColorTheme,
-  isDarkMode,
-  useColorThemeStore,
-} from '@/app/stores/color-theme';
+import { isDarkMode, useColorThemeStore } from '@/app/stores/color-theme';
 import clsx from 'clsx';
 import { initDropdowns } from 'flowbite';
 import React, { useEffect, useId, useState } from 'react';

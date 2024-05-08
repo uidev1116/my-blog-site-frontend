@@ -21,13 +21,15 @@ const ColorThemeContext = createContext<ColorThemeContextType>({
   removeColorTheme: () => {},
 });
 
+const STORAGE_KEY = 'color-theme';
+
 function ColorThemeContextProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const [colorTheme, changeColorTheme, removeColorTheme] =
-    useLocalStorage<ColorTheme>('color-theme');
+    useLocalStorage<ColorTheme>(STORAGE_KEY);
 
   useEffect(() => {
     if (isDarkMode(colorTheme)) {
@@ -41,6 +43,17 @@ function ColorThemeContextProvider({
     <ColorThemeContext.Provider
       value={{ colorTheme, changeColorTheme, removeColorTheme }}
     >
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            if ((localStorage['${STORAGE_KEY}'] !== undefined && JSON.parse(localStorage['${STORAGE_KEY}']) === 'dark') || (!('${STORAGE_KEY}' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+              document.documentElement.classList.add('dark')
+            } else {
+              document.documentElement.classList.remove('dark')
+            }
+          `,
+        }}
+      />
       {children}
     </ColorThemeContext.Provider>
   );
@@ -62,4 +75,5 @@ function isDarkMode(colorTheme: ColorTheme) {
   return false;
 }
 
-export { ColorThemeContextProvider, useColorThemeStore, isDarkMode };
+export default ColorThemeContextProvider;
+export { useColorThemeStore, isDarkMode };

@@ -12,7 +12,7 @@ type Props = {
 
 export default async function Header({ navigations }: Props) {
   return (
-    <header>
+    <header className="sticky top-0 z-10">
       <nav className="left-0 top-0 border-b border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-900">
         <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
           <Link href="/" className="flex items-center">

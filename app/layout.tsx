@@ -18,7 +18,7 @@ export default async function RootLayout({
 
   return (
     <ColorThemeContextProvider>
-      <html lang="ja" className="scroll-pt-2 scroll-smooth">
+      <html lang="ja" className="scroll-pt-20 scroll-smooth">
         <body className="bg-white dark:bg-gray-900">
           <BuildInJs />
           <Header navigations={globalNavigations} />

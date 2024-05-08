@@ -3,8 +3,7 @@ import NavLink from './NavLink';
 
 import type { GlobalNavigation } from '@/app/api';
 import { BlogSearchForm } from '@/app/components';
-import Link from 'next/link';
-import Image from 'next/image';
+import Logo from './Logo';
 
 type Props = {
   navigations: GlobalNavigation[];
@@ -15,15 +14,7 @@ export default async function Header({ navigations }: Props) {
     <header className="sticky top-0 z-10">
       <nav className="left-0 top-0 border-b border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-900">
         <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/logo.svg"
-              alt="UiDev logo"
-              width="105"
-              height="30"
-              priority
-            />
-          </Link>
+          <Logo />
           <div className="flex md:order-2">
             <div className="block md:hidden">
               <ThemeColorSwitcher />

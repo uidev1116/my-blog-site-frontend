@@ -6,6 +6,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useMemo,
 } from 'react';
 import { useLocalStorage } from 'react-use';
 
@@ -31,6 +32,14 @@ function ColorThemeContextProvider({
   const [colorTheme, changeColorTheme, removeColorTheme] =
     useLocalStorage<ColorTheme>(STORAGE_KEY);
 
+  const value = useMemo(() => {
+    return {
+      colorTheme,
+      changeColorTheme,
+      removeColorTheme,
+    };
+  }, [colorTheme, changeColorTheme, removeColorTheme]);
+
   useEffect(() => {
     if (isDarkMode(colorTheme)) {
       document.documentElement.classList.add('dark');
@@ -40,9 +49,7 @@ function ColorThemeContextProvider({
   }, [colorTheme]);
 
   return (
-    <ColorThemeContext.Provider
-      value={{ colorTheme, changeColorTheme, removeColorTheme }}
-    >
+    <ColorThemeContext.Provider value={value}>
       <script
         dangerouslySetInnerHTML={{
           __html: `
@@ -64,10 +71,13 @@ function useColorThemeStore() {
 }
 
 function isDarkMode(colorTheme: ColorTheme) {
+  if (colorTheme === 'dark') {
+    return true;
+  }
+
   if (
-    colorTheme === 'dark' ||
-    (colorTheme === undefined &&
-      window.matchMedia('(prefers-color-scheme: dark)').matches)
+    colorTheme === undefined &&
+    window.matchMedia('(prefers-color-scheme: dark)').matches
   ) {
     return true;
   }

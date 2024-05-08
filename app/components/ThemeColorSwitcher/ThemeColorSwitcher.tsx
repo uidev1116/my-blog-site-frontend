@@ -147,7 +147,9 @@ function ThemeColorSwitcher() {
               <button
                 type="button"
                 className="block w-full px-4 py-2 text-gray-800 hover:bg-gray-100 group-[.is-selected]:text-primary dark:text-white dark:hover:bg-gray-600"
-                onClick={() => handleClick(theme.name)}
+                onClick={() =>
+                  handleClick(theme.name as 'light' | 'dark' | 'system')
+                }
               >
                 <span className="flex items-center gap-x-2">
                   <span>{theme.icon}</span>

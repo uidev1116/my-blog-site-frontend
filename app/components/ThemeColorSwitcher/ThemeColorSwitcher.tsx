@@ -1,9 +1,13 @@
 'use client';
 
-import { useLocalStorage } from '@/app/hooks';
+import {
+  ColorTheme,
+  isDarkMode,
+  useColorThemeStore,
+} from '@/app/stores/color-theme';
 import clsx from 'clsx';
 import { initDropdowns } from 'flowbite';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 
 const colorThemes = [
   {
@@ -72,6 +76,7 @@ const colorThemes = [
 ];
 
 function ThemeColorSwitcher() {
+  const id = useId();
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -79,31 +84,22 @@ function ThemeColorSwitcher() {
     initDropdowns();
   }, []);
 
-  const [colorTheme, setColorTheme, removeColorTheme] = useLocalStorage<
-    'light' | 'dark'
-  >('color-theme');
+  const { colorTheme, changeColorTheme, removeColorTheme } =
+    useColorThemeStore();
 
-  function changeColorTheme(colorTheme: 'light' | 'dark' | 'system') {
+  function handleClick(colorTheme: 'light' | 'dark' | 'system') {
     if (colorTheme === 'system') {
       removeColorTheme();
     } else {
-      setColorTheme(colorTheme);
+      changeColorTheme(colorTheme);
     }
     // @ts-ignore
     const dropdown = FlowbiteInstances.getInstance(
       'Dropdown',
-      'theme-color-switcher',
+      `dropdown-${id}`,
     );
     dropdown.hide();
   }
-
-  useEffect(() => {
-    if (isDarkMode(colorTheme)) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [colorTheme]);
 
   function renderIcon(colorTheme?: 'light' | 'dark') {
     if (isDarkMode(colorTheme)) {
@@ -113,18 +109,6 @@ function ThemeColorSwitcher() {
     return colorThemes.find((theme) => theme.name === 'light')?.icon;
   }
 
-  function isDarkMode(colorTheme?: 'light' | 'dark') {
-    if (
-      colorTheme === 'dark' ||
-      (colorTheme === undefined &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches)
-    ) {
-      return true;
-    }
-
-    return false;
-  }
-
   if (!isClient) {
     return null;
   }
@@ -132,8 +116,8 @@ function ThemeColorSwitcher() {
   return (
     <>
       <button
-        id="themeColorSwitcher"
-        data-dropdown-toggle="theme-color-switcher"
+        id={id}
+        data-dropdown-toggle={`dropdown-${id}`}
         className={clsx(
           'inline-flex h-10 w-10 items-center justify-center rounded-lg p-2.5 text-sm hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:hover:bg-gray-700 dark:focus:ring-gray-700',
           {
@@ -146,7 +130,7 @@ function ThemeColorSwitcher() {
         {renderIcon(colorTheme)}
       </button>
       <div
-        id="theme-color-switcher"
+        id={`dropdown-${id}`}
         className="z-10 hidden w-36 divide-y divide-gray-100 rounded-lg bg-white shadow dark:bg-gray-700"
       >
         <ul
@@ -163,9 +147,7 @@ function ThemeColorSwitcher() {
               <button
                 type="button"
                 className="block w-full px-4 py-2 text-gray-800 hover:bg-gray-100 group-[.is-selected]:text-primary dark:text-white dark:hover:bg-gray-600"
-                onClick={() =>
-                  changeColorTheme(theme.name as 'light' | 'dark' | 'system')
-                }
+                onClick={() => handleClick(theme.name)}
               >
                 <span className="flex items-center gap-x-2">
                   <span>{theme.icon}</span>

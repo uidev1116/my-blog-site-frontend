@@ -18,6 +18,7 @@ export * from './ShareSocialMedia';
 export * from './Spinner';
 export * from './Tabs';
 export * from './TagList';
+export * from './ThemeColorSwitcher';
 export * from './Unit';
 export * from './UnitIndex';
 export * from './ZennArticleList';

@@ -23,8 +23,7 @@ export default function TagList({ tags = [], isLink = false }: Props) {
           >
             <Badge
               className={clsx({
-                ['group-hover:bg-yellow-200 dark:group-hover:bg-yellow-300']:
-                  isLink,
+                ['group-hover:bg-yellow-200 group-hover:bg-yellow-300']: isLink,
               })}
             >
               #{tag.name}

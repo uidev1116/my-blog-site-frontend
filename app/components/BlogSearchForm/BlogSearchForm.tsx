@@ -115,7 +115,7 @@ export default function BlogSearchForm({ id }: Props) {
       <div>
         <ul
           className={clsx(
-            'absolute z-10 mt-1 max-h-80 w-full overflow-scroll bg-white p-0 shadow-md',
+            'absolute z-10 mt-1 max-h-80 w-full overflow-scroll border-gray-200 bg-white p-0 text-black shadow-md dark:border-gray-700 dark:bg-gray-900 dark:text-white',
             {
               hidden: !isOpen,
             },
@@ -141,7 +141,7 @@ export default function BlogSearchForm({ id }: Props) {
     return (
       <li
         className={clsx(
-          highlightedIndex === index && 'bg-gray-100',
+          highlightedIndex === index && 'bg-gray-100 dark:bg-gray-700',
           selectedItem === item && 'font-bold',
           'flex flex-col px-3 py-2 shadow-sm',
         )}

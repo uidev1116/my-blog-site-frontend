@@ -36,7 +36,7 @@ export default forwardRef<HTMLAnchorElement, Props>(function RichLink(
         </div>
         <div className="flex flex-col justify-between p-4">
           <div className="space-y-2">
-            <h3 className="js-except line-clamp-1 text-base font-medium leading-tight tracking-tight text-black hover:underline md:line-clamp-2">
+            <h3 className="js-except line-clamp-1 text-base font-medium leading-tight tracking-tight text-black hover:underline dark:text-white md:line-clamp-2">
               {title}
             </h3>
             <p className="line-clamp-2 text-sm text-gray-500">{description}</p>

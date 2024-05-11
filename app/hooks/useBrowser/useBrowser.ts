@@ -4,7 +4,7 @@ export default function useBrowser() {
   const [isBrowser, setIsBrowser] = useState(false);
   useEffect(() => {
     setIsBrowser(true);
-  });
+  }, [setIsBrowser]);
 
   return isBrowser;
 }

@@ -154,7 +154,7 @@ function ThemeColorSwitcher() {
               >
                 <span className="flex items-center gap-x-2">
                   <span>{theme.icon}</span>
-                  <span className="font-bold">{theme.name}</span>
+                  <span className="font-bold capitalize">{theme.name}</span>
                 </span>
               </button>
             </li>

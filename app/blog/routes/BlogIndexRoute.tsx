@@ -50,7 +50,9 @@ export default function BlogIndexRoute({ entries, pagination, tag }: Props) {
                         <div className="mb-4 flex items-center justify-between">
                           <div className="m-1 inline-flex flex-1">
                             <span>
-                              <span className="text-sm">タグ:</span>
+                              <span className="text-sm text-gray-700 dark:text-white">
+                                タグ:
+                              </span>
                             </span>
                             <span className="inline-flex flex-1 flex-wrap items-center gap-2 px-3 py-0.5 text-sm">
                               <span>
@@ -59,7 +61,7 @@ export default function BlogIndexRoute({ entries, pagination, tag }: Props) {
                             </span>
                           </div>
                           <div>
-                            <span className="text-sm text-gray-700 hover:text-primary">
+                            <span className="text-sm text-gray-700 hover:text-primary dark:text-white">
                               <Link href="/blog/">全て表示する</Link>
                             </span>
                           </div>

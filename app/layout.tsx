@@ -17,12 +17,8 @@ export default async function RootLayout({
   ]);
 
   return (
-    <html
-      lang="ja"
-      className="scroll-pt-20 scroll-smooth"
-      suppressHydrationWarning
-    >
-      <body className="bg-white dark:bg-gray-900">
+    <html lang="ja" suppressHydrationWarning>
+      <body>
         <ColorThemeContextProvider>
           <BuildInJs />
           <Header navigations={globalNavigations} />

@@ -1,4 +1,4 @@
-// const plugin = require('tailwindcss/plugin')
+const plugin = require('tailwindcss/plugin');
 const colors = require('tailwindcss/colors');
 
 /** @type {import('tailwindcss').Config} */
@@ -58,28 +58,34 @@ module.exports = {
   plugins: [
     require('flowbite/plugin'),
     require('flowbite-typography'),
-    // plugin(function ({ addBase, addComponents, addUtilities, theme }) {
-    //   addBase({
-    //     'h1': {
-    //       fontSize: theme('fontSize.2xl'),
-    //     },
-    //     'h2': {
-    //       fontSize: theme('fontSize.xl'),
-    //     },
-    //   })
-    //   addComponents({
-    //     '.card': {
-    //       backgroundColor: theme('colors.white'),
-    //       borderRadius: theme('borderRadius.lg'),
-    //       padding: theme('spacing.6'),
-    //       boxShadow: theme('boxShadow.xl'),
-    //     }
-    //   })
-    //   addUtilities({
-    //     '.content-auto': {
-    //       contentVisibility: 'auto',
-    //     }
-    //   })
-    // })
+    plugin(function ({ addBase, addComponents, addUtilities, theme }) {
+      addBase({
+        html: {
+          scrollPaddingTop: theme('spacing.20'),
+          scrollBehavior: 'smooth',
+        },
+        body: {
+          backgroundColor: theme('colors.white'),
+          color: theme('colors.gray.900'),
+        },
+        '.dark body': {
+          backgroundColor: theme('colors.gray.900'),
+          color: theme('colors.white'),
+        },
+      });
+      // addComponents({
+      //   '.card': {
+      //     backgroundColor: theme('colors.white'),
+      //     borderRadius: theme('borderRadius.lg'),
+      //     padding: theme('spacing.6'),
+      //     boxShadow: theme('boxShadow.xl'),
+      //   }
+      // })
+      // addUtilities({
+      //   '.content-auto': {
+      //     contentVisibility: 'auto',
+      //   }
+      // })
+    }),
   ],
 };

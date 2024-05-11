@@ -1,9 +1,10 @@
 'use client';
 
+import { useBrowser } from '@/app/hooks';
 import { isDarkMode, useColorThemeStore } from '@/app/stores/color-theme';
 import clsx from 'clsx';
 import { initDropdowns } from 'flowbite';
-import React, { useEffect, useId, useState } from 'react';
+import React, { useEffect, useId, useMemo } from 'react';
 
 const colorThemes = [
   {
@@ -73,15 +74,18 @@ const colorThemes = [
 
 function ThemeColorSwitcher() {
   const id = useId();
-  const [isClient, setIsClient] = useState(false);
+  const isBrowser = useBrowser();
 
   useEffect(() => {
-    setIsClient(true);
-    initDropdowns();
-  }, []);
+    if (isBrowser) {
+      initDropdowns();
+    }
+  }, [isBrowser]);
 
   const { colorTheme, changeColorTheme, removeColorTheme } =
     useColorThemeStore();
+
+  const colorThemeName = useMemo(() => colorTheme ?? 'system', [colorTheme]);
 
   function handleClick(colorTheme: 'light' | 'dark' | 'system') {
     if (colorTheme === 'system') {
@@ -98,14 +102,14 @@ function ThemeColorSwitcher() {
   }
 
   function renderIcon(colorTheme?: 'light' | 'dark') {
-    if (isDarkMode(colorTheme)) {
+    if (isBrowser && isDarkMode(colorTheme)) {
       return colorThemes.find((theme) => theme.name === 'dark')?.icon;
     }
 
     return colorThemes.find((theme) => theme.name === 'light')?.icon;
   }
 
-  if (!isClient) {
+  if (!isBrowser) {
     return null;
   }
 
@@ -117,8 +121,9 @@ function ThemeColorSwitcher() {
         className={clsx(
           'inline-flex h-10 w-10 items-center justify-center rounded-lg p-2.5 text-sm hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:hover:bg-gray-700 dark:focus:ring-gray-700',
           {
-            'text-primary': colorTheme !== undefined,
-            'text-gray-800 dark:text-white': colorTheme === undefined,
+            'text-primary': isBrowser && colorTheme !== undefined,
+            'text-gray-800 dark:text-white':
+              isBrowser && colorTheme === undefined,
           },
         )}
         type="button"
@@ -137,7 +142,7 @@ function ThemeColorSwitcher() {
             <li
               key={theme.name}
               className={clsx('group', {
-                'is-selected': theme.name === colorTheme,
+                'is-selected': theme.name === colorThemeName,
               })}
             >
               <button

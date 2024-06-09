@@ -16,6 +16,7 @@
     "@types/react": "18.2.15",
     "@types/react-dom": "18.2.7",
     "@uidev1116/acms-js-sdk": "^0.0.2",
+    "@vscode/vscode-languagedetection": "^1.0.22",
     "clsx": "^2.0.0",
     "cross-fetch": "^4.0.0",
     "date-fns": "^2.30.0",
@@ -50,6 +51,7 @@
     "@types/react-copy-to-clipboard": "^5.0.7",
     "@vitejs/plugin-react": "^4.2.0",
     "autoprefixer": "^10.4.14",
+    "encoding": "^0.1.13",
     "eslint-config-prettier": "^8.9.0",
     "eslint-plugin-jsx-a11y": "^6.7.1",
     "flowbite-typography": "^1.0.3",
@@ -58,6 +60,7 @@
     "postcss": "^8.4.27",
     "prettier": "^2.8.8",
     "prettier-plugin-tailwindcss": "^0.4.1",
+    "shiki": "^1.6.3",
     "tailwindcss": "^3.3.3",
     "typescript": "^5.2.2",
     "vitest": "^0.34.6"

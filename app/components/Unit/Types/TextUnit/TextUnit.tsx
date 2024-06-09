@@ -10,6 +10,7 @@ import parse, {
 import type { Unit, TextUnit } from '@/app/types';
 import { nl2br } from '@/app/utils';
 import Link from 'next/link';
+import { highlight } from '@/app/lib/shiki';
 
 const options: HTMLReactParserOptions = {
   replace(domNode) {
@@ -40,7 +41,7 @@ function line2List(string: string): React.ReactElement[] {
     });
 }
 
-export default function TextUnit({
+export default async function TextUnit({
   attr,
   tag,
   text,
@@ -72,11 +73,8 @@ export default function TextUnit({
       </blockquote>
     );
   } else if (tag === 'pre') {
-    return (
-      <pre>
-        <code className={getClassName(attr)}>{text}</code>
-      </pre>
-    );
+    const html = await highlight(text, 'houston');
+    return <>{parse(html)}</>;
   } else if (tag === 'none') {
     return <>{parse(text, options)}</>;
   } else if (tag === 'markdown') {

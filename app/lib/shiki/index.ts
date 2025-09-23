@@ -8,7 +8,6 @@ type ShikiLanguage =
       | 'ts'
       | 'js'
       | 'json'
-      | 'markdown'
       | 'sh'
       | 'yaml'
       | 'css'
@@ -32,7 +31,6 @@ const langs: ShikiLanguage[] = [
   'ts',
   'js',
   'json',
-  'markdown',
   'sh',
   'yaml',
   'css',
@@ -63,12 +61,12 @@ export async function highlight(
     });
   }
 
-  let detectedLang: string | undefined;
+  let detectedLang: ShikiLanguage | undefined;
   if (!lang) {
     const detectedLangs = await detectLanguages(code);
     detectedLang = detectedLangs.find((detectedLang) =>
-      langs.includes(detectedLang as ShikiLanguage),
-    ) as ShikiLanguage;
+      langs.includes(detectedLang),
+    );
   }
 
   const html = highlighter.codeToHtml(code, {
@@ -79,8 +77,29 @@ export async function highlight(
   return html;
 }
 
+const langMap = new Map<string, ShikiLanguage[]>([
+  ['ts', ['ts']],
+  ['js', ['js']],
+  ['json', ['json']],
+  ['md', ['md']],
+  ['sh', ['sh']],
+  ['yaml', ['yaml']],
+  ['css', ['css']],
+  ['html', ['html']],
+  ['xml', ['xml']],
+  ['csv', ['csv']],
+  ['jsx', ['jsx']],
+  ['tsx', ['tsx']],
+  ['php', ['php']],
+  ['sass', ['sass']],
+  ['scss', ['scss']],
+  ['vue', ['vue']],
+  ['sql', ['sql']],
+  ['postcss', ['postcss']],
+]);
+
 let modelOperations: ModelOperations;
-async function detectLanguages(code: string): Promise<string[]> {
+async function detectLanguages(code: string): Promise<ShikiLanguage[]> {
   if (!modelOperations) {
     modelOperations = new ModelOperations({
       async modelJsonLoaderFunc() {
@@ -117,5 +136,5 @@ async function detectLanguages(code: string): Promise<string[]> {
   }
 
   const results = await modelOperations.runModel(code);
-  return results.map((result) => result.languageId);
+  return results.map((result) => langMap.get(result.languageId) ?? []).flat();
 }

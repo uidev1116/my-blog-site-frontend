@@ -4,11 +4,10 @@ import { Metadata } from 'next';
 import { getMetadata } from '@/app/api';
 import BlogIndexRoute from '../../routes/BlogIndexRoute';
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { page: string };
+export async function generateMetadata(props: {
+  params: Promise<{ page: string }>;
 }): Promise<Metadata> {
+  const params = await props.params;
   return await getMetadata({ blog: 'blog', page: parseInt(params.page, 10) });
 }
 
@@ -19,11 +18,10 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function BlogIndexPage({
-  params,
-}: {
-  params: { page: string };
+export default async function BlogIndexPage(props0: {
+  params: Promise<{ page: string }>;
 }) {
+  const params = await props0.params;
   const page = parseInt(params.page);
   const { entries, pager } = await getBlogEntries({ page });
 

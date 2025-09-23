@@ -4,11 +4,10 @@ import { getZennArticles } from '../../api';
 import { range } from '@/app/utils';
 import ZennArticleIndexRoute from '../../routes/ZennArticleIndexRoute';
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { page: string };
+export async function generateMetadata(props: {
+  params: Promise<{ page: string }>;
 }): Promise<Metadata> {
+  const params = await props.params;
   return await getMetadata({
     blog: 'blog',
     category: 'zenn',
@@ -36,11 +35,10 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function ZennArticlesPage({
-  params,
-}: {
-  params: { page: string };
+export default async function ZennArticlesPage(props: {
+  params: Promise<{ page: string }>;
 }) {
+  const params = await props.params;
   const page = parseInt(params.page, 10);
   const { articles, nextPage } = await getZennArticles(page);
 

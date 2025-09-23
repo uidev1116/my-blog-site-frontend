@@ -4,19 +4,22 @@ import { getMetadata } from '@/app/api';
 import BlogIndexRoute from '@/app/blog/routes/BlogIndexRoute';
 
 type Props = {
-  params: { tag: string };
+  params: Promise<{ tag: string }>;
 };
 
-export async function generateMetadata({
-  params: { tag },
-}: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
+
+  const { tag } = params;
+
   return await getMetadata({
     blog: 'blog',
     tag: [decodeURIComponent(tag)],
   });
 }
 
-export default async function BlogIndexPage({ params }: Props) {
+export default async function BlogIndexPage(props0: Props) {
+  const params = await props0.params;
   const tag = decodeURIComponent(params.tag);
   const { entries, pager } = await getBlogEntries({ tag: [tag] });
 

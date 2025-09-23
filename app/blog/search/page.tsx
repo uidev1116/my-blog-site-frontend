@@ -8,19 +8,19 @@ import BlogIndexRoute from '../routes/BlogIndexRoute';
 export const dynamic = 'force-dynamic';
 
 type Props = {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-export async function generateMetadata({
-  searchParams,
-}: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const searchParams = await props.searchParams;
   return await getMetadata({
     blog: 'blog',
     searchParams: objToSearchParams(searchParams),
   });
 }
 
-export default async function BlogSearchPage({ searchParams }: Props) {
+export default async function BlogSearchPage(props0: Props) {
+  const searchParams = await props0.searchParams;
   const { entries, pager } = await getBlogEntries({
     searchParams: objToSearchParams(searchParams),
   });

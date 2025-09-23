@@ -122,7 +122,6 @@ const documentOutliner = (
   });
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export {
   externalLinks,
   smartPhoto,

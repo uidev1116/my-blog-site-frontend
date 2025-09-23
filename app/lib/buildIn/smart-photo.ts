@@ -51,5 +51,5 @@ export default function setupSmartPhoto(
     lazyAttribute: 'data-src',
   };
 
-  new SmartPhoto(elements, Object.assign(defaultOptions, options)); // eslint-disable-line no-new
+  new SmartPhoto(elements, Object.assign(defaultOptions, options));
 }

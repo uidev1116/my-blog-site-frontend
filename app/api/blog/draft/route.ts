@@ -17,7 +17,7 @@ export async function GET(request: Request) {
     return new Response('Invalid entry code', { status: 401 });
   }
 
-  draftMode().enable();
+  (await draftMode()).enable();
 
   redirect(entry.path);
 }

@@ -4,9 +4,8 @@ import { Card, CardBody, CardFooter, CardHeader, TagList } from '..';
 import { formatISO9075 } from 'date-fns';
 import dynamic from 'next/dynamic';
 
-const CreatedTime = dynamic(
-  () => import('@/app/components/CreatedTime').then((mod) => mod.CreatedTime),
-  { ssr: false },
+const CreatedTime = dynamic(() =>
+  import('@/app/components/CreatedTime').then((mod) => mod.CreatedTime),
 );
 
 type Props = {

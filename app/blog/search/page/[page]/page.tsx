@@ -6,14 +6,13 @@ import acmsPath from '@uidev1116/acms-js-sdk/acmsPath';
 import BlogIndexRoute from '@/app/blog/routes/BlogIndexRoute';
 
 type Props = {
-  params: { page: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+  params: Promise<{ page: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-export async function generateMetadata({
-  params,
-  searchParams,
-}: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   return await getMetadata({
     blog: 'blog',
     page: parseInt(params.page, 10),
@@ -21,7 +20,9 @@ export async function generateMetadata({
   });
 }
 
-export default async function BlogSearchPage({ params, searchParams }: Props) {
+export default async function BlogSearchPage(props0: Props) {
+  const searchParams = await props0.searchParams;
+  const params = await props0.params;
   const page = parseInt(params.page, 10);
   const { entries, pager } = await getBlogEntries({
     page,

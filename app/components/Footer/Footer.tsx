@@ -11,9 +11,9 @@ export default async function Footer({ navigations }: Props) {
       <div className="mx-auto w-full max-w-screen-xl p-4 md:flex md:items-center md:justify-between">
         <span className="text-sm text-gray-500 dark:text-gray-400 sm:text-center">
           © 2023{' '}
-          <a href="/" className="hover:underline">
+          <Link href="/" className="hover:underline">
             blog.uidev.jp
-          </a>
+          </Link>
           . All Rights Reserved.
         </span>
         {navigations.length > 0 && (

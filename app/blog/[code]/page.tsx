@@ -11,12 +11,11 @@ import acmsPath from '@uidev1116/acms-js-sdk/acmsPath';
 import BlogDetailRoute from '../routes/BlogDetailRoute';
 import { PREVIEW_KEY } from '@/app/config/acms';
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { code: string };
+export async function generateMetadata(props: {
+  params: Promise<{ code: string }>;
 }): Promise<Metadata> {
-  const { isEnabled } = draftMode();
+  const params = await props.params;
+  const { isEnabled } = await draftMode();
   const { openGraph, twitter, ...rest } = await getMetadata({
     blog: 'blog',
     entry: params.code,
@@ -45,13 +44,12 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function BlogDetailPage({
-  params,
-}: {
-  params: { code: string };
+export default async function BlogDetailPage(props: {
+  params: Promise<{ code: string }>;
 }) {
+  const params = await props.params;
   const { code } = params;
-  const { isEnabled } = draftMode();
+  const { isEnabled } = await draftMode();
   const entry = await getBlogEntry(code, isEnabled);
 
   if (entry === null) {

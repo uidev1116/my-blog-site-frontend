@@ -48,7 +48,6 @@
     "@types/lozad": "^1.16.4",
     "@types/nprogress": "^0.2.3",
     "@types/react-copy-to-clipboard": "^5.0.7",
-    "@vitejs/plugin-react": "^4.2.0",
     "autoprefixer": "^10.4.14",
     "eslint-config-prettier": "^8.9.0",
     "eslint-plugin-jsx-a11y": "^6.7.1",

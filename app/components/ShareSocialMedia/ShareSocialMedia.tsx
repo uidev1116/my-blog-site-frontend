@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { CopyToClipboard } from '@/app/components/CopyToClipboard';
 
 type Props = {
   title: string;

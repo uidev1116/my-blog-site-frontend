@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import nl2br from 'react-nl2br';
+import nl2br from '@/app/utils/react-nl2br';
 import { ConditionalWrapper } from '../../..';
 import type { Unit, MediaUnit } from '@/app/types';
 import { ASSETS_HOST, MEDIA_BASE_URL } from '@/app/config/acms';

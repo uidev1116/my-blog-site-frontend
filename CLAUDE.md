@@ -2,6 +2,9 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Language Preference
+**IMPORTANT: Always respond in Japanese (日本語) for all interactions in this project.**
+
 ## Development Commands
 
 ### Essential Commands

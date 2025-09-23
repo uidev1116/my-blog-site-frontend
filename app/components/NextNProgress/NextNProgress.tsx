@@ -145,7 +145,6 @@ function NextNProgress({
       return false;
     }
 
-    // eslint-disable-next-line no-var
     var npgclass = document.querySelectorAll('html');
     function findClosestAnchor(
       element: HTMLElement | null,

@@ -20,7 +20,7 @@ export default function setupOpenStreetMap(item: HTMLElement) {
   const map = Leaflet.map(item).setView([lat, lng], zoom);
 
   // @ts-ignore
-  delete Leaflet.Icon.Default.prototype._getIconUrl; // eslint-disable-line no-underscore-dangle
+  delete Leaflet.Icon.Default.prototype._getIconUrl;
   Leaflet.Icon.Default.mergeOptions({
     iconUrl: icon.src,
     iconRetinaUrl: icon2x.src,

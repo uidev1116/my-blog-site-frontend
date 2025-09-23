@@ -36,6 +36,7 @@
     "react-use": "^17.5.0",
     "rehype-raw": "^7.0.0",
     "scroll-hint": "^1.2.5",
+    "sharp": "^0.34.4",
     "smartphoto": "^1.6.5",
     "swr": "^2.3.6"
   },

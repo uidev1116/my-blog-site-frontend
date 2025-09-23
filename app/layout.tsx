@@ -17,7 +17,7 @@ export default async function RootLayout({
   ]);
 
   return (
-    <html lang="ja" suppressHydrationWarning>
+    <html lang="ja" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body>
         <ColorThemeContextProvider>
           <BuildInJs />

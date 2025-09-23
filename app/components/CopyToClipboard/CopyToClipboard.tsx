@@ -21,10 +21,10 @@ const CopyToClipboard = ({
       copy(text);
 
       // Bypass onClick if it was present
-      // @ts-expect-error onClick is not typed
       if (
         isValidElement(element) &&
         element.props &&
+        // @ts-expect-error onClick is not typed
         typeof element.props.onClick === 'function'
       ) {
         // @ts-expect-error onClick is not typed

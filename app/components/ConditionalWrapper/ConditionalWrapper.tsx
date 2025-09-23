@@ -1,6 +1,6 @@
 type Props = {
   condition: boolean;
-  wrapper: (children: React.ReactNode) => JSX.Element;
+  wrapper: (children: React.ReactNode) => React.ReactElement;
   children: React.ReactNode;
 };
 

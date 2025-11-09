@@ -89,3 +89,23 @@ module.exports = {
     }),
   ],
 };
+
+/*
+  Tailwind CSS v4への移行準備:
+  パッケージをv4にアップデート後、この設定を以下のように簡略化できます:
+
+  module.exports = {
+    content: [
+      './pages/**\/*.{js,ts,jsx,tsx,mdx}',
+      './components/**\/*.{js,ts,jsx,tsx,mdx}',
+      './app/**\/*.{js,ts,jsx,tsx,mdx}',
+      './node_modules/flowbite/**\/*.js',
+    ],
+    plugins: [
+      require('flowbite/plugin'),
+      require('flowbite-typography'),
+    ],
+  };
+
+  多くの設定はglobals.cssの@themeに移行されます。
+*/

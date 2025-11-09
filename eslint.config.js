@@ -1,22 +1,12 @@
-const { fixupConfigRules } = require('@eslint/compat');
-const { FlatCompat } = require('@eslint/eslintrc');
-const js = require('@eslint/js');
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
-});
+const nextConfig = require('eslint-config-next');
+const prettierConfig = require('eslint-config-prettier');
 
 module.exports = [
   {
     ignores: ['.next/**', 'out/**', 'node_modules/**'],
   },
-  ...fixupConfigRules(
-    compat.extends(
-      'next/core-web-vitals',
-      'plugin:jsx-a11y/recommended',
-      'prettier',
-    ),
-  ),
+  // Next.js configuration (includes jsx-a11y)
+  ...(Array.isArray(nextConfig) ? nextConfig : [nextConfig]),
+  // Prettier config (disables conflicting rules) - must be last
+  prettierConfig,
 ];

@@ -1,6 +1,13 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  /* カスタムカラーパレット */
+  --color-primary: theme(colors.yellow.300);
+  --color-primary-lightest: theme(colors.yellow.50);
+  --color-primary-lighter: theme(colors.yellow.100);
+  --color-primary-darker: theme(colors.yellow.400);
+  --color-primary-darkest: theme(colors.yellow.600);
+}
 
 .smartphoto {
   @apply !z-[1001];

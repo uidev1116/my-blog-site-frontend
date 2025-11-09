@@ -1,4 +1,4 @@
-import acmsPath from '@uidev1116/acms-js-sdk/acmsPath';
+import { acmsPath } from '@uidev1116/acms-js-sdk/acmsPath';
 import { getBlogEntries } from '../api';
 import { Metadata } from 'next';
 import { getMetadata } from '@/app/api';

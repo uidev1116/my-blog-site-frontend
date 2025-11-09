@@ -1,6 +1,6 @@
 import { resolveRequestCache } from '@/app/utils';
 import type { BlogEntry, Tag } from '@/app/types';
-import type { AcmsContext } from '@uidev1116/acms-js-sdk/acmsPath';
+import type { AcmsPathParams } from '@uidev1116/acms-js-sdk/acmsPath';
 import acmsClient from '@/app/lib/acms';
 import { PREVIEW_KEY } from '@/app/config/acms';
 
@@ -39,19 +39,19 @@ function normalizePath(path: string) {
 }
 
 export async function getBlogEntries(
-  acmsContext: AcmsContext = {},
+  acmsContext: AcmsPathParams = {},
 ): Promise<EntriesResponse> {
   const { data } = await acmsClient.get(
     { ...acmsContext, blog: 'blog', api: 'summary_index' },
     { requestInit: { cache: resolveRequestCache() } },
   );
 
-  const { entry: entries = [], pager } = data;
+  const { items: entries = [], pagination } = data;
 
   return {
     entries: entries.map((entry: any) => ({
-      id: entry.id,
-      code: entry.code,
+      id: entry.eid,
+      code: entry.ecd,
       sort: entry.sort,
       csort: entry.csort,
       usort: entry.usort,
@@ -59,47 +59,49 @@ export async function getBlogEntries(
       title: entry.title,
       path: new URL(entry.url).pathname,
       isNew: entry.isNew,
-      createdAt: new Date(entry['date#']),
-      updatedAt: new Date(entry['udate#']),
-      postedAt: new Date(entry['pdate#']),
-      startAt: new Date(entry['sdate#']),
-      endAt: new Date(entry['edate#']),
+      createdAt: new Date(entry.datetime),
+      updatedAt: new Date(entry.updatedAt),
+      postedAt: new Date(entry.createdAt),
+      startAt: new Date(entry.publishStartAt),
+      endAt: new Date(entry.publishEndAt),
       summary: entry.summary || '',
-      tags: (entry.tag || []).map(
+      tags: (entry.tags || []).map(
         ({ name, url }: { name: string; url: string }) => ({
           name,
           path: new URL(url).pathname,
         }),
       ),
     })),
-    ...(pager !== undefined
+    ...(pagination !== undefined
       ? {
           pager: {
-            firstPage: pager.firstPage,
-            lastPage: pager.lastPage,
-            ...(Object.hasOwn(pager, 'backLink')
+            firstPage: pagination.firstPage,
+            lastPage: pagination.lastPage,
+            ...(pagination.prevPage !== null
               ? {
                   previous: {
-                    path: normalizePath(new URL(pager.backLink.url).pathname),
-                    num: pager.backLink.backNum,
-                    page: pager.backLink.backPage,
+                    path: normalizePath(
+                      new URL(pagination.prevPage.url).pathname,
+                    ),
+                    num: pagination.prevPage.count,
+                    page: pagination.prevPage.page,
                   },
                 }
               : {}),
-            pages: (pager.page || []).map(
+            pages: (pagination.pages || []).map(
               ({ page, url }: { page: number; url: string }) => ({
                 page,
                 path: normalizePath(new URL(url).pathname),
               }),
             ),
-            ...(Object.hasOwn(pager, 'forwardLink')
+            ...(pagination.nextPage !== null
               ? {
                   next: {
                     path: normalizePath(
-                      new URL(pager.forwardLink.url).pathname,
+                      new URL(pagination.nextPage.url).pathname,
                     ),
-                    num: pager.forwardLink.forwardNum,
-                    page: pager.forwardLink.forwardPage,
+                    num: pagination.nextPage.count,
+                    page: pagination.nextPage.page,
                   },
                 }
               : {}),
@@ -115,11 +117,11 @@ export async function getAllBlogEntries(): Promise<BlogEntry[]> {
     { requestInit: { cache: resolveRequestCache() } },
   );
 
-  const { entry: entries = [] } = data;
+  const { items: entries = [] } = data;
 
   return entries.map((entry: any) => ({
-    id: entry.id,
-    code: entry.code,
+    id: entry.eid,
+    code: entry.ecd,
     sort: entry.sort,
     csort: entry.csort,
     usort: entry.usort,
@@ -127,7 +129,7 @@ export async function getAllBlogEntries(): Promise<BlogEntry[]> {
     title: entry.title,
     path: new URL(entry.url).pathname,
     isNew: entry.isNew,
-    createdAt: new Date(entry['date#']),
+    createdAt: new Date(entry.datetime),
   }));
 }
 
@@ -183,7 +185,7 @@ export async function getBlogEntry(
     { requestInit: { cache: resolveRequestCache() } },
   );
 
-  const { entry: entries } = data;
+  const { items: entries = [] } = data;
 
   if (!entries.length) {
     return null;
@@ -195,8 +197,8 @@ export async function getBlogEntry(
   }
 
   return {
-    id: entry.id,
-    code: entry.code,
+    id: entry.eid,
+    code: entry.ecd,
     sort: entry.sort,
     csort: entry.csort,
     usort: entry.usort,
@@ -204,31 +206,26 @@ export async function getBlogEntry(
     title: entry.title,
     path: new URL(entry.url).pathname,
     isNew: entry.isNew,
-    createdAt: new Date(entry['date#']),
-    updatedAt: new Date(entry['udate#']),
-    postedAt: new Date(entry['pdate#']),
-    startAt: new Date(entry['sdate#']),
-    endAt: new Date(entry['edate#']),
-    summary: entry.summary,
-    tags: (entry.tag || []).map(
+    createdAt: new Date(entry.datetime),
+    updatedAt: new Date(entry.updatedAt),
+    postedAt: new Date(entry.createdAt),
+    startAt: new Date(entry.publishStartAt),
+    endAt: new Date(entry.publishEndAt),
+    summary: entry.summary || '',
+    tags: (entry.tags || []).map(
       ({ name, url }: { name: string; url: string }) => ({
         name,
         path: new URL(url).pathname,
       }),
     ),
     blog: {
-      id: entry.blog.id,
+      id: entry.blog.bid,
       code: entry.blog.code,
-      status: entry.blog.status,
-      sort: entry.blog.sort,
       name: entry.blog.name,
-      pbid: entry.blog.pbid,
-      indexing: entry.blog.indexing,
       path: new URL(entry.blog.url).pathname,
-      createdAt: new Date(entry.blog['date#']),
       ogpImageBasePath: entry.blog['ogp_image_base@path'],
     },
-    units: entry.unit,
+    body: entry.body,
   };
 }
 

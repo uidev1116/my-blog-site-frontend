@@ -21,7 +21,7 @@ export type Entry = {
   category?: Category;
   blog?: Blog;
   user?: User;
-  units?: Unit[];
+  body?: string;
 };
 
 export type BlogEntry = Entry & {

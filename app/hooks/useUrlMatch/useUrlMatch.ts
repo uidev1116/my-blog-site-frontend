@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 import { encodeUri } from '@/app/utils';
@@ -12,10 +12,8 @@ export default function useUrlMatch(url: URL) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [isMatchFull, setIsMatchFull] = useState(false);
-  const [isMatchStart, setIsMatchStart] = useState(false);
-
-  useEffect(() => {
+  // Calculate match results directly with useMemo instead of useEffect + useState
+  const { isMatchFull, isMatchStart } = useMemo(() => {
     const href = `${pathname}${
       searchParams.toString() ? `?${searchParams}` : ''
     }`;
@@ -23,8 +21,8 @@ export default function useUrlMatch(url: URL) {
     const isMatchFull = [href, encodeUri(href)].includes(target);
     const isMatchStart =
       href.startsWith(target) || encodeUri(href).startsWith(target);
-    setIsMatchFull(isMatchFull);
-    setIsMatchStart(isMatchStart);
+
+    return { isMatchFull, isMatchStart };
   }, [pathname, searchParams, url.search, url.pathname]);
 
   return { isMatchFull, isMatchStart };

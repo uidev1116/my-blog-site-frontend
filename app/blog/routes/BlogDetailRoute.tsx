@@ -1,6 +1,6 @@
 import { formatISO9075, format } from 'date-fns';
 import {
-  UnitIndex,
+  EntryBody,
   Container,
   EntryList,
   TagList,
@@ -23,7 +23,7 @@ export default function BlogDetailRoute({ entry, relationalEntries }: Props) {
             <article className="mx-auto w-full max-w-2xl space-y-4 break-words lg:space-y-6">
               <header className="space-y-4 lg:space-y-6">
                 <div>
-                  <h1 className="text-3xl font-extrabold leading-tight text-gray-900 dark:text-white lg:text-4xl">
+                  <h1 className="text-3xl leading-tight font-extrabold text-gray-900 lg:text-4xl dark:text-white">
                     {entry.title}
                   </h1>
                 </div>
@@ -48,10 +48,10 @@ export default function BlogDetailRoute({ entry, relationalEntries }: Props) {
                   </div>
                 </div>
               </header>
-              {entry.units !== undefined && (
+              {entry.body && (
                 <div className="format format-sm dark:format-invert sm:format-base lg:format-lg">
                   <div className="js-outline" data-target=".js-outline-yield">
-                    <UnitIndex units={entry.units} />
+                    <EntryBody html={entry.body} />
                   </div>
                 </div>
               )}
@@ -67,7 +67,7 @@ export default function BlogDetailRoute({ entry, relationalEntries }: Props) {
       </Container>
       <aside
         aria-label="関連記事"
-        className="bg-gray-50 py-8 dark:bg-gray-800 lg:py-24"
+        className="bg-gray-50 py-8 lg:py-24 dark:bg-gray-800"
       >
         <div className="mx-auto max-w-screen-xl px-4">
           <h2 className="mb-8 text-2xl font-bold text-gray-900 dark:text-white">

@@ -6,5 +6,5 @@ module.exports = {
   singleQuote: true,
   jsxSingleQuote: false,
   endOfLine: 'lf',
-  plugins: [require('prettier-plugin-tailwindcss')],
+  plugins: ['prettier-plugin-tailwindcss'],
 };

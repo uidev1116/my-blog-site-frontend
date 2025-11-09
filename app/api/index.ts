@@ -2,9 +2,10 @@ import { Metadata, MetadataRoute } from 'next';
 import { MEDIA_BASE_URL } from '../config/acms';
 import type { Entry, RootBlog } from '../types';
 import { deleteNewLine, resolveRequestCache, truncate } from '../utils';
-import acmsPath, { type AcmsContext } from '@uidev1116/acms-js-sdk/acmsPath';
+import { acmsPath, type AcmsPathParams } from '@uidev1116/acms-js-sdk/acmsPath';
 import { BASE_URL } from '../config';
 import acmsClient from '../lib/acms';
+import { isAcmsFetchError } from '@uidev1116/acms-js-sdk';
 
 type EntriesResponse = {
   indexPath: string;
@@ -38,41 +39,60 @@ type Ogp = {
 };
 
 export async function getBlogEntries(): Promise<EntriesResponse> {
-  const { data } = await acmsClient.get(
-    {
-      api: 'summary_top_index',
-    },
-    { requestInit: { cache: resolveRequestCache() } },
-  );
-  const { indexUrl, indexBlogName, entry: entries = [] } = data;
+  try {
+    const { data } = await acmsClient.get(
+      {
+        api: 'summary_top_index',
+      },
+      { requestInit: { cache: resolveRequestCache() } },
+    );
+    const { indexUrl, indexBlogName, entry: entries = [] } = data;
 
-  return {
-    indexPath: new URL(indexUrl).pathname,
-    indexBlogName: indexBlogName,
-    entries: entries.map((entry: any) => ({
-      id: entry.id,
-      code: entry.code,
-      sort: entry.sort,
-      csort: entry.csort,
-      usort: entry.usort,
-      status: entry.status,
-      title: entry.title,
-      path: new URL(entry.url).pathname,
-      isNew: entry.isNew,
-      createdAt: new Date(entry['date#']),
-      updatedAt: new Date(entry['udate#']),
-      postedAt: new Date(entry['pdate#']),
-      startAt: new Date(entry['sdate#']),
-      endAt: new Date(entry['edate#']),
-      summary: entry.summary || '',
-      tags: (entry.tag || []).map(
-        ({ name, url }: { name: string; url: string }) => ({
-          name,
-          path: new URL(url).pathname,
-        }),
-      ),
-    })),
-  };
+    return {
+      indexPath: new URL(indexUrl).pathname,
+      indexBlogName: indexBlogName,
+      entries: entries.map((entry: any) => ({
+        id: entry.eid,
+        code: entry.ecd,
+        sort: entry.sort,
+        csort: entry.csort,
+        usort: entry.usort,
+        status: entry.status,
+        title: entry.title,
+        path: new URL(entry.url).pathname,
+        isNew: entry.isNew,
+        createdAt: new Date(entry.datetime),
+        updatedAt: new Date(entry.updatedAt),
+        postedAt: new Date(entry.createdAt),
+        startAt: new Date(entry.publishStartAt),
+        endAt: new Date(entry.publishEndAt),
+        summary: entry.summary || '',
+        tags: (entry.tags || []).map(
+          ({ name, url }: { name: string; url: string }) => ({
+            name,
+            path: new URL(url).pathname,
+          }),
+        ),
+      })),
+    };
+  } catch (error) {
+    if (isAcmsFetchError(error)) {
+      console.error('error.response.data', error.response.data);
+      return {
+        indexPath: '',
+        indexBlogName: '',
+        entries: [],
+      };
+    }
+    console.error('error', {
+      error,
+    });
+    return {
+      indexPath: '',
+      indexBlogName: '',
+      entries: [],
+    };
+  }
 }
 
 export async function getGlobalNavigation(): Promise<GlobalNavigation[]> {
@@ -127,12 +147,7 @@ export async function getRootBlog(): Promise<RootBlog> {
   const {
     id,
     code = '',
-    status,
-    sort,
     name,
-    parent: pbid,
-    indexing,
-    generated_datetime: generatedDatetime,
     facebook_account: facebookAccount,
     twitter_account: twitterAccount,
     github_account: githubAccount,
@@ -144,13 +159,8 @@ export async function getRootBlog(): Promise<RootBlog> {
   return {
     id,
     code,
-    status,
-    sort,
     name,
-    pbid,
-    indexing,
     path: '/',
-    createdAt: new Date(generatedDatetime),
     facebookAccount,
     twitterAccount,
     githubAccount,
@@ -160,7 +170,7 @@ export async function getRootBlog(): Promise<RootBlog> {
   };
 }
 
-export async function getOgp(acmsContext: AcmsContext = {}): Promise<Ogp> {
+export async function getOgp(acmsContext: AcmsPathParams = {}): Promise<Ogp> {
   const { data } = await acmsClient.get(
     { ...acmsContext, api: 'ogp' },
     { requestInit: { cache: resolveRequestCache() } },
@@ -192,7 +202,7 @@ export async function getOgp(acmsContext: AcmsContext = {}): Promise<Ogp> {
 }
 
 export async function getMetadata(
-  acmsContext: AcmsContext = {},
+  acmsContext: AcmsPathParams = {},
 ): Promise<Metadata> {
   const [
     { title, description, keywords, image },

@@ -1,3 +1,5 @@
+'use client';
+
 import parse, {
   HTMLReactParserOptions,
   domToReact,
@@ -5,9 +7,11 @@ import parse, {
   attributesToProps,
   DOMNode,
 } from 'html-react-parser';
-import type { Unit, RichEditorUnit } from '@/app/types';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ASSETS_HOST } from '@/app/config/acms';
+
+type Props = { html: string };
 
 const options: HTMLReactParserOptions = {
   replace(domNode) {
@@ -20,21 +24,14 @@ const options: HTMLReactParserOptions = {
           </Link>
         );
       }
-
       if (domNode.tagName === 'img') {
         const { src, alt, ...rest } = domNode.attribs;
-        const url = new URL(src, ASSETS_HOST);
-        return (
-          <a href={url.toString()} className="js-smartphoto">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={url.toString()} alt={alt} {...attributesToProps(rest)} />
-          </a>
-        );
+        return <Image src={src} alt={alt} {...attributesToProps(rest)} />;
       }
     }
   },
 };
 
-export default function RichEditorUnit({ html }: Unit<RichEditorUnit>) {
-  return <div>{parse(html, options)}</div>;
+export default function EntryBody({ html }: Props) {
+  return <>{parse(html, options)}</>;
 }

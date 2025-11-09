@@ -5,8 +5,8 @@ export default function NotFound() {
   return (
     <section className="bg-white dark:bg-gray-900">
       <Container>
-        <div className="mx-auto max-w-screen-sm text-center">
-          <h1 className="mb-4 text-7xl font-extrabold tracking-tight text-stone-700 dark:text-white lg:text-9xl">
+        <div className="mx-auto max-w-(--breakpoint-sm) text-center">
+          <h1 className="mb-4 text-7xl font-extrabold tracking-tight text-stone-700 lg:text-9xl dark:text-white">
             404
           </h1>
           <p className="mb-4 text-lg font-light text-stone-500 dark:text-stone-400">
@@ -14,7 +14,7 @@ export default function NotFound() {
           </p>
           <Link
             href="/"
-            className="my-4 inline-flex rounded-lg bg-stone-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-stone-900 focus:outline-none focus:ring-4 focus:ring-stone-900 dark:focus:ring-stone-900"
+            className="my-4 inline-flex rounded-lg bg-stone-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-stone-900 focus:ring-4 focus:ring-stone-900 focus:outline-none dark:focus:ring-stone-900"
           >
             トップページに戻る
           </Link>

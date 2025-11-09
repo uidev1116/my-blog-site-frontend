@@ -1,14 +1,14 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   /* カスタムカラーパレット */
-  --color-primary: theme(colors.yellow.300);
-  --color-primary-lightest: theme(colors.yellow.50);
-  --color-primary-lighter: theme(colors.yellow.100);
-  --color-primary-darker: theme(colors.yellow.400);
-  --color-primary-darkest: theme(colors.yellow.600);
+  --color-primary: var(--color-yellow-300);
+  --color-primary-lightest: var(--color-yellow-50);
+  --color-primary-lighter: var(--color-yellow-100);
+  --color-primary-darker: var(--color-yellow-400);
+  --color-primary-darkest: var(--color-yellow-600);
 }
 
 .smartphoto {
-  @apply !z-[1001];
+  @apply z-1001!;
 }

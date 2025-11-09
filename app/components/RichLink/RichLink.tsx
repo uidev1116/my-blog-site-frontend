@@ -22,7 +22,7 @@ export default forwardRef<HTMLAnchorElement, Props>(function RichLink(
       {...anchorProps}
     >
       <div className="flex">
-        <div className="flex-shrink-0">
+        <div className="shrink-0">
           <div className="h-[120px] w-[120px] md:h-[157px] md:w-auto md:max-w-[256px]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -36,7 +36,7 @@ export default forwardRef<HTMLAnchorElement, Props>(function RichLink(
         </div>
         <div className="flex flex-col justify-between p-4">
           <div className="space-y-2">
-            <h3 className="js-except line-clamp-1 text-base font-medium leading-tight tracking-tight text-black hover:underline dark:text-white md:line-clamp-2">
+            <h3 className="js-except line-clamp-1 text-base leading-tight font-medium tracking-tight text-black hover:underline md:line-clamp-2 dark:text-white">
               {title}
             </h3>
             <p className="line-clamp-2 text-sm text-gray-500">{description}</p>

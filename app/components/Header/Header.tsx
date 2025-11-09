@@ -12,8 +12,8 @@ type Props = {
 export default async function Header({ navigations }: Props) {
   return (
     <header className="sticky top-0 z-10">
-      <nav className="left-0 top-0 border-b border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-900">
-        <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
+      <nav className="top-0 left-0 border-b border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-900">
+        <div className="mx-auto flex max-w-(--breakpoint-xl) flex-wrap items-center justify-between p-4">
           <Logo />
           <div className="flex md:order-2">
             <div className="block md:hidden">
@@ -22,7 +22,7 @@ export default async function Header({ navigations }: Props) {
             <div>
               <Collapse
                 toggle="navbar-search"
-                className="mr-1 rounded-lg p-2.5 text-sm text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-700 md:hidden"
+                className="mr-1 rounded-lg p-2.5 text-sm text-gray-500 hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 focus:outline-none md:hidden dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
               >
                 <svg
                   className="h-5 w-5"
@@ -55,7 +55,7 @@ export default async function Header({ navigations }: Props) {
             <div>
               <Collapse
                 toggle="navbar-search"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-lg p-2 text-sm text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600 md:hidden"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-lg p-2 text-sm text-gray-500 hover:bg-gray-100 focus:ring-2 focus:ring-gray-200 focus:outline-none md:hidden dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
               >
                 <span className="sr-only">Open main menu</span>
                 <svg
@@ -86,7 +86,7 @@ export default async function Header({ navigations }: Props) {
               </div>
               <div>
                 {navigations.length > 0 && (
-                  <ul className="mt-4 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 font-medium dark:border-gray-700 dark:bg-gray-800 md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:p-0 md:dark:bg-gray-900">
+                  <ul className="mt-4 flex flex-col rounded-lg border border-gray-100 bg-gray-50 p-4 font-medium md:mt-0 md:flex-row md:space-x-8 md:border-0 md:bg-white md:p-0 dark:border-gray-700 dark:bg-gray-800 md:dark:bg-gray-900">
                     {navigations.map((navigation) => (
                       <li key={navigation.url}>
                         <NavLink

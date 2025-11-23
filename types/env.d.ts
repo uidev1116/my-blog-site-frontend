@@ -1,9 +1,13 @@
 namespace NodeJS {
   interface ProcessEnv {
-    ACMS_API_HOST: string;
+    ACMS_API_HOSTNAME: string;
+    ACMS_API_PROTOCOL: string;
+    ACMS_API_PORT: string;
     ACMS_API_KEY: string;
     ACMS_API_PREVIEW_KEY: string;
-    ACMS_ASSETS_HOST: string;
+    ACMS_ASSETS_HOSTNAME: string;
+    ACMS_ASSETS_PROTOCOL: string;
+    ACMS_ASSETS_PORT: string;
     DOMAIN: string;
   }
 }

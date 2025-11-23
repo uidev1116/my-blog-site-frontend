@@ -1,4 +1,20 @@
 @import 'tailwindcss';
+@plugin 'flowbite/plugin';
+@plugin 'flowbite-typography';
+
+@source '../node_modules/flowbite';
+@source inline('[&_th]:whitespace-nowrap');
+@source inline('[&_td]:whitespace-nowrap');
+@source inline('[&_th]:table-cell');
+@source inline('[&_td]:table-cell');
+@source inline('font-bold!');
+@source inline('align-top!');
+@source inline('align-middle!');
+@source inline('align-bottom!');
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@config '../tailwind.config.js';
 
 @theme {
   /* カスタムカラーパレット */

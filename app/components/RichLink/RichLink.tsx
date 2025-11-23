@@ -15,7 +15,7 @@ export default forwardRef<HTMLAnchorElement, Props>(function RichLink(
   return (
     <a
       className={clsx(
-        'text-card-foreground block overflow-hidden rounded-lg border bg-white shadow hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700',
+        'text-card-foreground block overflow-hidden rounded-lg border border-gray-200 bg-white shadow hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700',
         className,
       )}
       ref={ref}

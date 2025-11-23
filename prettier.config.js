@@ -7,4 +7,6 @@ module.exports = {
   jsxSingleQuote: false,
   endOfLine: 'lf',
   plugins: ['prettier-plugin-tailwindcss'],
+  tailwindStylesheet: './app/globals.css',
+  tailwindFunctions: ['clsx'],
 };

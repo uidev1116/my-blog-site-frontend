@@ -1,64 +1,103 @@
 const plugin = require('tailwindcss/plugin');
-const colors = require('tailwindcss/colors');
+
+const round = (num) =>
+  num
+    .toFixed(7)
+    .replace(/(\.[0-9]+?)0+$/, '$1')
+    .replace(/\.0$/, '');
+const em = (px, base) => `${round(px / base)}em`;
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: 'class',
-  content: [
-    './pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,mdx}',
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
-    './node_modules/flowbite/**/*.js',
-  ],
-  safelist: [
-    '[&_th]:whitespace-nowrap',
-    '[&_td]:whitespace-nowrap',
-    '[&_th]:table-cell',
-    '[&_td]:table-cell',
-    'font-bold!',
-    'align-top!',
-    'align-middle!',
-    'align-bottom!',
-  ],
   theme: {
     extend: {
-      colors: {
-        primary: {
-          DEFAULT: colors.yellow[300],
-          lightest: colors.yellow[50],
-          lighter: colors.yellow[100],
-          darker: colors.yellow[400],
-          darkest: colors.yellow[600],
-        },
-      },
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-conic':
-          'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
-      },
       typography: {
         DEFAULT: {
           css: {
-            'table th': {
-              color: 'var(--tw-format-headings)',
-              fontWeight: 600,
-              verticalAlign: 'bottom',
-              padding: '0.5555556em 0.5714286em 0.5714286em',
+            // ------------------------------
+            // figure 要素 上書き
+            // ------------------------------
+            'figure, [role="figure"]': {
+              marginLeft: 0,
+              marginRight: 0,
+              marginTop: em(32, 16),
+              marginBottom: em(32, 16),
+            },
+            'figure img, [role="figure"] img': {
+              marginTop: '0 !important',
+              marginBottom: '0 !important',
+            },
+
+            // [role="figure"] のキャプションを figcaption と同等に
+            '[role="figure"] .caption': {
+              color: 'var(--tw-prose-captions)',
+              fontSize: em(14, 16),
+              lineHeight: round(20 / 14),
+              marginTop: em(12, 14),
+              marginBottom: '0',
+            },
+            'div:has(> table)': {
+              overflowX: 'auto',
+            },
+            'thead th': {
               backgroundColor: 'var(--tw-format-th-bg)',
+              color: 'var(--tw-format-headings)',
+              fontWeight: '600',
+              verticalAlign: 'bottom',
+              padding: em(10, 18),
             },
-            table: {
-              marginTop: 0,
-              marginBottom: 0,
+            // ------------------------------
+            // カラムレイアウト
+            // ------------------------------
+            "[data-type='columns']": {
+              display: 'grid',
+              gridAutoFlow: 'column',
+              boxSizing: 'border-box',
+              gap: '1em',
             },
+            "[data-type='columns'].layout-two-column": {
+              gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+            },
+            "[data-type='columns'].layout-three-column": {
+              gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+            },
+
+            // ------------------------------
+            // 配置
+            // ------------------------------
+            // Align helpers
+            '.align-left': {
+              display: 'flex',
+              justifyContent: 'flex-start',
+            },
+            '.align-right': {
+              display: 'flex',
+              justifyContent: 'flex-end',
+            },
+            '.align-center': {
+              display: 'flex',
+              justifyContent: 'center',
+            },
+            // ------------------------------
+            // テーブルユーティリティ（acms）
+            // ------------------------------
+            '.acms-table-scrollable th, .acms-table-scrollable td, .js-table-unit-scroll-hint th, .js-table-unit-scroll-hint td':
+              {
+                whiteSpace: 'nowrap',
+                wordBreak: 'keep-all',
+              },
           },
         },
       },
     },
   },
   plugins: [
-    require('flowbite/plugin'),
-    require('flowbite-typography'),
-    plugin(function ({ addBase, addComponents, addUtilities, theme }) {
+    plugin(function ({
+      addBase,
+      // addComponents,
+      // addUtilities,
+      theme,
+    }) {
       addBase({
         html: {
           scrollPaddingTop: theme('spacing.20'),

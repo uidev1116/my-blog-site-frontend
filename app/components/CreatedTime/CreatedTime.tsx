@@ -58,7 +58,11 @@ function formatCreatedAt(date: Date, base: Date) {
 export default function CreatedTime({ createdAt, className }: Props) {
   const now = new Date();
   return (
-    <time dateTime={formatISO9075(new Date(createdAt))} className={className}>
+    <time
+      dateTime={formatISO9075(new Date(createdAt))}
+      className={className}
+      suppressHydrationWarning // https://nextjs.org/docs/messages/react-hydration-error#solution-3-using-suppresshydrationwarning
+    >
       {formatCreatedAt(new Date(createdAt), now)}
     </time>
   );

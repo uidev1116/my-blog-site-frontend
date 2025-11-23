@@ -46,11 +46,12 @@ export async function getBlogEntries(): Promise<EntriesResponse> {
       },
       { requestInit: { cache: resolveRequestCache() } },
     );
-    const { indexUrl, indexBlogName, entry: entries = [] } = data;
+    const { indexUrl, indexBlogName, items: entries = [] } = data;
 
     return {
       indexPath: new URL(indexUrl).pathname,
       indexBlogName: indexBlogName,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       entries: entries.map((entry: any) => ({
         id: entry.eid,
         code: entry.ecd,
@@ -100,19 +101,26 @@ export async function getGlobalNavigation(): Promise<GlobalNavigation[]> {
     {
       api: 'navigation_global',
     },
-    { requestInit: { cache: resolveRequestCache() } },
+    {
+      requestInit: { cache: resolveRequestCache() },
+      acmsPathOptions: { apiVersion: 'v1' },
+    },
   );
 
   const { 'navigation:loop': navs = [] } = data;
 
-  return navs
-    .filter((nav: any) => Array.isArray(nav) === false)
-    .map((nav: any) => ({
-      label: nav.label,
-      level: parseInt(nav.level, 10),
-      url: nav[0]['link#front']['url'],
-      target: nav[0]['link#front']['target'],
-    }));
+  return (
+    navs
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .filter((nav: any) => Array.isArray(nav) === false)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .map((nav: any) => ({
+        label: nav.label,
+        level: parseInt(nav.level, 10),
+        url: nav[0]['link#front']['url'],
+        target: nav[0]['link#front']['target'],
+      }))
+  );
 }
 
 export async function getFooterNavigation(): Promise<FooterNavigation[]> {
@@ -120,19 +128,26 @@ export async function getFooterNavigation(): Promise<FooterNavigation[]> {
     {
       api: 'navigation_footer',
     },
-    { requestInit: { cache: resolveRequestCache() } },
+    {
+      requestInit: { cache: resolveRequestCache() },
+      acmsPathOptions: { apiVersion: 'v1' },
+    },
   );
 
   const { 'navigation:loop': navs = [] } = data;
 
-  return navs
-    .filter((nav: any) => Array.isArray(nav) === false)
-    .map((nav: any) => ({
-      label: nav.label,
-      level: parseInt(nav.level, 10),
-      url: nav[0]['link#front']['url'],
-      target: nav[0]['link#front']['target'],
-    }));
+  return (
+    navs
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .filter((nav: any) => Array.isArray(nav) === false)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .map((nav: any) => ({
+        label: nav.label,
+        level: parseInt(nav.level, 10),
+        url: nav[0]['link#front']['url'],
+        target: nav[0]['link#front']['target'],
+      }))
+  );
 }
 
 export async function getRootBlog(): Promise<RootBlog> {
@@ -141,7 +156,10 @@ export async function getRootBlog(): Promise<RootBlog> {
       blog: 1,
       api: 'BF_ctx',
     },
-    { requestInit: { cache: resolveRequestCache() } },
+    {
+      requestInit: { cache: resolveRequestCache() },
+      acmsPathOptions: { apiVersion: 'v1' },
+    },
   );
 
   const {
@@ -173,7 +191,10 @@ export async function getRootBlog(): Promise<RootBlog> {
 export async function getOgp(acmsContext: AcmsPathParams = {}): Promise<Ogp> {
   const { data } = await acmsClient.get(
     { ...acmsContext, api: 'ogp' },
-    { requestInit: { cache: resolveRequestCache() } },
+    {
+      requestInit: { cache: resolveRequestCache() },
+      acmsPathOptions: { apiVersion: 'v1' },
+    },
   );
 
   const {
@@ -186,9 +207,9 @@ export async function getOgp(acmsContext: AcmsPathParams = {}): Promise<Ogp> {
   } = data;
 
   return {
-    title,
-    description,
-    keywords,
+    title: String(title),
+    description: String(description),
+    keywords: String(keywords),
     ...(imagePath !== ''
       ? {
           image: {
@@ -293,11 +314,15 @@ export async function getSitemap(): Promise<MetadataRoute.Sitemap> {
     {
       api: 'sitemap',
     },
-    { requestInit: { cache: resolveRequestCache() } },
+    {
+      requestInit: { cache: resolveRequestCache() },
+      acmsPathOptions: { apiVersion: 'v1' },
+    },
   );
 
   const { 'url:loop': urls = [] } = data;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return urls.map((url: any) => ({
     url: new URL(new URL(url.loc).pathname, BASE_URL).toString(),
     lastModified: url.lastmod,

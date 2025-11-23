@@ -22,10 +22,14 @@ export async function getRssFeed(
 ): Promise<RssFeed> {
   const { data } = await acmsClient.get(
     { ...acmsContext, api: 'feed' },
-    { requestInit: { cache: resolveRequestCache() } },
+    {
+      requestInit: { cache: resolveRequestCache() },
+      acmsPathOptions: { apiVersion: 'v1' },
+    },
   );
   const { 'item:loop': items = [], lastBuildDate } = data;
   return {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     items: items.map((item: any) => ({
       title: item.title,
       link: new URL(new URL(item.link).pathname, BASE_URL).toString(),

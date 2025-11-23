@@ -1,7 +1,6 @@
 import { loadFont } from '@/app/lib/font/google';
 import { ImageResponse } from 'next/og';
 import { getBlogEntry } from '../api';
-import { getOgp } from '@/app/api';
 import { MEDIA_BASE_URL } from '@/app/config/acms';
 
 export const runtime = 'edge';

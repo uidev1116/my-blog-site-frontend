@@ -98,8 +98,8 @@ function NextNProgress({
     !shadow && shadow !== undefined
       ? ''
       : shadow
-      ? `box-shadow:${shadow}`
-      : `box-shadow:0 0 10px ${color},0 0 5px ${color}`;
+        ? `box-shadow:${shadow}`
+        : `box-shadow:0 0 10px ${color},0 0 5px ${color}`;
 
   // Check if to show at bottom
   const positionStyle = showAtBottom ? 'bottom: 0;' : 'top: 0;';
@@ -145,7 +145,7 @@ function NextNProgress({
       return false;
     }
 
-    var npgclass = document.querySelectorAll('html');
+    const npgclass = document.querySelectorAll('html');
     function findClosestAnchor(
       element: HTMLElement | null,
     ): HTMLAnchorElement | null {
@@ -180,7 +180,7 @@ function NextNProgress({
             el.classList.remove('nprogress-busy');
           });
         }
-      } catch (err) {
+      } catch {
         // Log the error in development only!
         // console.log('NextTopLoader error: ', err);
         NProgress.start();

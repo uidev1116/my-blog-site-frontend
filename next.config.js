@@ -3,8 +3,9 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: process.env.ACMS_ASSETS_HOST,
+        protocol: process.env.ACMS_ASSETS_PROTOCOL,
+        hostname: process.env.ACMS_ASSETS_HOSTNAME,
+        port: process.env.ACMS_ASSETS_PORT,
       },
     ],
   },

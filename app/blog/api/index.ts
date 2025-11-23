@@ -49,6 +49,7 @@ export async function getBlogEntries(
   const { items: entries = [], pagination } = data;
 
   return {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     entries: entries.map((entry: any) => ({
       id: entry.eid,
       code: entry.ecd,
@@ -119,6 +120,7 @@ export async function getAllBlogEntries(): Promise<BlogEntry[]> {
 
   const { items: entries = [] } = data;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return entries.map((entry: any) => ({
     id: entry.eid,
     code: entry.ecd,
@@ -146,11 +148,15 @@ export async function getTagRelationalEntries(
         ? { searchParams: new URLSearchParams({ previewKey: PREVIEW_KEY }) }
         : {}),
     },
-    { requestInit: { cache: resolveRequestCache() } },
+    {
+      requestInit: { cache: resolveRequestCache() },
+      acmsPathOptions: { apiVersion: 'v1' },
+    },
   );
 
   const { 'entry:loop': entries = [] } = data;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return entries.map((entry: any) => ({
     id: entry.eid,
     code: entry.ecd,
@@ -186,13 +192,14 @@ export async function getBlogEntry(
   );
 
   const { items: entries = [] } = data;
+  console.log('entries', entries.length);
 
   if (!entries.length) {
     return null;
   }
 
   const [entry] = entries;
-  if (entry.code !== entryCode) {
+  if (entry.ecd !== entryCode) {
     return null;
   }
 
@@ -236,7 +243,10 @@ export async function getTagFilter(tags: string[]): Promise<TagFilterResponse> {
       tag: tags,
       api: 'tag_filter',
     },
-    { requestInit: { cache: resolveRequestCache() } },
+    {
+      requestInit: { cache: resolveRequestCache() },
+      acmsPathOptions: { apiVersion: 'v1' },
+    },
   );
 
   const { 'selected:loop': selected = [], 'choice:loop': selectable = [] } =

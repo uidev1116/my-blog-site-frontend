@@ -7,7 +7,10 @@ export async function getAllBlogTags(): Promise<string[]> {
       blog: 'blog',
       api: 'tag_index',
     },
-    { requestInit: { cache: resolveRequestCache() } },
+    {
+      requestInit: { cache: resolveRequestCache() },
+      acmsPathOptions: { apiVersion: 'v1' },
+    },
   );
 
   const { 'tag:loop': tags = [] } = data;

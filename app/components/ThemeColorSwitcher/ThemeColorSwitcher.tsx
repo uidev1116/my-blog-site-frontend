@@ -93,7 +93,7 @@ function ThemeColorSwitcher() {
     } else {
       changeColorTheme(colorTheme);
     }
-    // @ts-ignore
+    // @ts-expect-error: FlowbiteInstances is not defined in global scope
     const dropdown = FlowbiteInstances.getInstance(
       'Dropdown',
       `dropdown-${id}`,
@@ -119,7 +119,7 @@ function ThemeColorSwitcher() {
         id={id}
         data-dropdown-toggle={`dropdown-${id}`}
         className={clsx(
-          'inline-flex h-10 w-10 items-center justify-center rounded-lg p-2.5 text-sm hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:hover:bg-gray-700 dark:focus:ring-gray-700',
+          'inline-flex h-10 w-10 items-center justify-center rounded-lg p-2.5 text-sm hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 focus:outline-none dark:hover:bg-gray-700 dark:focus:ring-gray-700',
           {
             'text-primary': isBrowser && colorTheme !== undefined,
             'text-gray-800 dark:text-white':
@@ -147,7 +147,7 @@ function ThemeColorSwitcher() {
             >
               <button
                 type="button"
-                className="block w-full px-4 py-2 text-gray-800 hover:bg-gray-100 group-[.is-selected]:text-primary dark:text-white dark:hover:bg-gray-600"
+                className="block w-full px-4 py-2 text-gray-800 group-[.is-selected]:text-primary hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600"
                 onClick={() =>
                   handleClick(theme.name as 'light' | 'dark' | 'system')
                 }

@@ -8,7 +8,7 @@ import {
   scrollHint,
   smartPhoto,
 } from '@/app/lib/buildIn';
-import { Suspense, useEffect } from 'react';
+import { Suspense } from 'react';
 
 function BuildInJs() {
   usePageChange(() => {

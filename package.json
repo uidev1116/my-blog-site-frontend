@@ -37,8 +37,8 @@
     "rehype-raw": "^7.0.0",
     "scroll-hint": "^1.2.9",
     "sharp": "^0.34.5",
-    "smartphoto": "^1.6.5",
-    "swr": "^2.3.6"
+    "swr": "^2.3.6",
+    "yet-another-react-lightbox": "^3.25.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",

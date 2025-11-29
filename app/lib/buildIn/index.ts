@@ -1,6 +1,5 @@
 import domContentLoaded from 'dom-content-loaded';
 import lazyLoadFn from './lazy-load-fn';
-import { SmartPhotoOption } from 'smartphoto';
 import { ScrollHintOption } from 'scroll-hint';
 import { ConfigType } from 'document-outliner/lib/type';
 
@@ -26,29 +25,6 @@ const externalLinks = (context: Document | Element) => {
     }
     target.setAttribute('target', '_blank');
     target.setAttribute('rel', 'noopener noreferrer');
-  });
-};
-
-/**
- * SmartPhoto
- * @param context
- * @param selector
- * @param options
- */
-const smartPhoto = (
-  context: Document | Element,
-  selector = '',
-  options: Partial<SmartPhotoOption> = {},
-) => {
-  domContentLoaded(async () => {
-    const querySelector = selector || 'a[data-rel^=SmartPhoto],.js-smartphoto';
-    const targets = context.querySelectorAll<HTMLElement>(querySelector);
-    if (targets.length > 0) {
-      const { default: setup } = await import(
-        /* webpackChunkName: "smart-photo" */ './smart-photo'
-      );
-      setup(targets, options);
-    }
   });
 };
 
@@ -122,10 +98,4 @@ const documentOutliner = (
   });
 };
 
-export {
-  externalLinks,
-  smartPhoto,
-  scrollHint,
-  openStreetMap,
-  documentOutliner,
-};
+export { externalLinks, scrollHint, openStreetMap, documentOutliner };

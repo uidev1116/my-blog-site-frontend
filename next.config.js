@@ -8,6 +8,7 @@ const nextConfig = {
         port: process.env.ACMS_ASSETS_PORT,
       },
     ],
+    dangerouslyAllowLocalIP: process.env.NODE_ENV === 'development',
   },
   async redirects() {
     return [

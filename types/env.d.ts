@@ -9,5 +9,6 @@ namespace NodeJS {
     ACMS_ASSETS_PROTOCOL: string;
     ACMS_ASSETS_PORT: string;
     BASE_URL: string;
+    NEXT_PUBLIC_BASE_URL: string;
   }
 }

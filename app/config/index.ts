@@ -1,1 +1,1 @@
-export const BASE_URL = `https://${process.env.DOMAIN}`;
+export const BASE_URL = process.env.BASE_URL;

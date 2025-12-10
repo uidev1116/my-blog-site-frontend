@@ -8,6 +8,6 @@ namespace NodeJS {
     ACMS_ASSETS_HOSTNAME: string;
     ACMS_ASSETS_PROTOCOL: string;
     ACMS_ASSETS_PORT: string;
-    DOMAIN: string;
+    BASE_URL: string;
   }
 }

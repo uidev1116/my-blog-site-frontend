@@ -2,6 +2,7 @@ import { loadFont } from '@/app/lib/font/google';
 import { ImageResponse } from 'next/og';
 import { getBlogEntry } from '../api';
 import { MEDIA_BASE_URL } from '@/app/config/acms';
+import { use } from 'react';
 
 export const runtime = 'edge';
 
@@ -16,9 +17,13 @@ export const size = {
 export const contentType = 'image/png';
 
 // Image generation
-export default async function Image({ params }: { params: { code: string } }) {
-  // entry
-  const entry = await getBlogEntry(params.code);
+export default async function Image({
+  params,
+}: {
+  params: Promise<{ code: string }>;
+}) {
+  const { code } = await params;
+  const entry = await getBlogEntry(code);
 
   if (entry === null) {
     return new Response('Not Found', { status: 404 });

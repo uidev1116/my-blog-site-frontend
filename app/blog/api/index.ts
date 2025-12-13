@@ -192,7 +192,6 @@ export async function getBlogEntry(
   );
 
   const { items: entries = [] } = data;
-  console.log('entries', entries.length);
 
   if (!entries.length) {
     return null;
@@ -230,7 +229,7 @@ export async function getBlogEntry(
       code: entry.blog.code,
       name: entry.blog.name,
       path: new URL(entry.blog.url).pathname,
-      ogpImageBasePath: entry.blog['ogp_image_base@path'],
+      ogpImageBasePath: entry.blog.fields.ogp_image_base.value.path,
     },
     body: entry.body,
   };

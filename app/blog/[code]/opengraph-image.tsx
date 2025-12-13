@@ -35,9 +35,7 @@ export default async function Image({
     text: entry.title,
   });
 
-  const backgroundImage = `${MEDIA_BASE_URL}${
-    entry.blog?.ogpImageBasePath
-  }?type=original&?date=${new Date().getTime()}`;
+  const backgroundImage = `${entry.blog?.ogpImageBasePath}&type=original`;
 
   return new ImageResponse(
     (

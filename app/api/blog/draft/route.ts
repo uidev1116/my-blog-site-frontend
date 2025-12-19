@@ -8,16 +8,21 @@ export async function GET(request: Request) {
   const previewKey = searchParams.get('previewKey');
   const code = searchParams.get('code');
 
-  if (previewKey !== PREVIEW_KEY || code === null) {
-    return new Response('Invalid preview key', { status: 401 });
+  if (previewKey === null || previewKey === '') {
+    return new Response('Preview key is required', { status: 400 });
+  }
+  if (code === null || code === '') {
+    return new Response('Entry code is required', { status: 400 });
+  }
+  if (previewKey !== PREVIEW_KEY) {
+    return new Response('Preview key is invalid', { status: 401 });
   }
 
   const entry = await getBlogEntry(code, true);
   if (!entry) {
-    return new Response('Invalid entry code', { status: 401 });
+    return new Response('Entry not found', { status: 404 });
   }
 
   (await draftMode()).enable();
-
   redirect(entry.path);
 }

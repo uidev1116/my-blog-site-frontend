@@ -184,9 +184,7 @@ export async function getBlogEntry(
       blog: 'blog',
       entry: entryCode,
       api: 'body_detail',
-      ...(isPreview
-        ? { searchParams: new URLSearchParams({ previewKey: PREVIEW_KEY }) }
-        : {}),
+      ...(isPreview ? { searchParams: { previewKey: PREVIEW_KEY } } : {}),
     },
     { requestInit: { cache: resolveRequestCache() } },
   );

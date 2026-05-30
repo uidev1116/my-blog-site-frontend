@@ -1,15 +1,24 @@
 import acmsClient from '@/app/lib/acms';
 import type { Entry } from '@/app/types';
-import { resolveRequestCache } from '@/app/utils';
+import { isAcmsNotFoundError, resolveRequestCache } from '@/app/utils';
 
 export async function getProfileEntry(): Promise<Entry | null> {
-  const { data } = await acmsClient.get(
-    {
-      category: 'profile',
-      api: 'body_detail',
-    },
-    { requestInit: { cache: resolveRequestCache() } },
-  );
+  let data;
+  try {
+    ({ data } = await acmsClient.get(
+      {
+        category: 'profile',
+        api: 'body_detail',
+      },
+      { requestInit: { cache: resolveRequestCache() } },
+    ));
+  } catch (error) {
+    // バックエンドはエントリーが存在しない場合に 404 を返すため、null として扱う
+    if (isAcmsNotFoundError(error)) {
+      return null;
+    }
+    throw error;
+  }
 
   const { items: entries = [] } = data;
 

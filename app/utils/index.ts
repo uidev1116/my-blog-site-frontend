@@ -1,6 +1,7 @@
 export { default as deleteNewLine } from './deleteNewLine';
 export { default as isDateString } from './isDateString';
 export { default as isExternalLink } from './isExternalLink';
+export { default as isAcmsNotFoundError } from './isAcmsNotFoundError';
 export { default as groupByUnitGroup } from './groupByUnitGroup';
 export { default as isBrowser } from './isBrowser';
 export { default as isNumber } from './isNumber';

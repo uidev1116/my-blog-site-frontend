@@ -112,13 +112,13 @@ export async function getGlobalNavigation(): Promise<GlobalNavigation[]> {
   return (
     navs
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .filter((nav: any) => Array.isArray(nav) === false)
+      .filter((nav: any) => Array.isArray(nav) === false && nav['link#front'])
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .map((nav: any) => ({
         label: nav.label,
         level: parseInt(nav.level, 10),
-        url: nav[0]['link#front']['url'],
-        target: nav[0]['link#front']['target'],
+        url: nav['link#front']['url'],
+        target: nav['link#front']['target'],
       }))
   );
 }
@@ -139,13 +139,13 @@ export async function getFooterNavigation(): Promise<FooterNavigation[]> {
   return (
     navs
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .filter((nav: any) => Array.isArray(nav) === false)
+      .filter((nav: any) => Array.isArray(nav) === false && nav['link#front'])
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .map((nav: any) => ({
         label: nav.label,
         level: parseInt(nav.level, 10),
-        url: nav[0]['link#front']['url'],
-        target: nav[0]['link#front']['target'],
+        url: nav['link#front']['url'],
+        target: nav['link#front']['target'],
       }))
   );
 }

@@ -24,3 +24,7 @@ const nextConfig = {
 };
 
 module.exports = nextConfig;
+
+// `next dev` でCloudflareのバインディングを利用できるようにする
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+require('@opennextjs/cloudflare').initOpenNextCloudflareForDev();

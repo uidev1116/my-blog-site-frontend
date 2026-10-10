@@ -8,10 +8,15 @@
     "start": "next start",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "@next/third-parties": "^16.0.3",
+    "@opennextjs/cloudflare": "^1.20.10",
     "@types/node": "24.10.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -29,7 +34,7 @@
     "html-react-parser": "^5.2.10",
     "leaflet": "^1.9.4",
     "lozad": "^1.16.0",
-    "next": "^16.2.6",
+    "next": "16.3.8",
     "nprogress": "^0.2.0",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
@@ -57,7 +62,9 @@
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.7.1",
     "tailwindcss": "^4.1.17",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.3",
+    "wrangler": "^4.149.0"
   },
   "volta": {
     "node": "22.19.0"

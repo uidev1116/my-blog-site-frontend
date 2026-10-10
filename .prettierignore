@@ -1,0 +1,5 @@
+.open-next
+.wrangler
+.next
+node_modules
+package-lock.json

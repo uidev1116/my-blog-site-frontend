@@ -14,7 +14,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run build` - Build production application
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint checks
-- `npm run test` - Run tests (Note: Vitest dependency needs to be installed)
+- `npm run test` - Run tests with Vitest (TDD で進める方針。テストは `tests/` または `app/**/*.test.ts`)
+- `npm run preview` / `npm run deploy` - Cloudflare Workers (OpenNext) 用。詳細は `docs/cloudflare-workers.md`
 
 ### Code Quality
 

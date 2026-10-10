@@ -1,11 +1,12 @@
 import { Feed } from 'feed';
 import { getOgp } from '../api';
 import { deleteNewLine, truncate } from '../utils';
-import { BASE_URL } from '../config';
+import { BASE_URL, COPYRIGHT_START_YEAR, SITE_HOST } from '../config';
 import { getRssFeed } from './api';
 import { MEDIA_BASE_URL } from '../config/acms';
 
 export async function GET() {
+  const PROFILE_URL = new URL('/profile/', BASE_URL).toString();
   const [ogp, rss] = await Promise.all([getOgp(), getRssFeed()]);
 
   const feed = new Feed({
@@ -16,13 +17,13 @@ export async function GET() {
     image: ogp.image?.path
       ? new URL(ogp.image.path, MEDIA_BASE_URL).toString()
       : undefined,
-    copyright: '© 2023 blog.uidev.jp. All Rights Reserved.',
+    copyright: `© ${COPYRIGHT_START_YEAR} ${SITE_HOST}. All Rights Reserved.`,
     updated: rss.lastBuildDate,
     generator: 'a-blog cms',
     author: {
       name: 'uidev1116',
       email: 'uidev1116@gmail.com',
-      link: 'https://blog.uidev.jp/profile/',
+      link: PROFILE_URL,
     },
   });
 
@@ -36,7 +37,7 @@ export async function GET() {
         {
           name: item.creator,
           email: 'uidev1116@gmail.com',
-          link: 'https://blog.uidev.jp/profile/',
+          link: PROFILE_URL,
         },
       ],
       date: item.pubDate,

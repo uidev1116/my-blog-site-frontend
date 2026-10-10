@@ -32,6 +32,8 @@ CLI は `opennextjs-cloudflare`(OpenNext 公式)を使う。Cloudflare の新 CL
 | `ACMS_API_PREVIEW_KEY`                                               | 必須                                       | 必須   | **Secret** |
 | `ACMS_ASSETS_PROTOCOL` / `ACMS_ASSETS_HOSTNAME` / `ACMS_ASSETS_PORT` | 必須(`next.config.js` の `remotePatterns`) | 必須   | 変数       |
 
+`wrangler.jsonc` は `keep_vars: true` のため、デプロイしてもダッシュボードで設定した変数・Secret は消えない。
+
 Workers Builds でビルドする場合は、ビルド環境(Build variables)にも同じ値を設定する。
 
 ## レンダリングと更新
@@ -59,3 +61,10 @@ DNS を切り替えるまで Vercel が本番のまま。切り替え後に問�
 ## 動作確認済み(ローカル workerd + モック ACMS)
 
 `/`、`/blog/`、記事、`/profile/`、検索、`/api/blog`、`/feed/`、`/sitemap.xml`、`/robots.txt`、`/blog/zenn/`、リダイレクト(`next.config.js`)、プレビュー(`/api/blog/draft`)、404、OGP 画像、`/_next/image/` が期待どおり応答。**実際の ACMS・Cloudflare 上での確認は未実施。**
+
+## 補足
+
+- `.dev.vars` は `NEXT_PUBLIC_BASE_URL` のみ記載(`BASE_URL` は未設定時のフォールバック)。
+- カスタムドメインはダッシュボード(Workers & Pages → Settings → Domains)で設定する。
+- `compatibility_date` は動作確認した 2025-09-01 のまま。更新する場合は `npm run preview` で再確認する。
+- `package-lock.json` は npm 10 で再生成したため差分が大きい(`peer` フラグの追加など)。依存の実質変更は `@opennextjs/cloudflare`・`wrangler`・`vitest` の追加と `next` の固定。

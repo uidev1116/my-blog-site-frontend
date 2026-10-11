@@ -16,8 +16,9 @@ export default function useClipboard({
   const [copied, setCopied] = useState(false);
 
   const copy = useCallback(
-    (text: string) => {
-      const isCopied = _copy(text, copyToClipboardOptions);
+    async (text: string) => {
+      // copy-to-clipboard v4 以降は Promise<boolean> を返す
+      const isCopied = await _copy(text, copyToClipboardOptions);
       setCopied(isCopied);
       if (isCopied && onCopy) {
         onCopy(text);

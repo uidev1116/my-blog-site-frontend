@@ -18,3 +18,11 @@ updates:
     ignore:
       # @opennextjs/cloudflare の対応状況を確認してから手動で上げる(docs/cloudflare-workers.md 参照)
       - dependency-name: next
+      # ツールチェーンの major 更新は、設定・依存の互換性を確認して手動で行う
+      # (typescript 7 は tsconfig の target=ES5 等が削除、@eslint/js 10 は eslint 10 が必要)
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
+      - dependency-name: eslint
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@eslint/js'
+        update-types: ['version-update:semver-major']

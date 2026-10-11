@@ -1,8 +1,10 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
 import useSWR from 'swr';
 import { Container } from '@/app/components';
+import { applyBuildIn } from '@/app/lib/buildIn';
 import { FetchError, fetchPreviewEntry } from '../api/client';
 import BlogDetailRoute from '../routes/BlogDetailRoute';
 
@@ -52,6 +54,14 @@ export default function BlogPreviewRoute() {
       shouldRetryOnError: false,
     },
   );
+
+  // 本文は、ページの表示後に取得して描画する。目次・外部リンク・表のスクロールなどは、
+  // 本文が DOM に出てから作る必要があるため、取得できたら適用する(BuildInJs は、ページを開いた直後にしか動かない)
+  useEffect(() => {
+    if (data) {
+      applyBuildIn(document);
+    }
+  }, [data]);
 
   if (code === '') {
     return (

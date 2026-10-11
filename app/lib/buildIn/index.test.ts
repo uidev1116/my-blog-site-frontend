@@ -16,6 +16,7 @@ vi.mock('./document-outliner', () => ({ default: m.setupOutliner }));
 vi.mock('./lazy-load-fn', () => ({ default: m.lazyLoadFn }));
 
 import {
+  applyBuildIn,
   documentOutliner,
   externalLinks,
   openStreetMap,
@@ -133,5 +134,29 @@ describe('documentOutliner', () => {
     documentOutliner(document);
     await flush();
     expect(m.setupOutliner).not.toHaveBeenCalled();
+  });
+});
+
+describe('applyBuildIn', () => {
+  it('外部リンク・スクロールヒント・地図・目次を、まとめて適用する', async () => {
+    document.body.innerHTML = `
+      <a id="ext" href="https://other.example.org/">ext</a>
+      <div class="js-outline" data-target=".x"></div>
+      <div class="js-open-street-map"></div>
+      <div class="js-scrollable"></div>
+    `;
+
+    m.lazyLoadFn.mockImplementation(async (_sel, _isLazy, run) => {
+      await run(document.querySelector('.js-open-street-map'));
+    });
+
+    applyBuildIn(document);
+    await flush();
+
+    expect(document.getElementById('ext')?.getAttribute('target')).toBe(
+      '_blank',
+    );
+    expect(m.setupOutliner).toHaveBeenCalledTimes(1);
+    expect(m.setupMap).toHaveBeenCalled();
   });
 });

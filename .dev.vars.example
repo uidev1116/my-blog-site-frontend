@@ -1,6 +1,6 @@
-# `npm run preview`(ローカルの workerd)用の実行時環境変数。
+# `npm run preview`(wrangler dev)で、Worker(/api/*)が実行時に使う環境変数。
 # `.dev.vars` にコピーして値を設定する(.dev.vars は git 管理外)。
-# ビルド時の値は .env.local など、通常の Next.js の方法で渡す。
+# 静的書き出し(next build)に必要な値は、.env.local など、通常の Next.js の方法で渡す。
 NEXT_PUBLIC_BASE_URL=
 ACMS_API_PROTOCOL=
 ACMS_API_HOSTNAME=

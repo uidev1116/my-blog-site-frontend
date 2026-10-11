@@ -1,7 +1,11 @@
 // CI / ローカル検証用のモック a-blog cms API。実データなしでビルドを通すためのもの。
-// 使い方: node scripts/mock-acms.mjs  (127.0.0.1:8787)
+// 使い方: node scripts/mock-acms.mjs  (127.0.0.1:8787。PORT で変更可)
 import http from 'node:http';
-const base = 'http://127.0.0.1:8787';
+const port = Number(process.env.PORT ?? 8787);
+const base = `http://127.0.0.1:${port}`;
+// OGP 画像の背景は、Next.js(ImageResponse)の SSRF 対策で 127.0.0.1 や localhost だと取得できない。
+// 127.0.0.1 に名前解決される localtest.me を使う
+const ogpOrigin = process.env.OGP_ORIGIN ?? `http://localtest.me:${port}`;
 const now = '2026-01-01T00:00:00+09:00';
 const mkEntry = (n) => ({
   eid: n,
@@ -26,7 +30,7 @@ const mkEntry = (n) => ({
     name: 'Blog',
     url: `${base}/blog/`,
     fields: {
-      ogp_image_base: { value: { path: `${base}/media/ogp.png?x=1` } },
+      ogp_image_base: { value: { path: `${ogpOrigin}/media/ogp.png?x=1` } },
     },
   },
   body: '<h2>見出し</h2><p>本文 <img src="http://127.0.0.1:8787/media/a.png" width="100" height="50" alt="a"></p>',
@@ -57,8 +61,9 @@ http
       indexUrl: `${base}/blog/`,
       indexBlogName: 'Blog',
       pagination: {
-        firstPage: 1,
-        lastPage: 1,
+        // 実際の a-blog cms の形に合わせる(最初のページは null、ページ番号は { page, url } のオブジェクト)
+        firstPage: null,
+        lastPage: { page: 1, url: `${base}/blog/page/1/`, current: true },
         prevPage: null,
         nextPage: null,
         pages: [{ page: 1, url: `${base}/blog/` }],
@@ -81,4 +86,4 @@ http
     res.setHeader('content-type', 'application/json');
     res.end(JSON.stringify(body));
   })
-  .listen(8787);
+  .listen(port);

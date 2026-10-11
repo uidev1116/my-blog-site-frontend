@@ -1,0 +1,12 @@
+# Cloudflare の静的アセットのリダイレクト(next.config.js の redirects() は静的書き出しで動かないため、ここに書く)
+# https://developers.cloudflare.com/workers/static-assets/redirects/
+
+# 旧記事 URL
+/blog/entry-106.html /blog/ablogcms-next-rss-feed.html/ 301
+
+# RSS フィード(以前の URL は /feed/)
+/feed /feed.xml 301
+/feed/ /feed.xml 301
+
+# 廃止した検索結果のページ番号付き URL(検索は /blog/search/?keyword=...&page=N に変更)
+/blog/search/page/* /blog/search/ 301

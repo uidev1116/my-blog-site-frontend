@@ -1,9 +1,16 @@
 import { loadFont } from '@/app/lib/font/google';
 import { ImageResponse } from 'next/og';
-import { getBlogEntry } from '../api';
+import { getAllBlogEntries, getBlogEntry } from '../api';
 import { MEDIA_BASE_URL } from '@/app/config/acms';
 
-export const revalidate = 10;
+// 静的書き出しでは、ビルド時に全記事分の画像を生成する
+export const dynamic = 'force-static';
+export const dynamicParams = false;
+
+export async function generateStaticParams() {
+  const entries = await getAllBlogEntries();
+  return entries.map((entry) => ({ code: entry.code }));
+}
 
 export const alt = '記事のOGP画像';
 export const size = {
@@ -36,39 +43,37 @@ export default async function Image({
   const backgroundImage = `${entry.blog?.ogpImageBasePath}&type=original`;
 
   return new ImageResponse(
-    (
+    <div
+      style={{
+        backgroundImage: `url("${backgroundImage}")`,
+        backgroundColor: '#fff',
+        backgroundSize: '100% 100%',
+        height: '100%',
+        width: '100%',
+        display: 'flex',
+        textAlign: 'left',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        flexDirection: 'column',
+        flexWrap: 'nowrap',
+      }}
+    >
       <div
         style={{
-          backgroundImage: `url("${backgroundImage}")`,
-          backgroundColor: '#fff',
-          backgroundSize: '100% 100%',
-          height: '100%',
           width: '100%',
-          display: 'flex',
-          textAlign: 'left',
-          alignItems: 'flex-start',
-          justifyContent: 'center',
-          flexDirection: 'column',
-          flexWrap: 'nowrap',
+          fontSize: 48,
+          fontStyle: 'normal',
+          fontWeight: 'bold',
+          color: '#000',
+          padding: '0 120px',
+          lineHeight: 1.3,
+          marginBottom: '30px',
+          wordWrap: 'break-word',
         }}
       >
-        <div
-          style={{
-            width: '100%',
-            fontSize: 48,
-            fontStyle: 'normal',
-            fontWeight: 'bold',
-            color: '#000',
-            padding: '0 120px',
-            lineHeight: 1.3,
-            marginBottom: '30px',
-            wordWrap: 'break-word',
-          }}
-        >
-          {entry.title}
-        </div>
+        {entry.title}
       </div>
-    ),
+    </div>,
     {
       ...size,
       fonts: [

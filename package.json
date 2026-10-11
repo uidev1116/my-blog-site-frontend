@@ -5,18 +5,15 @@
   "scripts": {
     "dev": "TZ='Etc/UTC' next dev",
     "build": "next build",
-    "start": "next start",
     "lint": "eslint .",
     "format": "prettier --write .",
     "prepare": "husky",
-    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "preview": "next build && wrangler dev",
+    "deploy": "next build && wrangler deploy"
   },
   "dependencies": {
     "@next/third-parties": "^16.4.0",
-    "@opennextjs/cloudflare": "^1.20.10",
     "@types/node": "24.19.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -34,7 +31,7 @@
     "html-react-parser": "^6.1.8",
     "leaflet": "^1.9.4",
     "lozad": "^1.16.0",
-    "next": "16.3.8",
+    "next": "^16.4.0",
     "nprogress": "^0.2.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",

@@ -10,7 +10,7 @@ const getRssFeed = vi.fn();
 vi.mock('../api', () => ({ getOgp }));
 vi.mock('./api', () => ({ getRssFeed }));
 
-describe('GET /feed', () => {
+describe('GET /feed.xml', () => {
   beforeEach(() => {
     getOgp.mockResolvedValue({
       title: 'サイト名',

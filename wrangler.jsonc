@@ -1,16 +1,12 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "my-blog-site-frontend",
-  "main": ".open-next/worker.js",
   "compatibility_date": "2025-09-01",
-  "keep_vars": true,
-  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
-    "directory": ".open-next/assets",
-    "binding": "ASSETS",
-  },
-  "images": {
-    "binding": "IMAGES",
+    // next build の出力(静的書き出し)
+    "directory": "./out",
+    // 存在しない URL は out/404.html を返す
+    "not_found_handling": "404-page",
   },
   "observability": {
     "enabled": true,

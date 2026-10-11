@@ -68,3 +68,19 @@ DNS を切り替えるまで Vercel が本番のまま。切り替え後に問�
 - カスタムドメインはダッシュボード(Workers & Pages → Settings → Domains)で設定する。
 - `compatibility_date` は動作確認した 2025-09-01 のまま。更新する場合は `npm run preview` で再確認する。
 - `package-lock.json` は npm 10 で再生成したため差分が大きい(`peer` フラグの追加など)。依存の実質変更は `@opennextjs/cloudflare`・`wrangler`・`vitest` の追加と `next` の固定。
+
+## CI / CD(GitHub Actions)
+
+| ワークフロー                              | トリガー                                             | 内容                                                                                                        |
+| ----------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `.github/workflows/ci.yml`                | PR / master への push                                | 型チェック + Vitest、変更ファイルの ESLint / Prettier、OpenNext ビルドと Worker サイズ確認(gzip 3 MiB 未満) |
+| `.github/workflows/deploy-cloudflare.yml` | 手動 / `repository_dispatch`(`acms-content-updated`) | テスト後に `npm run deploy` で Cloudflare にデプロイ                                                        |
+| `.github/dependabot.yml`                  | 週次                                                 | GitHub Actions と npm の更新 PR(`next` は対象外)                                                            |
+
+- CI のビルドは `scripts/mock-acms.mjs` のモック API を使うため、シークレットは不要です。
+- ESLint / Prettier は既存コードに未対応の指摘が残っているため、変更したファイルだけを検査します。
+- デプロイは、DNS 切り替えが済むまで push では走らせていません。
+- デプロイに必要な設定(GitHub の `production` Environment):
+  - Secrets: `CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID`、`ACMS_API_KEY`、`ACMS_API_PREVIEW_KEY`
+  - Variables: `NEXT_PUBLIC_BASE_URL`、`ACMS_API_PROTOCOL`、`ACMS_API_HOSTNAME`、`ACMS_API_PORT`、`ACMS_ASSETS_PROTOCOL`、`ACMS_ASSETS_HOSTNAME`、`ACMS_ASSETS_PORT`
+- a-blog cms の更新時に再デプロイするには、更新イベントから GitHub API(`POST /repos/{owner}/{repo}/dispatches`、`event_type: acms-content-updated`)を呼びます。

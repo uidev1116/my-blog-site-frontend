@@ -85,14 +85,16 @@ a-blog cms のプレビューリンク(`/api/blog/draft/?previewKey=...&code=...
 a-blog cms の更新通知(Webhook など)から呼ぶ API:
 
 ```bash
-curl -X POST \
+curl -fsS -X POST \
   -H "Accept: application/vnd.github+json" \
+  -H "X-GitHub-Api-Version: 2022-11-28" \
   -H "Authorization: Bearer <GitHub のトークン>" \
   https://api.github.com/repos/uidev1116/my-blog-site-frontend/dispatches \
   -d '{"event_type":"acms-content-updated"}'
 ```
 
-- トークンは、このリポジトリだけを対象にした fine-grained トークンで、`Contents: Read and write` が必要(`repository_dispatch` の権限)。**トークンは a-blog cms 側の設定にだけ置き、このリポジトリには置かない**。
+- 成功すると、HTTP 204(本文なし)が返る。`-f` を付けているため、401 や 404 のときは、終了コードが 0 以外になる。
+- トークンは、このリポジトリだけを対象にした fine-grained トークンで、`Contents: Read and write` が必要(`repository_dispatch` の権限)。**この権限は、`master` への push もできるほど強い**ため、漏れたときの影響が大きい。トークンは a-blog cms 側の設定にだけ置き、このリポジトリには置かない。漏れたら、すぐに失効させる。
 - 連続して通知が来ても、`concurrency` で、デプロイは 1 つずつ実行される(実行中のデプロイは止めない)。
 
 ## Worker の Secret(1 回だけ登録する)
@@ -112,15 +114,18 @@ Secret 以外の実行時の変数は、デプロイのたびに、ワークフ�
 
 ## CI / CD(GitHub Actions)
 
-| ワークフロー                                  | トリガー                                             | 内容                                                                                            |
-| --------------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `.github/workflows/ci.yml`                    | PR / master への push                                | 型チェック + Vitest、変更ファイルの ESLint / Prettier、静的書き出しのビルドと出力ファイルの確認 |
-| `.github/workflows/deploy-cloudflare.yml`     | 手動 / `repository_dispatch`(`acms-content-updated`) | テスト後に `npm run deploy` で Cloudflare にデプロイ                                            |
-| `.github/workflows/dependabot-auto-merge.yml` | Dependabot の PR                                     | major 以外の更新を、CI が全て成功したら自動でスカッシュマージ                                   |
-| `.github/dependabot.yml`                      | 週次                                                 | GitHub Actions と npm の更新 PR(`next`、typescript / eslint の major は対象外)                  |
+| ワークフロー                                  | トリガー                                                                      | 内容                                                                                                                                      |
+| --------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `.github/workflows/ci.yml`                    | PR / master への push                                                         | 型チェック + Vitest、変更ファイルの ESLint / Prettier、静的書き出しのビルドと出力ファイルの確認                                           |
+| `.github/workflows/deploy-cloudflare.yml`     | 手動 / `repository_dispatch`(`acms-content-updated`) / 6 時間ごと(`schedule`) | `master` をテストして、`npm run deploy` で Cloudflare にデプロイ。Worker の変数(Secret 以外)は `--var` で渡し、必須の変数が空なら失敗する |
+| `.github/workflows/dependabot-auto-merge.yml` | Dependabot の PR                                                              | major 以外の更新を、CI が全て成功したら自動でスカッシュマージ                                                                             |
+| `.github/dependabot.yml`                      | 週次                                                                          | GitHub Actions と npm の更新 PR(`next`、typescript / eslint の major は対象外)                                                            |
 
 - CI のビルドは `scripts/mock-acms.mjs` のモック API を使うため、シークレットは不要。
 - ESLint / Prettier は、既存コードに未対応の指摘が残っているため、変更したファイルだけを検査する。
+- `CLOUDFLARE_API_TOKEN` は、このアカウントだけを対象にして、`Workers Scripts: Edit` を付ける(`wrangler.jsonc` の `routes` をコードで管理する場合は、ゾーンの `Workers Routes: Edit` も)。
+- `production` Environment は、Required reviewers を付けない(定期実行と通知が、承認待ちで止まるため)。デプロイ可能なブランチを `master` に限定する。
+- Secret は、`Deploy` のステップにだけ渡す(`npm ci` や `npm test` には渡さない)。
 - デプロイに必要な設定(GitHub の `production` Environment):
   - Secrets: `CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID`、`ACMS_API_KEY`、`ACMS_API_PREVIEW_KEY`
   - Variables: `NEXT_PUBLIC_BASE_URL`、`ACMS_API_PROTOCOL`、`ACMS_API_HOSTNAME`、`ACMS_API_PORT`、`ACMS_ASSETS_PROTOCOL`、`ACMS_ASSETS_HOSTNAME`、`ACMS_ASSETS_PORT`

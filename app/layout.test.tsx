@@ -69,4 +69,23 @@ describe('RootLayout', () => {
     vi.stubEnv('NODE_ENV', 'development');
     expect(await render()).not.toContain('name="ga"');
   });
+
+  describe('Google AdSense', () => {
+    const adsenseSrc =
+      'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1916494680308477';
+
+    it('本番では、<head> に AdSense のスクリプトを出す(サイトの所有確認と広告の配信に必要)', async () => {
+      vi.stubEnv('NODE_ENV', 'production');
+      const html = await render();
+      const head = html.match(/<head>([\s\S]*?)<\/head>/)?.[1] ?? '';
+      expect(head).toContain(`src="${adsenseSrc}"`);
+      expect(head).toContain('async');
+      expect(head).toContain('crossorigin="anonymous"');
+    });
+
+    it('本番以外では出さない(開発中の表示に広告のリクエストを送らない)', async () => {
+      vi.stubEnv('NODE_ENV', 'development');
+      expect(await render()).not.toContain('adsbygoogle');
+    });
+  });
 });

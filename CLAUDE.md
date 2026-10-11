@@ -15,6 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint checks
 - `npm run test` - Run tests with Vitest (TDD で進める方針。テストは実装の隣に置く。詳細は `docs/testing.md`)
+- `npm run test:coverage` - Run tests with coverage (lines / statements / functions / branches すべて 90% 以上が閾値。CI でも実行される)
 - `npm run preview` / `npm run deploy` - Cloudflare Workers (OpenNext) 用。詳細は `docs/cloudflare-workers.md`
 
 ### Code Quality
@@ -111,6 +112,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Type Organization**: Types organized by domain in separate files
 - **Path Aliases**: `@/*` maps to project root for clean imports
 - **Code Splitting**: Automatic with Next.js App Router
+
+## Testing
+
+詳細は `docs/testing.md`。実装・修正時は次を守る。
+
+- **TDD**: 新しい挙動や修正は、先に失敗するテストを書いてから実装する。バグ修正は、再現するテストを先に追加する。
+- **コロケーション**: テストは実装の隣に置く(`Foo.tsx` → `Foo.test.tsx`)。`tests/` や `__tests__/` は作らない。
+- **カバレッジ 90% 以上**を維持する(`npm run test:coverage`)。対象は `app/**`。型定義・barrel(`index.ts`)・`app/test-utils` は除外。
+- **DOM が要るテスト**は、先頭に `// @vitest-environment jsdom` を書く(既定は node)。
+- **コンポーネント**は Testing Library で、ユーザーから見える振る舞い(ロール・テキスト・操作)を検証する。内部 state やクラス名は見ない。
+- **外部との境界**(ACMS クライアント、`fetch`、ブラウザ API)はモックする。`next/dynamic` と `next/link` は `app/test-utils/` の差し替えを使う。
+- **async Server Component**(ページ・Header・Footer)は、関数として呼び出す。`render(await Header(props))` で描画を、返った要素の `props` で渡している値を検証する。ページは API とルートコンポーネントをモックする。
+- **環境変数**の既定値は `vitest.config.mts` の `test.env`。変えたいテストだけ `vi.stubEnv` で上書きする。
+- **テスト名**は、何が起きるべきかを日本語で書く。
+- E2E(Playwright 等)は未導入。必要になったら専用ディレクトリで導入する。
 
 ## Important Notes
 

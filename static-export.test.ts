@@ -108,6 +108,10 @@ describe('静的書き出し + Cloudflare 静的アセット', () => {
       expect(config.assets.run_worker_first).toEqual(['/api/*']);
     });
 
+    it('デプロイでダッシュボードの変数を消さない(keep_vars)', () => {
+      expect(config.keep_vars).toBe(true);
+    });
+
     it('process.env から環境変数を読めるよう nodejs_compat を有効にする', () => {
       expect(config.compatibility_flags).toContain('nodejs_compat');
     });

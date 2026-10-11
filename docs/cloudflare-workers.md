@@ -8,14 +8,14 @@ Next.js を **静的書き出し(`output: 'export'`)** でビルドし、`out/` 
 
 ## 構成
 
-| ファイル                | 役割                                                                                                                               |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `next.config.js`        | `output: 'export'`、`trailingSlash`、`images.unoptimized`                                                                          |
-| `worker/index.ts`       | Worker。`GET /api/blog/?keyword=...&page=N`(検索・一覧。`keyword` と `page` だけを a-blog cms に渡す)。`app/blog/api` を再利用する |
-| `wrangler.jsonc`        | `out/` を静的アセットとして配信。存在しない URL は `404.html` を返す                                                               |
-| `public/_redirects`     | リダイレクト(旧記事 URL、`/feed` → `/feed.xml`)。`next.config.js` の `redirects()` は書き出しで動かない                            |
-| `public/_headers`       | 拡張子のない OGP 画像の `Content-Type`、`/_next/static` の長期キャッシュ                                                           |
-| `static-export.test.ts` | 上記の構成と、書き出しで使えない機能(`force-dynamic`、`draftMode` など)を使っていないことのテスト                                  |
+| ファイル                | 役割                                                                                                                                                                                                                                                                                                                          |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `next.config.js`        | `output: 'export'`、`trailingSlash`、`images.unoptimized`                                                                                                                                                                                                                                                                     |
+| `worker/index.ts`       | Worker。`GET /api/blog/?keyword=...&page=N`(検索・一覧。`keyword` と `page` だけを a-blog cms に渡す)。`app/blog/api` を再利用する。範囲外のページは 0 件で返す。成功は `max-age=60`、エラーは `no-store`。カスタムドメインのゾーン上では、Cache API でエッジにもキャッシュする(workers.dev では使えず、キャッシュなしで動く) |
+| `wrangler.jsonc`        | `out/` を静的アセットとして配信。存在しない URL は `404.html` を返す                                                                                                                                                                                                                                                          |
+| `public/_redirects`     | リダイレクト(旧記事 URL、`/feed` → `/feed.xml`)。`next.config.js` の `redirects()` は書き出しで動かない                                                                                                                                                                                                                       |
+| `public/_headers`       | 拡張子のない OGP 画像の `Content-Type`、`/_next/static` の長期キャッシュ                                                                                                                                                                                                                                                      |
+| `static-export.test.ts` | 上記の構成と、書き出しで使えない機能(`force-dynamic`、`draftMode` など)を使っていないことのテスト                                                                                                                                                                                                                             |
 
 ## コマンド
 
@@ -30,7 +30,7 @@ CLI は Wrangler 4.x を使う。Cloudflare の新 CLI `cf`(2026/9 にオープ�
 
 ## 環境変数
 
-ビルド時(静的書き出し)と、Worker の実行時の両方で必要(値はダッシュボード / GitHub の設定で管理する)。Worker の変数・Secret は、`keep_vars: true` のため、デプロイしても消えない。
+ビルド時(静的書き出し)と、Worker の実行時の両方で必要(値はダッシュボード / GitHub の設定で管理する)。ダッシュボードで設定した変数は、`keep_vars: true` のため、デプロイしても消えない(Secret はもともと消えない)。
 
 | 変数                                                                 | 種別       |
 | -------------------------------------------------------------------- | ---------- |

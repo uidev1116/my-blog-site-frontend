@@ -29,7 +29,7 @@
     "downshift": "^9.4.0",
     "eslint": "9.39.1",
     "eslint-config-next": "^16.4.0",
-    "feed": "^5.1.0",
+    "feed": "^6.0.0",
     "flowbite": "^4.0.2",
     "html-react-parser": "^5.2.10",
     "leaflet": "^1.9.4",

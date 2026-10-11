@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.stubEnv('NEXT_PUBLIC_BASE_URL', 'https://example.com');
 vi.stubEnv('ACMS_ASSETS_PROTOCOL', 'https');
 vi.stubEnv('ACMS_ASSETS_HOSTNAME', 'assets.example.com');
+vi.stubEnv('ACMS_ASSETS_PORT', '');
 
 const getOgp = vi.fn();
 const getRssFeed = vi.fn();

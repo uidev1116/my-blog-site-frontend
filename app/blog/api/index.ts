@@ -4,7 +4,7 @@ import type { AcmsPathParams } from '@uidev1116/acms-js-sdk/acmsPath';
 import acmsClient from '@/app/lib/acms';
 import { PREVIEW_KEY } from '@/app/config/acms';
 
-type EntriesResponse = {
+export type EntriesResponse = {
   entries: BlogEntry[];
   pager?: {
     firstPage: number;

@@ -6,6 +6,8 @@ import { Suspense, useMemo } from 'react';
 
 type Props = {
   currentPage: number;
+  /** 現在の URL のクエリ文字列を、各リンクに引き継ぐ(既定: true)。リンク側でクエリを組み立てる場合は false */
+  appendQuery?: boolean;
   previous?: {
     path: string;
     num: number;
@@ -22,11 +24,20 @@ type Props = {
   };
 };
 
-function Pagination({ currentPage, pages, previous, next }: Props) {
+function Pagination({
+  currentPage,
+  appendQuery = true,
+  pages,
+  previous,
+  next,
+}: Props) {
   const searchParams = useSearchParams();
   const queryString = useMemo(
-    () => (searchParams.toString() ? `?${searchParams.toString()}` : ''),
-    [searchParams],
+    () =>
+      appendQuery && searchParams.toString()
+        ? `?${searchParams.toString()}`
+        : '',
+    [appendQuery, searchParams],
   );
   return (
     <nav aria-label="Page navigation">

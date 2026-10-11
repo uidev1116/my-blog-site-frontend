@@ -234,6 +234,16 @@ describe('worker: GET /api/blog', () => {
       expect(keys[0]).toBe(keys[1]);
     });
 
+    it('page=1 と page の省略は、同じキーにする', async () => {
+      const cache = stubCache();
+
+      await call('/api/blog/?keyword=cms');
+      await call('/api/blog/?keyword=cms&page=1');
+
+      const keys = cache.match.mock.calls.map((c) => c[0].url);
+      expect(keys[0]).toBe(keys[1]);
+    });
+
     it('エラーレスポンスは保存しない', async () => {
       const cache = stubCache();
       getBlogEntries.mockRejectedValue(new Error('upstream'));

@@ -53,9 +53,7 @@ async function handleBlogEntries(url: URL) {
   // 同じ検索は、URL の書き方によらず同じキャッシュキーにする
   const cache = getEdgeCache();
   const cacheKey = new Request(
-    `${url.origin}/api/blog/?keyword=${encodeURIComponent(keyword)}${
-      page !== undefined ? `&page=${page}` : ''
-    }`,
+    `${url.origin}/api/blog/?keyword=${encodeURIComponent(keyword)}&page=${page ?? 1}`,
   );
   if (cache) {
     try {

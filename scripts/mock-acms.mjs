@@ -52,9 +52,6 @@ http
       res.setHeader('content-type', 'image/png');
       return res.end(png);
     }
-    const m =
-      u.pathname.match(/\/api\/([^/]+)/) ||
-      u.pathname.match(/\/([a-z_A-Z]+)\.json/);
     const body = {
       items,
       indexUrl: `${base}/blog/`,

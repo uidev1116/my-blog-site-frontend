@@ -74,15 +74,38 @@ a-blog cms のプレビューリンク(`/api/blog/draft/?previewKey=...&code=...
 
 ## 記事の更新を反映する
 
-静的書き出しは、記事を更新しても自動では反映されない。`Deploy to Cloudflare`(`.github/workflows/deploy-cloudflare.yml`)を、次のタイミングで動かして、再ビルド・再デプロイする。
+静的書き出しは、記事を更新しても自動では反映されない。再ビルド・再デプロイが必要で、きっかけは次のとおり。
 
-| きっかけ          | 内容                                                                                   |
-| ----------------- | -------------------------------------------------------------------------------------- |
-| 手動              | GitHub の Actions → `Deploy to Cloudflare` → Run workflow                              |
-| a-blog cms の更新 | `repository_dispatch`(`event_type: acms-content-updated`)を GitHub API に送る(下記)    |
-| 定期実行          | 6 時間ごと(UTC)。通知漏れと、Zenn の記事一覧の更新を反映する。間隔は `cron` を変更する |
+| きっかけ                       | 内容                                                                                                                         |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| **a-blog cms の更新(Webhook)** | **Cloudflare の Deploy Hook**(URL に POST するだけ。ヘッダー不要)。下記                                                      |
+| 手動                           | GitHub の Actions → `Deploy to Cloudflare` → Run workflow、または Cloudflare の Workers Builds の「Retry build」             |
+| 定期実行                       | `Deploy to Cloudflare` の `schedule`(6 時間ごと、UTC)。通知漏れと、Zenn の記事一覧の更新を反映する。間隔は `cron` を変更する |
+| `master` への push             | Workers Builds を Git に接続している場合、自動でビルド・デプロイされる                                                       |
 
-a-blog cms の更新通知(Webhook など)から呼ぶ API:
+### a-blog cms の Webhook(スタンダードライセンスでも使える方法)
+
+a-blog cms のスタンダードライセンスでは、Webhook に、ヘッダー(`Authorization` など)を指定できない。そのため、GitHub の API(`Authorization` ヘッダーが必須)は、a-blog cms から直接は呼べない。代わりに、**Cloudflare Workers Builds の Deploy Hook** を使う([公式](https://developers.cloudflare.com/workers/ci-cd/builds/deploy-hooks))。
+
+1. Cloudflare ダッシュボード → Workers & Pages → `my-blog-site-frontend` → Settings → **Builds** で、GitHub のリポジトリに接続する(Workers Builds)。
+   - Git のブランチ: `master`
+   - **Build command**: `npm run build`(静的書き出し)
+   - **Deploy command**: `npx wrangler deploy`(既定)
+   - **Build variables and secrets**(ビルド時だけ有効。実行時の変数とは別): `NEXT_PUBLIC_BASE_URL`、`ACMS_API_PROTOCOL`、`ACMS_API_HOSTNAME`、`ACMS_API_PORT`、`ACMS_API_KEY`(Secret)、`ACMS_API_PREVIEW_KEY`(Secret)、`ACMS_ASSETS_PROTOCOL`、`ACMS_ASSETS_HOSTNAME`、`ACMS_ASSETS_PORT`
+   - Node.js は 24 を使う(`NODE_VERSION=24` のビルド変数。公式の設定ページに Node の選び方の記載がないため、最初のビルドのログで、Node のバージョンを確認する)。
+   - **実行時の変数**(Worker が `process.env` から読む)は、別に、Settings → Variables & Secrets に登録する(`keep_vars: true` のため、デプロイしても消えない)。
+2. Settings → Builds → **Deploy Hooks** → 名前(例: `a-blog cms`)とブランチ(`master`)を指定して作成し、**URL をコピーする**。
+3. a-blog cms の Webhook の URL を、この URL に変更する(今、Vercel の Deploy Hook の URL が設定されているなら、置き換える)。メソッドは **POST**。
+
+- ヘッダーは不要で、URL の ID が認証になる。**URL は、秘密として扱う**(リポジトリに置かない)。漏れたときは、Deploy Hook を削除して、作り直す(古い URL は、削除と同時に無効になる)。
+- 公式ドキュメントに記載があるのは **POST だけ**。a-blog cms の Webhook が、GET でしか送れない場合は、使えないため、確認する。
+- 重複の防止: 同じ Deploy Hook が、前のビルドの開始前に、何度も呼ばれても、新しいビルドは作られない(`already_exists: true`)。
+- 制限: Deploy Hook は、Worker あたり 1 分に 10 ビルドまで。Workers Builds は、無料プランで、月 3,000 ビルド分(同時に 1 ビルド、タイムアウト 20 分)。
+- Cloudflare 側でビルドする場合、GitHub の `production` Environment の Secrets(`CLOUDFLARE_API_TOKEN` など)は、定期実行と手動の `Deploy to Cloudflare` にだけ使う。
+
+### GitHub の repository_dispatch(ヘッダーを指定できる別のシステムから呼ぶ場合)
+
+ヘッダーを指定できるシステムからは、GitHub の API でも `Deploy to Cloudflare` を動かせる(`event_type: acms-content-updated`)。
 
 ```bash
 curl -fsS -X POST \
@@ -94,7 +117,7 @@ curl -fsS -X POST \
 ```
 
 - 成功すると、HTTP 204(本文なし)が返る。`-f` を付けているため、401 や 404 のときは、終了コードが 0 以外になる。
-- トークンは、このリポジトリだけを対象にした fine-grained トークンで、`Contents: Read and write` が必要(`repository_dispatch` の権限)。**この権限は、`master` への push もできるほど強い**ため、漏れたときの影響が大きい。トークンは a-blog cms 側の設定にだけ置き、このリポジトリには置かない。漏れたら、すぐに失効させる。
+- トークンは、このリポジトリだけを対象にした fine-grained トークンで、`Contents: Read and write` が必要(`repository_dispatch` の権限)。**この権限は、`master` への push もできるほど強い**ため、漏れたときの影響が大きい。トークンは呼び出し側の設定にだけ置き、このリポジトリには置かない。漏れたら、すぐに失効させる。
 - 連続して通知が来ても、`concurrency` で、デプロイは 1 つずつ実行される(実行中のデプロイは止めない)。
 
 ## Worker の Secret(1 回だけ登録する)

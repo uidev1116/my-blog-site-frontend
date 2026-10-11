@@ -2,7 +2,8 @@ name: Deploy to Cloudflare
 
 # 静的書き出しは、記事を更新しても自動では反映されないため、次のタイミングで再ビルド・再デプロイする。
 #   - 手動
-#   - a-blog cms の更新通知(repository_dispatch: acms-content-updated。docs/cloudflare-workers.md 参照)
+#   - 他のシステムからの通知(repository_dispatch: acms-content-updated。ヘッダーを指定できる場合)。
+#     a-blog cms のスタンダードライセンスは、Webhook にヘッダーを指定できないため、Cloudflare の Deploy Hook を使う(docs/cloudflare-workers.md 参照)
 #   - 定期実行(a-blog cms の通知漏れと、Zenn の記事一覧の更新を反映する)
 # 本番切り替え(DNS)が完了するまでは、push では自動デプロイしない。
 on:

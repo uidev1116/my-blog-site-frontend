@@ -1,7 +1,6 @@
 import { loadFont } from '@/app/lib/font/google';
 import { ImageResponse } from 'next/og';
 import { getAllBlogEntries, getBlogEntry } from '../api';
-import { MEDIA_BASE_URL } from '@/app/config/acms';
 
 // 静的書き出しでは、ビルド時に全記事分の画像を生成する
 export const dynamic = 'force-static';

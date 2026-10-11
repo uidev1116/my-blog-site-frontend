@@ -32,7 +32,9 @@
    - OGP 画像(`/blog/<記事>/opengraph-image`)の `Content-Type: image/png`
    - プレビュー(a-blog cms のプレビューリンク → `/blog/preview/`)
 7. **`--var` の反映を確認する。** `keep_vars: true` と `--var` を併用しているため、GitHub の Variables の値を変えて再デプロイし、Worker に反映されること(例: `/api/blog/` の応答が、変更後の接続先のデータになること)を確かめる。
-8. a-blog cms の更新通知(`docs/cloudflare-workers.md` の「記事の更新を反映する」)を設定する。
+8. **a-blog cms の Webhook を、Vercel の Deploy Hook から、Cloudflare の Deploy Hook に切り替える。** a-blog cms のスタンダードライセンスでは、Webhook にヘッダーを指定できないため、URL に POST するだけの Cloudflare の Deploy Hook を使う(`docs/cloudflare-workers.md` の「記事の更新を反映する」)。
+   - 切り替える時期: **切り替え(DNS)の後**。それまでは、Vercel の Deploy Hook のままにする(本番はまだ Vercel のため)。ただし、Vercel の Git 連携を外す(事前確認 4)と、Vercel の Deploy Hook は、使えなくなる可能性がある。Webhook を、切り替えの直前に、Cloudflare の Deploy Hook に変える。
+   - 変更後、a-blog cms で記事を保存して、Cloudflare の Workers Builds のビルド履歴(Triggered by に Deploy Hook の名前)に、ビルドが現れることを確認する。
 
 ## ダウンタイムを避けて、本番ドメインでも検証する
 

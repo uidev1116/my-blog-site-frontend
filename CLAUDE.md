@@ -26,13 +26,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Node.js Version
 
-- Project uses Node.js 24 LTS (24.21.0, managed via Volta; `engines.node` で Vercel にも 24.x を指定)
+- Project uses Node.js 24 LTS (24.21.0, managed via Volta; `engines.node` で 24.x を指定)
 
 ## Architecture Overview
 
 ### Framework & Technology Stack
 
-- **Next.js 14** with App Router (app directory structure)
+- **Next.js 16** with App Router (static export: `output: 'export'`。ページは静的に書き出し、検索・プレビューだけ Cloudflare Worker(`worker/`)が `/api/*` で処理する。詳細は `docs/cloudflare-workers.md`)
 - **TypeScript** with strict mode
 - **Tailwind CSS** for styling with Flowbite components
 - **ACMS SDK** (`@uidev1116/acms-js-sdk`) for CMS integration

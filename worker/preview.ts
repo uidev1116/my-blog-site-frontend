@@ -1,6 +1,7 @@
 import { getBlogEntry, getTagRelationalEntries } from '@/app/blog/api';
 import { PREVIEW_KEY } from '@/app/config/acms';
-import { json } from './http';
+import { isAcmsNotFoundError } from '@/app/utils';
+import { SECURITY_HEADERS, json } from './http';
 
 // 下書きのプレビュー。
 //   1. GET /api/blog/draft/?previewKey=...&code=...  キーと記事を確認し、署名付きの Cookie を発行して
@@ -8,10 +9,22 @@ import { json } from './http';
 //   2. GET /api/blog/preview/?code=...  Cookie を検証して、下書きの記事と関連記事を返す
 // プレビューキーはブラウザの JavaScript には渡さず、Cookie にも含めない(HMAC の鍵として使う)
 
-const COOKIE_NAME = 'preview';
+// __Secure- を付けて、HTTPS 以外や兄弟サブドメインからの上書きを防ぐ
+const COOKIE_NAME = '__Secure-preview';
 const COOKIE_PATH = '/api/blog/preview';
 const TTL_SECONDS = 30 * 60;
 const CODE_PATTERN = /^[A-Za-z0-9._~-]{1,200}$/;
+
+// '.' や '..' だけの code は、a-blog cms のパスとして解釈されうるため弾く
+function isValidCode(code: string) {
+  return CODE_PATTERN.test(code) && !/^\.+$/.test(code);
+}
+
+// ログには、エラーのメッセージだけを出す(プレビューキーは伏せる)
+function describeError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  return PREVIEW_KEY ? message.split(PREVIEW_KEY).join('***') : message;
+}
 
 const encoder = new TextEncoder();
 
@@ -121,7 +134,7 @@ export async function handleDraft(url: URL) {
   const code = url.searchParams.get('code') ?? '';
   const previewKey = url.searchParams.get('previewKey') ?? '';
 
-  if (!CODE_PATTERN.test(code)) {
+  if (!isValidCode(code)) {
     return json({ error: 'code is invalid' }, 400);
   }
   if (previewKey === '') {
@@ -140,7 +153,11 @@ export async function handleDraft(url: URL) {
       return json({ error: 'Entry not found' }, 404);
     }
   } catch (error) {
-    console.error('failed to fetch draft entry', error);
+    // 存在しない記事は、a-blog cms が 404 を返す
+    if (isAcmsNotFoundError(error)) {
+      return json({ error: 'Entry not found' }, 404);
+    }
+    console.error('failed to fetch draft entry', describeError(error));
     return json({ error: 'Bad Gateway' }, 502);
   }
 
@@ -154,6 +171,7 @@ export async function handleDraft(url: URL) {
       // 遷移先は固定のパス + code(オープンリダイレクトにならない)
       Location: `/blog/preview/?code=${encodeURIComponent(code)}`,
       'Cache-Control': 'no-store',
+      ...SECURITY_HEADERS,
       'Set-Cookie': `${COOKIE_NAME}=${token}; Max-Age=${TTL_SECONDS}; Path=${COOKIE_PATH}; HttpOnly; Secure; SameSite=Lax`,
     },
   });
@@ -161,7 +179,7 @@ export async function handleDraft(url: URL) {
 
 export async function handlePreview(request: Request, url: URL) {
   const code = url.searchParams.get('code') ?? '';
-  if (!CODE_PATTERN.test(code)) {
+  if (!isValidCode(code)) {
     return json({ error: 'code is invalid' }, 400);
   }
 
@@ -182,7 +200,10 @@ export async function handlePreview(request: Request, url: URL) {
       'Cache-Control': 'private, no-store',
     });
   } catch (error) {
-    console.error('failed to fetch preview entry', error);
+    if (isAcmsNotFoundError(error)) {
+      return json({ error: 'Entry not found' }, 404);
+    }
+    console.error('failed to fetch preview entry', describeError(error));
     return json({ error: 'Bad Gateway' }, 502);
   }
 }

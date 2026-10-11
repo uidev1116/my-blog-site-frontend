@@ -46,6 +46,8 @@ export default function BlogPreviewRoute() {
     ([, c]) => fetchPreviewEntry(c),
     {
       revalidateOnFocus: false,
+      // ネットワーク復帰時の再取得で、表示済みの下書きがエラー表示に置き換わるのを防ぐ
+      revalidateOnReconnect: false,
       // 認証切れ(401)や記事なし(404)は、再試行しても同じ結果
       shouldRetryOnError: false,
     },

@@ -99,6 +99,10 @@ export async function handleRequest(request: Request): Promise<Response> {
     return handleBlogEntries(url);
   }
   if (pathname === '/api/blog/draft') {
+    // Cookie を発行するため、GET だけ(HEAD は、プリフェッチャなどで副作用が出る)
+    if (request.method !== 'GET') {
+      return json({ error: 'Method Not Allowed' }, 405, { Allow: 'GET' });
+    }
     return handleDraft(url);
   }
   if (pathname === '/api/blog/preview') {

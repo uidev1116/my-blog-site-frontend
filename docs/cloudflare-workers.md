@@ -12,7 +12,7 @@ Next.js を **静的書き出し(`output: 'export'`)** でビルドし、`out/` 
 | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `next.config.js`        | `output: 'export'`、`trailingSlash`、`images.unoptimized`                                                                                                                                                                                                                                                                     |
 | `worker/index.ts`       | Worker。`GET /api/blog/?keyword=...&page=N`(検索・一覧。`keyword` と `page` だけを a-blog cms に渡す)。`app/blog/api` を再利用する。範囲外のページは 0 件で返す。成功は `max-age=60`、エラーは `no-store`。カスタムドメインのゾーン上では、Cache API でエッジにもキャッシュする(workers.dev では使えず、キャッシュなしで動く) |
-| `worker/preview.ts`     | 下書きのプレビュー(下記)                                                                                                                                                                                                                                                                                                      |
+| `worker/preview.ts`     | 下書きのプレビュー(「下書きのプレビュー」の節)。`/api/blog/draft/` と `/api/blog/preview/`。`worker/index.ts` がルーティングし、`worker/http.ts` の `json()` が共通のヘッダー(`no-store`、`nosniff`、`Referrer-Policy: no-referrer`)を付ける                                                                                  |
 | `wrangler.jsonc`        | `out/` を静的アセットとして配信。存在しない URL は `404.html` を返す                                                                                                                                                                                                                                                          |
 | `public/_redirects`     | リダイレクト(旧記事 URL、`/feed` → `/feed.xml`)。`next.config.js` の `redirects()` は書き出しで動かない                                                                                                                                                                                                                       |
 | `public/_headers`       | 拡張子のない OGP 画像の `Content-Type`、`/_next/static` の長期キャッシュ                                                                                                                                                                                                                                                      |
@@ -50,7 +50,7 @@ CLI は Wrangler 4.x を使う。Cloudflare の新 CLI `cf`(2026/9 にオープ�
 | OGP 画像が 10 秒ごとに更新                      | ビルド時に全記事分を生成(`opengraph-image`)                                                        |
 | `/feed/`                                        | `/feed.xml`(`/feed` と `/feed/` は 301 で転送)                                                     |
 | `next/image` の最適化                           | なし(元の画像をそのまま配信)。Cloudflare Images を使うには、ドメインを Cloudflare に置く必要がある |
-| 検索(SSR)、`/api/blog`、プレビュー(`draftMode`) | Worker に移す(PR2〜4)。PR1 の時点では動かない                                                      |
+| 検索(SSR)、`/api/blog`、プレビュー(`draftMode`) | 静的ページ + Worker の API に作り直した(下記)                                                      |
 
 ## 下書きのプレビュー
 
@@ -61,7 +61,16 @@ a-blog cms のプレビューリンク(`/api/blog/draft/?previewKey=...&code=...
 3. `GET /api/blog/preview/`(Worker): Cookie の署名・有効期限・`code` の一致を検証して返す(`Cache-Control: private, no-store`)。無効なら 401。
 
 - プレビューキーは、ブラウザの JavaScript にも Cookie にも渡さない(Cookie の署名の HMAC の鍵に使う)。Cookie は `code` ごとに発行され、別の記事には使えない。
-- 401 は「有効期限切れ」、404 は「記事が見つかりません」と画面に表示する。
+- 401(Cookie が無い・期限切れ・署名が不正・別の記事)は「有効期限が切れました」、404 は「記事が見つかりません」と画面に表示する。
+- 存在しない記事は、a-blog cms が 404 を返すため、Worker も 404 を返す。
+- Cookie 名は `__Secure-preview`(`__Secure-` は HTTPS で `Secure` が必須。Safari は `http://localhost` で `Secure` の Cookie を保存しないため、`wrangler dev` では Chrome か Firefox を使う)。
+- `/blog/preview/*` は、`_headers` で `Referrer-Policy: no-referrer` と `X-Robots-Tag: noindex, nofollow` を付ける。`/api/*` は Worker が先に動くため `_headers` が効かず、Worker が同じ種類のヘッダーを付ける。
+
+### プレビューキーの扱い
+
+- a-blog cms のプレビューリンクの URL には、`previewKey` が含まれる。**URL は Workers Logs(`observability`)にクエリ付きで残る**ため、ログの閲覧権限は、プレビューキーを扱える人に限る。
+- キーが漏れた(ログやブラウザの履歴から)可能性があるときは、a-blog cms 側でプレビューキーを再発行し、Worker の Secret(`ACMS_API_PREVIEW_KEY`)を更新する。Secret を変えると、発行済みの Cookie は、署名が合わなくなって、すべて無効になる。
+- Worker のログには、エラーメッセージだけを出し、プレビューキーは `***` に伏せる。
 
 ## CI / CD(GitHub Actions)
 

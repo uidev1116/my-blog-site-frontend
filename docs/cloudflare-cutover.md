@@ -8,6 +8,13 @@
 - `blog.uidev.me` は、Vercel への CNAME(`ca31698bd1db4428.vercel-dns-017.com`、TTL は約 300 秒、Proxied ではなく DNS only)。**戻すときのために、この値を控えておく**。
 - Cloudflare の Worker の「カスタムドメイン」は、そのホスト名に既存の DNS レコードがあると追加できない(先に削除する)。
 
+## 重要な前提(旧ドメインの転送)
+
+- `blog.uidev.jp` → `blog.uidev.me` の 308 リダイレクトは、**Vercel のプロジェクトの設定(Domains)が担っている**。旧ドメインの DNS は、Cloudflare ではなく、別の場所(会社の Xserver)にあり、Cloudflare に移せない。
+- そのため、**Vercel のプロジェクトは、削除しない。** リダイレクト専用で残す(無料の Hobby プランで続けられる)。
+- Vercel のプロジェクトから外すのは、`blog.uidev.me` のドメインだけ。`blog.uidev.jp`(リダイレクト設定)は、残す。
+- Git 連携は外してよい(外しても、ドメインのリダイレクトは、Vercel の Domains の設定のため、動き続ける。**切り替え後に、`https://blog.uidev.jp/` が `https://blog.uidev.me/` に 308 で転送されることを確認する**)。
+
 ## 重要な順序
 
 1. **先に、Vercel の自動デプロイを止める。** 静的書き出しを `master` にマージすると、Vercel の本番も静的書き出しで再ビルドされ、**検索とプレビューの API が無くなる**(Vercel には Worker が無い)。マージの前に、Vercel の Git 連携を外す(または Ignored Build Step で、ビルドをスキップする)。最後に成功した本番のデプロイは、そのまま残る。
@@ -70,7 +77,7 @@ CNAME を削除せずに、プロキシ(オレンジの雲)を通して、Worker
 ## 切り替え後
 
 - カスタムドメイン(ゾーン上)では、Cache API が使えるため、`/api/blog/` の検索結果が、エッジでもキャッシュされる(`worker/index.ts`)。
-- Vercel のプロジェクトは、しばらく残す(ロールバック用)。問題がなければ、Vercel のプロジェクトから `blog.uidev.me` のドメインを外し、プロジェクトを削除する。
+- Vercel のプロジェクトは、**削除しない**(`blog.uidev.jp` のリダイレクトを担っているため)。問題がなければ、Vercel のプロジェクトから `blog.uidev.me` のドメインだけを外す。
 - Vercel の Git 連携は、外したままにする(`master` の静的書き出しを、Vercel がビルドしないように)。
 
 ## ロールバック

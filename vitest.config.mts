@@ -7,6 +7,12 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    include: ['tests/**/*.test.{ts,tsx}', 'app/**/*.test.{ts,tsx}'],
+    include: ['**/*.test.{ts,tsx}'],
+    exclude: [
+      '**/node_modules/**',
+      '.next/**',
+      '.open-next/**',
+      '.wrangler/**',
+    ],
   },
 });

@@ -14,8 +14,7 @@ describe('useClipboard', () => {
     // copy-to-clipboard v4 は Promise<boolean> を返す
     copyMock.mockResolvedValue(true);
     const onCopy = vi.fn();
-    const { default: useClipboard } =
-      await import('@/app/hooks/useClipboard/useClipboard');
+    const { default: useClipboard } = await import('./useClipboard');
     const { result } = renderHook(() => useClipboard({ onCopy }));
 
     await act(async () => {
@@ -30,8 +29,7 @@ describe('useClipboard', () => {
   it('コピーに失敗すると copied は false のままで onCopy は呼ばれない', async () => {
     copyMock.mockResolvedValue(false);
     const onCopy = vi.fn();
-    const { default: useClipboard } =
-      await import('@/app/hooks/useClipboard/useClipboard');
+    const { default: useClipboard } = await import('./useClipboard');
     const { result } = renderHook(() => useClipboard({ onCopy }));
 
     await act(async () => {
@@ -44,8 +42,7 @@ describe('useClipboard', () => {
 
   it('reset で copied が false に戻る', async () => {
     copyMock.mockResolvedValue(true);
-    const { default: useClipboard } =
-      await import('@/app/hooks/useClipboard/useClipboard');
+    const { default: useClipboard } = await import('./useClipboard');
     const { result } = renderHook(() => useClipboard());
 
     await act(async () => {

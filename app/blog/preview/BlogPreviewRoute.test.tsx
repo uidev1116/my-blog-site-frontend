@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.stubEnv('NEXT_PUBLIC_BASE_URL', 'https://example.com');
 
 // 本文を取得して表示した後に、ビルトイン JS(目次・外部リンク・表のスクロールなど)を適用する
-const buildIn = vi.hoisted(() => ({ applyBuildIn: vi.fn() }));
+const buildIn = vi.hoisted(() => ({ setupBuildInJs: vi.fn() }));
 vi.mock('@/app/lib/buildIn', () => buildIn);
 
 let query = 'code=draft.html';
@@ -66,7 +66,7 @@ async function renderRoute() {
 describe('BlogPreviewRoute', () => {
   beforeEach(() => {
     query = 'code=draft.html';
-    buildIn.applyBuildIn.mockReset();
+    buildIn.setupBuildInJs.mockReset();
   });
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -156,7 +156,7 @@ describe('BlogPreviewRoute', () => {
     await screen.findByRole('heading', { name: '下書きの記事' });
 
     await waitFor(() => {
-      expect(buildIn.applyBuildIn).toHaveBeenCalledWith(document);
+      expect(buildIn.setupBuildInJs).toHaveBeenCalledWith(document);
     });
   });
 
@@ -166,6 +166,6 @@ describe('BlogPreviewRoute', () => {
     await renderRoute();
     await screen.findByRole('alert');
 
-    expect(buildIn.applyBuildIn).not.toHaveBeenCalled();
+    expect(buildIn.setupBuildInJs).not.toHaveBeenCalled();
   });
 });

@@ -16,7 +16,7 @@ vi.mock('./document-outliner', () => ({ default: m.setupOutliner }));
 vi.mock('./lazy-load-fn', () => ({ default: m.lazyLoadFn }));
 
 import {
-  applyBuildIn,
+  setupBuildInJs,
   documentOutliner,
   externalLinks,
   openStreetMap,
@@ -137,7 +137,7 @@ describe('documentOutliner', () => {
   });
 });
 
-describe('applyBuildIn', () => {
+describe('setupBuildInJs', () => {
   it('外部リンク・スクロールヒント・地図・目次を、まとめて適用する', async () => {
     document.body.innerHTML = `
       <a id="ext" href="https://other.example.org/">ext</a>
@@ -150,7 +150,7 @@ describe('applyBuildIn', () => {
       await run(document.querySelector('.js-open-street-map'));
     });
 
-    applyBuildIn(document);
+    setupBuildInJs(document);
     await flush();
 
     expect(document.getElementById('ext')?.getAttribute('target')).toBe(

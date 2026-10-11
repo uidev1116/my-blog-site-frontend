@@ -100,7 +100,7 @@ const documentOutliner = (
  * 本文を、ページの表示後にブラウザで取得して描画する画面(プレビューなど)では、本文が DOM に出てから呼ぶ
  * (ページを開いた直後に 1 回だけ呼ぶ BuildInJs では、本文がまだ無く、目次などが作られないため)
  */
-const applyBuildIn = (context: Document | Element) => {
+const setupBuildInJs = (context: Document | Element) => {
   externalLinks(context);
   scrollHint(context);
   openStreetMap(context);
@@ -108,7 +108,7 @@ const applyBuildIn = (context: Document | Element) => {
 };
 
 export {
-  applyBuildIn,
+  setupBuildInJs,
   externalLinks,
   scrollHint,
   openStreetMap,

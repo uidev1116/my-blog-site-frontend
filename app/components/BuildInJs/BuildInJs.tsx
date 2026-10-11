@@ -1,13 +1,13 @@
 'use client';
 
 import { usePageChange } from '@/app/hooks';
-import { applyBuildIn } from '@/app/lib/buildIn';
+import { setupBuildInJs } from '@/app/lib/buildIn';
 import { Suspense } from 'react';
 
 function BuildInJs() {
   usePageChange(() => {
     if (typeof window !== 'undefined') {
-      applyBuildIn(document);
+      setupBuildInJs(document);
     }
   });
   return null;

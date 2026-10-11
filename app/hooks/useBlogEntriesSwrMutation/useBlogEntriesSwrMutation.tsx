@@ -1,22 +1,18 @@
 import type { Entry } from '@/app/types';
-import { encodeUri } from '@/app/utils';
+import { fetchBlogEntries } from '@/app/blog/api/client';
 import type { SWRMutationConfiguration } from 'swr/mutation';
 import useSWRMutation from 'swr/mutation';
 
 async function fetcher(
-  url: string,
+  _key: string,
   { arg }: { arg: { keyword: string } },
 ): Promise<Entry[]> {
-  const res = await fetch(`${url}?keyword=${encodeUri(arg.keyword)}`);
-  if (!res.ok) {
-    throw new Error('Failed to fetch data');
-  }
-  const { entries } = await res.json();
-  return entries as Entry[];
+  const { entries } = await fetchBlogEntries({ keyword: arg.keyword });
+  return entries;
 }
 
 export default function useBlogEntriesSwrMutation(
-  config: SWRMutationConfiguration<Entry[], any> = {},
+  config: SWRMutationConfiguration<Entry[], Error> = {},
 ) {
   const {
     data: entries = [],

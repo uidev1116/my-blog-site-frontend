@@ -17,7 +17,7 @@
   "dependencies": {
     "@next/third-parties": "^16.4.0",
     "@opennextjs/cloudflare": "^1.20.10",
-    "@types/node": "24.10.1",
+    "@types/node": "26.6.4",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@uidev1116/acms-js-sdk": "^0.3.1",

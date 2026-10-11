@@ -164,6 +164,11 @@ describe('静的書き出し + Cloudflare 静的アセット', () => {
       expect(workflow.concurrency['cancel-in-progress']).toBe(false);
     });
 
+    it('変数が未設定のときは、定期実行・通知からの実行を、黙ってスキップする(手動実行は、そのまま動かして失敗を見せる)', () => {
+      expect(job.if).toContain("github.event_name == 'workflow_dispatch'");
+      expect(job.if).toContain("vars.NEXT_PUBLIC_BASE_URL != ''");
+    });
+
     it('master をデプロイし、production の Environment を使い、権限は読み取りだけ', () => {
       const checkout = steps.find((step) =>
         String((step as { uses?: string }).uses).startsWith('actions/checkout'),

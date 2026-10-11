@@ -101,6 +101,7 @@ a-blog cms のスタンダードライセンスでは、Webhook に、ヘッダ�
 - 公式ドキュメントに記載があるのは **POST だけ**。a-blog cms の Webhook が、GET でしか送れない場合は、使えないため、確認する。
 - 重複の防止: 同じ Deploy Hook が、前のビルドの開始前に、何度も呼ばれても、新しいビルドは作られない(`already_exists: true`)。
 - 制限: Deploy Hook は、Worker あたり 1 分に 10 ビルドまで。Workers Builds は、無料プランで、月 3,000 ビルド分(同時に 1 ビルド、タイムアウト 20 分)。
+- GitHub の Variables(`NEXT_PUBLIC_BASE_URL`)が未設定の間は、定期実行と通知(`repository_dispatch`)からの `Deploy to Cloudflare` は、失敗の通知を出さないよう、スキップされる。手動実行は、常に動き、設定の不足は、はっきり失敗する。
 - Cloudflare 側でビルドする場合、GitHub の `production` Environment の Secrets(`CLOUDFLARE_API_TOKEN` など)は、定期実行と手動の `Deploy to Cloudflare` にだけ使う。
 
 ### GitHub の repository_dispatch(ヘッダーを指定できる別のシステムから呼ぶ場合)

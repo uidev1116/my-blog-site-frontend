@@ -24,6 +24,9 @@ permissions:
 
 jobs:
   deploy:
+    # 手動実行は、常に動かす(設定の不足は、必須変数の検査で、はっきり失敗させる)。
+    # 定期実行と通知からの実行は、GitHub の Variables が未設定の間は、失敗の通知を飛ばさないよう、スキップする
+    if: ${{ github.event_name == 'workflow_dispatch' || vars.NEXT_PUBLIC_BASE_URL != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     # production の Environment に、保護ルールの Required reviewers を付けると、

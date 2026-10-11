@@ -11,15 +11,15 @@ export default function setupOpenStreetMap(item: HTMLElement) {
   item.setAttribute('data-already', 'true');
 
   const multiple = !!item.getAttribute('data-multiple');
-  const lat = parseInt(item.getAttribute('data-lat') as string, 10);
-  const lng = parseInt(item.getAttribute('data-lng') as string, 10);
+  const lat = parseFloat(item.getAttribute('data-lat') as string);
+  const lng = parseFloat(item.getAttribute('data-lng') as string);
   const zoom = parseInt(item.getAttribute('data-zoom') as string, 10);
   const msg = item.getAttribute('data-msg') || '';
   const markers = item.getAttribute('data-markers');
   const messages = item.getAttribute('data-messages') || '';
   const map = Leaflet.map(item).setView([lat, lng], zoom);
 
-  // @ts-ignore
+  // @ts-expect-error: Leaflet の型定義に _getIconUrl が無い
   delete Leaflet.Icon.Default.prototype._getIconUrl;
   Leaflet.Icon.Default.mergeOptions({
     iconUrl: icon.src,
@@ -42,7 +42,7 @@ export default function setupOpenStreetMap(item: HTMLElement) {
       const latlng = point.split(',');
       if (latlng.length === 2) {
         const view = Leaflet.marker(
-          [parseInt(latlng[0].trim(), 10), parseInt(latlng[1].trim(), 10)],
+          [parseFloat(latlng[0].trim()), parseFloat(latlng[1].trim())],
           {
             draggable: false,
           },

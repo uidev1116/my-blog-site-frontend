@@ -41,7 +41,7 @@ jobs:
       # next-env.d.ts は git 管理外のため、型チェック前に生成する
       - run: npx next typegen
       - run: npx tsc --noEmit
-      - run: npm test
+      - run: npm run test:coverage
 
   lint:
     name: Lint (changed files)

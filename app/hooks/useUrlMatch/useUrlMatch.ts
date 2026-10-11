@@ -1,12 +1,23 @@
 import { useMemo } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
-import { encodeUri } from '@/app/utils';
-
 export type UseUrlMatchReturn = {
   isMatchFull: boolean;
   isMatchStart: boolean;
 };
+
+/**
+ * エンコード済みとデコード済みの表記ゆれ (/tag/日本語/ と /tag/%E6%97%A5...) を
+ * 同じものとして比較できるよう、デコードして揃える。
+ * 不正なエンコードの場合は、そのまま返す。
+ */
+function normalize(path: string) {
+  try {
+    return decodeURI(path);
+  } catch {
+    return path;
+  }
+}
 
 export default function useUrlMatch(url: URL) {
   const pathname = usePathname();
@@ -14,15 +25,15 @@ export default function useUrlMatch(url: URL) {
 
   // Calculate match results directly with useMemo instead of useEffect + useState
   const { isMatchFull, isMatchStart } = useMemo(() => {
-    const href = `${pathname}${
-      searchParams.toString() ? `?${searchParams}` : ''
-    }`;
-    const target = `${url.pathname}${url.search}`;
-    const isMatchFull = [href, encodeUri(href)].includes(target);
-    const isMatchStart =
-      href.startsWith(target) || encodeUri(href).startsWith(target);
+    const href = normalize(
+      `${pathname}${searchParams.toString() ? `?${searchParams}` : ''}`,
+    );
+    const target = normalize(`${url.pathname}${url.search}`);
 
-    return { isMatchFull, isMatchStart };
+    return {
+      isMatchFull: href === target,
+      isMatchStart: href.startsWith(target),
+    };
   }, [pathname, searchParams, url.search, url.pathname]);
 
   return { isMatchFull, isMatchStart };

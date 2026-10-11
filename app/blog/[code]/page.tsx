@@ -25,7 +25,7 @@ export async function generateMetadata(props: {
     openGraph,
     twitter,
     alternates: {
-      canonical: acmsPath({ blog: 'blog', entry: params.code }),
+      canonical: `/${acmsPath({ blog: 'blog', entry: params.code })}`,
     },
   };
 }

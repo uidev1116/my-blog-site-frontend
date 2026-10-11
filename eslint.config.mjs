@@ -17,6 +17,8 @@ const eslintConfig = defineConfig([
     'tailwind.config.js',
     // Cloudflare のローカル実行の成果物
     '.wrangler/**',
+    // テストカバレッジの出力
+    'coverage/**',
   ]),
 ]);
 

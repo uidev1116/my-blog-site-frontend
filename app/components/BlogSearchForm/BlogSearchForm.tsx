@@ -56,7 +56,8 @@ export default function BlogSearchForm({ id }: Props) {
     if (inputValue === undefined || inputValue === '') {
       return reset();
     }
-    await trigger({ keyword: inputValue });
+    // 失敗は error として UI に表示するため、例外は投げさせない(未処理の reject を防ぐ)
+    await trigger({ keyword: inputValue }, { throwOnError: false });
   }
 
   function itemToString(item: Entry | null) {

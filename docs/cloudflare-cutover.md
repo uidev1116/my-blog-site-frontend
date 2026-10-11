@@ -18,29 +18,30 @@
 ## 重要な順序
 
 1. **先に、Vercel の自動デプロイを止める。** 静的書き出しを `master` にマージすると、Vercel の本番も静的書き出しで再ビルドされ、**検索とプレビューの API が無くなる**(Vercel には Worker が無い)。マージの前に、Vercel の Git 連携を外す(または Ignored Build Step で、ビルドをスキップする)。最後に成功した本番のデプロイは、そのまま残る。
-2. `schedule`・`repository_dispatch` のワークフローは、`master`(既定ブランチ)にあるものだけが動く。`Deploy to Cloudflare` は `master` をビルドするため、**`master` にマージしてから**、手動で実行する。
+2. `schedule`・`repository_dispatch` のワークフローは、`master`(既定ブランチ)にあるものだけが動く。`Deploy to Cloudflare` は、Cloudflare の Deploy Hook を呼ぶだけで、ビルドは Cloudflare(Workers Builds)が `master` から行う。
 
 ## 事前確認(切り替える前に)
 
-1. **GitHub の設定**
-   - `production` Environment の Secrets(`CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID`、`ACMS_API_KEY`、`ACMS_API_PREVIEW_KEY`)と Variables(`docs/cloudflare-workers.md`)。
-   - `CLOUDFLARE_API_TOKEN` は、このアカウントだけを対象に、`Workers Scripts: Edit`(`routes` をコードで管理する場合は、ゾーンの `Workers Routes: Edit` も)を付ける。
+1. **Cloudflare の Workers Builds**(`docs/cloudflare-workers.md` の「a-blog cms の Webhook」)
+   - Worker を GitHub に接続し、ビルドコマンド(`npm run build`)、ビルド用の変数・Secret、`NODE_VERSION=24` を設定する。
+   - Deploy Hook を作る(a-blog cms の Webhook 用)。
+2. **GitHub の設定**(定期実行を、Deploy Hook で動かす場合)
+   - `production` Environment の Secret `CLOUDFLARE_DEPLOY_HOOK_URL` に、Deploy Hook の URL を登録する(Cloudflare の API トークンや、a-blog cms のキーは、GitHub に不要)。
    - `production` Environment は、Required reviewers を付けず、デプロイ可能なブランチを `master` に限定する(定期実行と通知が、承認待ちで止まらないように)。
-2. **Worker の Secret** を、1 回だけ `npx wrangler secret put <名前>` で登録する(`ACMS_API_KEY`、`ACMS_API_PREVIEW_KEY`)。
-3. **`master` のブランチ保護**(必須チェック)
+3. **Worker の Secret** を、1 回だけ `npx wrangler secret put <名前>` で登録する(`ACMS_API_KEY`、`ACMS_API_PREVIEW_KEY`)。
+4. **`master` のブランチ保護**(必須チェック)
    - `Build (OpenNext / Cloudflare)` を、`Build (static export / Cloudflare)` に更新する(ジョブ名が変わった)。
    - Vercel の Git 連携を外すと、必須チェックの `Vercel` が報告されなくなり、PR がマージできなくなる。**`Vercel` を必須から外す**。
-4. Vercel の自動デプロイを止める(上の「重要な順序」の 1)。
-5. 静的書き出しの PR を `master` にマージし、GitHub Actions の `Deploy to Cloudflare` を手動で 1 回実行して、成功することを確認する。
-6. `workers.dev` で、次が動くことを、実データで確認する。
+5. Vercel の自動デプロイを止める(上の「重要な順序」の 1)。
+6. 静的書き出しの PR を `master` にマージし、Cloudflare の Workers Builds の「Retry build」(または GitHub Actions の `Deploy to Cloudflare` の手動実行)で、ビルドとデプロイが成功することを確認する。
+7. `workers.dev` で、次が動くことを、実データで確認する。
    - トップ、記事、タグ、Zenn、プロフィール、`/feed.xml`、`/sitemap.xml`、`/robots.txt`
    - 検索(`/blog/search/?keyword=...`)と、ヘッダーの検索補完
    - リダイレクト(`/blog/entry-106.html`、`/feed`、`/blog/search/page/2/`)と 404
    - OGP 画像(`/blog/<記事>/opengraph-image`)の `Content-Type: image/png`
    - プレビュー(a-blog cms のプレビューリンク → `/blog/preview/`)
-7. **`--var` の反映を確認する。** `keep_vars: true` と `--var` を併用しているため、GitHub の Variables の値を変えて再デプロイし、Worker に反映されること(例: `/api/blog/` の応答が、変更後の接続先のデータになること)を確かめる。
 8. **a-blog cms の Webhook を、Vercel の Deploy Hook から、Cloudflare の Deploy Hook に切り替える。** a-blog cms のスタンダードライセンスでは、Webhook にヘッダーを指定できないため、URL に POST するだけの Cloudflare の Deploy Hook を使う(`docs/cloudflare-workers.md` の「記事の更新を反映する」)。
-   - 切り替える時期: **切り替え(DNS)の後**。それまでは、Vercel の Deploy Hook のままにする(本番はまだ Vercel のため)。ただし、Vercel の Git 連携を外す(事前確認 4)と、Vercel の Deploy Hook は、使えなくなる可能性がある。Webhook を、切り替えの直前に、Cloudflare の Deploy Hook に変える。
+   - 切り替える時期: **切り替え(DNS)の後**。それまでは、Vercel の Deploy Hook のままにする(本番はまだ Vercel のため)。ただし、Vercel の Git 連携を外す(事前確認 5)と、Vercel の Deploy Hook は、使えなくなる可能性がある。Webhook を、切り替えの直前に、Cloudflare の Deploy Hook に変える。
    - 変更後、a-blog cms で記事を保存して、Cloudflare の Workers Builds のビルド履歴(Triggered by に Deploy Hook の名前)に、ビルドが現れることを確認する。
 
 ## ダウンタイムを避けて、本番ドメインでも検証する

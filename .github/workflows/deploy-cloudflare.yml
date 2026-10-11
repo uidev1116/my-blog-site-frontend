@@ -1,11 +1,14 @@
 name: Deploy to Cloudflare
 
+# ビルドとデプロイは、Cloudflare(Workers Builds)で行う。このワークフローは、Cloudflare の Deploy Hook を呼んで、
+# ビルドを開始するだけ(コードの取得・依存のインストール・Cloudflare や a-blog cms のキーは、GitHub に不要)。
+# Deploy Hook の作り方は、docs/cloudflare-workers.md を参照。
+#
 # 静的書き出しは、記事を更新しても自動では反映されないため、次のタイミングで再ビルド・再デプロイする。
 #   - 手動
 #   - 他のシステムからの通知(repository_dispatch: acms-content-updated。ヘッダーを指定できる場合)。
-#     a-blog cms のスタンダードライセンスは、Webhook にヘッダーを指定できないため、Cloudflare の Deploy Hook を使う(docs/cloudflare-workers.md 参照)
+#     a-blog cms のスタンダードライセンスは、Webhook にヘッダーを指定できないため、Cloudflare の Deploy Hook を直接呼ぶ
 #   - 定期実行(a-blog cms の通知漏れと、Zenn の記事一覧の更新を反映する)
-# 本番切り替え(DNS)が完了するまでは、push では自動デプロイしない。
 on:
   workflow_dispatch:
   repository_dispatch:
@@ -14,66 +17,38 @@ on:
     # 6 時間ごと(UTC)
     - cron: '0 */6 * * *'
 
-# 同時に複数デプロイしない(実行中は待たせ、最新だけ残す)
+# 同時に複数を走らせない(Deploy Hook 側でも、開始前の重複するビルドは、まとめられる)
 concurrency:
   group: deploy-cloudflare
   cancel-in-progress: false
 
-permissions:
-  contents: read
+# リポジトリには、アクセスしない
+permissions: {}
 
 jobs:
   deploy:
-    # 手動実行は、常に動かす(設定の不足は、必須変数の検査で、はっきり失敗させる)。
-    # 定期実行と通知からの実行は、GitHub の Variables が未設定の間は、失敗の通知を飛ばさないよう、スキップする
-    if: ${{ github.event_name == 'workflow_dispatch' || vars.NEXT_PUBLIC_BASE_URL != '' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-    # production の Environment に、保護ルールの Required reviewers を付けると、
-    # 定期実行と a-blog cms の通知が、毎回承認待ちで止まる。付けずに、デプロイ可能なブランチを master に限定する
+    timeout-minutes: 5
+    # Deploy Hook の URL(Secret)は、production の Environment に登録する。
+    # Environment に Required reviewers を付けると、定期実行と通知が、毎回承認待ちで止まるため、付けない
     environment: production
-    env:
-      NEXT_TELEMETRY_DISABLED: '1'
     steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: master
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: package.json
-          cache: npm
-      - run: npm ci
-      - run: npm test
-      # ビルド(a-blog cms の API を呼ぶ)とデプロイは、npm run deploy で 1 つのコマンドとして実行するため、
-      # Secret は、このステップにだけ渡す(npm ci や npm test には渡さない)。
-      # Worker が実行時に読む変数(Secret 以外)は、--var で渡す。
-      # Secret(ACMS_API_KEY / ACMS_API_PREVIEW_KEY)は、Worker に 1 回だけ `wrangler secret put` で登録する(デプロイでは消えない)
-      - name: Deploy
+      - name: Trigger build
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          ACMS_API_KEY: ${{ secrets.ACMS_API_KEY }}
-          ACMS_API_PREVIEW_KEY: ${{ secrets.ACMS_API_PREVIEW_KEY }}
-          NEXT_PUBLIC_BASE_URL: ${{ vars.NEXT_PUBLIC_BASE_URL }}
-          ACMS_API_PROTOCOL: ${{ vars.ACMS_API_PROTOCOL }}
-          ACMS_API_HOSTNAME: ${{ vars.ACMS_API_HOSTNAME }}
-          ACMS_API_PORT: ${{ vars.ACMS_API_PORT }}
-          ACMS_ASSETS_PROTOCOL: ${{ vars.ACMS_ASSETS_PROTOCOL }}
-          ACMS_ASSETS_HOSTNAME: ${{ vars.ACMS_ASSETS_HOSTNAME }}
-          ACMS_ASSETS_PORT: ${{ vars.ACMS_ASSETS_PORT }}
+          HOOK_URL: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK_URL }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
-          # 必須の変数が空なら、空の設定でデプロイしてしまわないよう、ここで止める(ポートは空でよい)
-          for name in NEXT_PUBLIC_BASE_URL ACMS_API_PROTOCOL ACMS_API_HOSTNAME ACMS_ASSETS_PROTOCOL ACMS_ASSETS_HOSTNAME; do
-            if [ -z "${!name}" ]; then
-              echo "::error::GitHub の Variables に $name が設定されていません"
+          if [ -z "$HOOK_URL" ]; then
+            # 手動実行は、設定の不足を、はっきり失敗させる。定期実行・通知からは、未設定の間は、失敗の通知を飛ばさず、スキップする
+            if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+              echo "::error::Environment production の Secret CLOUDFLARE_DEPLOY_HOOK_URL が設定されていません"
               exit 1
             fi
-          done
-          args=()
-          for name in NEXT_PUBLIC_BASE_URL ACMS_API_PROTOCOL ACMS_API_HOSTNAME ACMS_API_PORT ACMS_ASSETS_PROTOCOL ACMS_ASSETS_HOSTNAME ACMS_ASSETS_PORT; do
-            value="${!name}"
-            if [ -n "$value" ]; then
-              args+=(--var "$name:$value")
-            fi
-          done
-          npm run deploy -- "${args[@]}"
+            echo "::notice::CLOUDFLARE_DEPLOY_HOOK_URL が未設定のため、スキップしました"
+            exit 0
+          fi
+          # URL(秘密)とレスポンス全体は表示せず、ビルド ID だけを表示する
+          response="$(curl -fsS --retry 3 --retry-delay 5 --retry-all-errors -X POST "$HOOK_URL")"
+          echo "$response" | jq -e '.success == true' > /dev/null
+          echo "build_uuid: $(echo "$response" | jq -r '.result.build_uuid')"
+          echo "already_exists: $(echo "$response" | jq -r '.result.already_exists // false')"

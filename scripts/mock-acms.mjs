@@ -61,8 +61,9 @@ http
       indexUrl: `${base}/blog/`,
       indexBlogName: 'Blog',
       pagination: {
-        firstPage: 1,
-        lastPage: 1,
+        // 実際の a-blog cms の形に合わせる(最初のページは null、ページ番号は { page, url } のオブジェクト)
+        firstPage: null,
+        lastPage: { page: 1, url: `${base}/blog/page/1/`, current: true },
         prevPage: null,
         nextPage: null,
         pages: [{ page: 1, url: `${base}/blog/` }],

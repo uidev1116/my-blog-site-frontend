@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { FetchError, fetchBlogEntries } from './client';
+import { FetchError, fetchBlogEntries, fetchPreviewEntry } from './client';
 
 const entryJson = {
   id: 1,
@@ -95,4 +95,49 @@ describe('fetchBlogEntries', () => {
     expect(entries[0].startAt).toBeUndefined();
     expect(entries[0].endAt).toBeUndefined();
   });
+});
+
+describe('fetchPreviewEntry', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  const related = [{ ...entryJson, id: 2, code: 'b.html', title: '関連記事' }];
+
+  it('code を /api/blog/preview/ に渡し、記事と関連記事の日付を Date に戻す', async () => {
+    const fn = mockFetch({
+      json: async () => ({ entry: entryJson, relationalEntries: related }),
+    });
+
+    const result = await fetchPreviewEntry('draft.html');
+
+    const url = new URL(fn.mock.calls[0][0], 'https://example.com');
+    expect(url.pathname).toBe('/api/blog/preview/');
+    expect(url.searchParams.get('code')).toBe('draft.html');
+    expect(result.entry.createdAt).toBeInstanceOf(Date);
+    expect(result.relationalEntries[0].createdAt).toBeInstanceOf(Date);
+    expect(result.relationalEntries[0].title).toBe('関連記事');
+  });
+
+  it('Cookie を送る(同一オリジンの認証用 Cookie)', async () => {
+    const fn = mockFetch({
+      json: async () => ({ entry: entryJson, relationalEntries: [] }),
+    });
+
+    await fetchPreviewEntry('draft.html');
+
+    expect(fn.mock.calls[0][1]?.credentials).toBe('same-origin');
+  });
+
+  it.each([401, 404, 502])(
+    'ステータス %i は FetchError で投げる',
+    async (status) => {
+      mockFetch({ ok: false, status });
+
+      const error = await fetchPreviewEntry('draft.html').catch((e) => e);
+
+      expect(error).toBeInstanceOf(FetchError);
+      expect(error.status).toBe(status);
+    },
+  );
 });

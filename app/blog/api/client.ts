@@ -62,3 +62,30 @@ export async function fetchBlogEntries({
   };
   return { entries: entries.map(reviveEntry), pager };
 }
+
+/**
+ * 下書きの記事と関連記事を取得する(Worker の GET /api/blog/preview/)。
+ * /api/blog/draft/ で発行された Cookie が必要(401: 無い・期限切れ、404: 記事なし)
+ */
+export async function fetchPreviewEntry(code: string): Promise<{
+  entry: BlogEntry;
+  relationalEntries: BlogEntry[];
+}> {
+  const params = new URLSearchParams({ code });
+
+  const res = await fetch(`/api/blog/preview/?${params.toString()}`, {
+    credentials: 'same-origin',
+  });
+  if (!res.ok) {
+    throw new FetchError(res.status);
+  }
+
+  const { entry, relationalEntries = [] } = (await res.json()) as {
+    entry: Serialized<BlogEntry>;
+    relationalEntries?: Serialized<BlogEntry>[];
+  };
+  return {
+    entry: reviveEntry(entry),
+    relationalEntries: relationalEntries.map(reviveEntry),
+  };
+}

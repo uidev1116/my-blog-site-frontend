@@ -43,7 +43,7 @@ describe('/blog/[code]', () => {
     expect(m.getMetadata).toHaveBeenCalledWith({ blog: 'blog', entry: 'a' });
     expect(meta.openGraph).not.toHaveProperty('images');
     expect(meta.twitter).not.toHaveProperty('images');
-    expect(meta.alternates?.canonical).toBe('blog/a/');
+    expect(meta.alternates?.canonical).toBe('/blog/a/');
     expect(meta.title).toBe('t');
   });
 

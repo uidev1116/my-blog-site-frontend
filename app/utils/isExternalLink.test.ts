@@ -26,4 +26,21 @@ describe('isExternalLink', () => {
     vi.stubGlobal('location', { hostname: 'example.com' });
     expect(isExternalLink('://other.org')).toBe(true);
   });
+
+  it('クエリやパスにホスト名を含む別ホストの URL は外部リンク', () => {
+    vi.stubGlobal('location', { hostname: 'example.com' });
+    expect(isExternalLink('https://other.org/?ref=example.com')).toBe(true);
+    expect(isExternalLink('https://example.com.evil.org/')).toBe(true);
+    expect(isExternalLink('https://evil.org/example.com')).toBe(true);
+  });
+
+  it('ホスト名の . を任意の文字として扱わない', () => {
+    vi.stubGlobal('location', { hostname: 'example.com' });
+    expect(isExternalLink('https://exampleXcom/')).toBe(true);
+  });
+
+  it('URL として解析できなければ外部リンク扱い', () => {
+    vi.stubGlobal('location', { hostname: 'example.com' });
+    expect(isExternalLink('http://[bad')).toBe(true);
+  });
 });

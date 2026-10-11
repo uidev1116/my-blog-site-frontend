@@ -2,6 +2,7 @@ import domContentLoaded from 'dom-content-loaded';
 import lazyLoadFn from './lazy-load-fn';
 import { ScrollHintOption } from 'scroll-hint';
 import { ConfigType } from 'document-outliner/lib/type';
+import isExternalLink from '@/app/utils/isExternalLink';
 
 /**
  * ExternalLinks
@@ -11,16 +12,12 @@ const externalLinks = (context: Document | Element) => {
   const selector =
     'a:not([target]):not([href^="javascript"]):not([href^="tel"])';
   const targets = context.querySelectorAll<HTMLAnchorElement>(selector);
-  const innerlinkPtn = new RegExp(`${window.location.hostname}(:\\d+)*`);
   [].forEach.call(targets, (target: HTMLAnchorElement) => {
     const href = target.getAttribute('href');
     if (!href) {
       return;
     }
-    if (innerlinkPtn.exec(href)) {
-      return;
-    }
-    if (!/^(https?)?:/.test(href)) {
+    if (!isExternalLink(href)) {
       return;
     }
     target.setAttribute('target', '_blank');

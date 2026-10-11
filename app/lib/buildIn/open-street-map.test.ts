@@ -110,4 +110,20 @@ describe('setupOpenStreetMap', () => {
     setupOpenStreetMap(el({ 'data-already': 'true' }));
     expect(L.mapFn).not.toHaveBeenCalled();
   });
+
+  it('緯度・経度・マーカー座標の小数を切り捨てない', () => {
+    setupOpenStreetMap(
+      el({
+        'data-lat': '35.6812',
+        'data-lng': '139.7671',
+        'data-zoom': '10',
+        'data-multiple': '1',
+        'data-markers': '35.5,139.5',
+      }),
+    );
+    expect(L.map.setView).toHaveBeenCalledWith([35.6812, 139.7671], 10);
+    expect(L.markerFn).toHaveBeenCalledWith([35.5, 139.5], {
+      draggable: false,
+    });
+  });
 });

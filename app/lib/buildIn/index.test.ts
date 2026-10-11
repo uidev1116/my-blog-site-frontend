@@ -38,7 +38,8 @@ describe('externalLinks', () => {
       <a id="tel" href="tel:0000">tel</a>
       <a id="js" href="javascript:void(0)">js</a>
       <a id="blank" href="https://other.example.org/" target="_self">t</a>
-      <a id="nohref">n</a>`;
+      <a id="nohref">n</a>
+      <a id="query" href="https://other.example.org/?ref=${window.location.hostname}">q</a>`;
 
     externalLinks(document);
 
@@ -48,6 +49,10 @@ describe('externalLinks', () => {
     for (const id of ['self', 'rel', 'tel', 'js', 'blank', 'nohref']) {
       expect(document.getElementById(id)!.getAttribute('rel')).toBeNull();
     }
+    // クエリにホスト名を含むだけの別ホストは外部リンク
+    expect(document.getElementById('query')!.getAttribute('target')).toBe(
+      '_blank',
+    );
     expect(document.getElementById('blank')!.getAttribute('target')).toBe(
       '_self',
     );

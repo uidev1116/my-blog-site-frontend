@@ -88,4 +88,14 @@ describe('ThemeColorSwitcher', () => {
       'text-primary',
     );
   });
+
+  it('トグルボタンに名前があり、メニューはそのボタンで名前付けされている', () => {
+    const { container } = renderSwitcher();
+    const toggle = container.querySelector('[data-dropdown-toggle]')!;
+    expect(toggle).toHaveAccessibleName('テーマを切り替える');
+    expect(container.querySelector('ul')).toHaveAttribute(
+      'aria-labelledby',
+      toggle.id,
+    );
+  });
 });

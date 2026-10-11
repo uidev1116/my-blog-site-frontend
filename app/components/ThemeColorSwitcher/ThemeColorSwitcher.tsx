@@ -127,6 +127,7 @@ function ThemeColorSwitcher() {
           },
         )}
         type="button"
+        aria-label="テーマを切り替える"
       >
         {renderIcon(colorTheme)}
       </button>
@@ -136,7 +137,7 @@ function ThemeColorSwitcher() {
       >
         <ul
           className="py-2 text-sm text-gray-700 dark:text-gray-200"
-          aria-labelledby="themeColorSwitcher"
+          aria-labelledby={id}
         >
           {colorThemes.map((theme) => (
             <li

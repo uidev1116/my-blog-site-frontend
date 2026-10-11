@@ -84,3 +84,9 @@ DNS を切り替えるまで Vercel が本番のまま。切り替え後に問�
   - Secrets: `CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID`、`ACMS_API_KEY`、`ACMS_API_PREVIEW_KEY`
   - Variables: `NEXT_PUBLIC_BASE_URL`、`ACMS_API_PROTOCOL`、`ACMS_API_HOSTNAME`、`ACMS_API_PORT`、`ACMS_ASSETS_PROTOCOL`、`ACMS_ASSETS_HOSTNAME`、`ACMS_ASSETS_PORT`
 - a-blog cms の更新時に再デプロイするには、更新イベントから GitHub API(`POST /repos/{owner}/{repo}/dispatches`、`event_type: acms-content-updated`)を呼びます。
+
+## Dependabot の自動マージ
+
+- 対象は major 以外の更新(`minor-and-patch` グループ、または個別の minor / patch)。major は手動でレビューする。
+- リポジトリ設定で「Allow auto-merge」を有効にし、`master` のブランチ保護で次のチェックを必須にしている: `Typecheck & Test`、`Lint (changed files)`、`Build (OpenNext / Cloudflare)`、`Vercel`。
+- 必須チェックのうち 1 つでも失敗すると、マージされない。

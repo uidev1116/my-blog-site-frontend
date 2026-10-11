@@ -2,12 +2,7 @@
 import { render } from '@testing-library/react';
 import { expect, it, vi } from 'vitest';
 
-const m = vi.hoisted(() => ({
-  externalLinks: vi.fn(),
-  scrollHint: vi.fn(),
-  openStreetMap: vi.fn(),
-  documentOutliner: vi.fn(),
-}));
+const m = vi.hoisted(() => ({ applyBuildIn: vi.fn() }));
 vi.mock('@/app/lib/buildIn', () => m);
 vi.mock('next/navigation', () => ({
   usePathname: () => '/a',
@@ -20,8 +15,5 @@ it('何も描画せず、ページ表示時に document へ各ビルトイン JS
   const { container } = render(<BuildInJs />);
 
   expect(container).toBeEmptyDOMElement();
-  expect(m.externalLinks).toHaveBeenCalledWith(document);
-  expect(m.scrollHint).toHaveBeenCalledWith(document);
-  expect(m.openStreetMap).toHaveBeenCalledWith(document);
-  expect(m.documentOutliner).toHaveBeenCalledWith(document);
+  expect(m.applyBuildIn).toHaveBeenCalledWith(document);
 });

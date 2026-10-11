@@ -95,4 +95,22 @@ const documentOutliner = (
   });
 };
 
-export { externalLinks, scrollHint, openStreetMap, documentOutliner };
+/**
+ * 外部リンク・スクロールヒント・地図・目次を、まとめて適用する。
+ * 本文を、ページの表示後にブラウザで取得して描画する画面(プレビューなど)では、本文が DOM に出てから呼ぶ
+ * (ページを開いた直後に 1 回だけ呼ぶ BuildInJs では、本文がまだ無く、目次などが作られないため)
+ */
+const applyBuildIn = (context: Document | Element) => {
+  externalLinks(context);
+  scrollHint(context);
+  openStreetMap(context);
+  documentOutliner(context);
+};
+
+export {
+  applyBuildIn,
+  externalLinks,
+  scrollHint,
+  openStreetMap,
+  documentOutliner,
+};

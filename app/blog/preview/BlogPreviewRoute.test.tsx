@@ -6,6 +6,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // app/config が、サイトの URL を import 時に読む
 vi.stubEnv('NEXT_PUBLIC_BASE_URL', 'https://example.com');
 
+// 本文を取得して表示した後に、ビルトイン JS(目次・外部リンク・表のスクロールなど)を適用する
+const buildIn = vi.hoisted(() => ({ applyBuildIn: vi.fn() }));
+vi.mock('@/app/lib/buildIn', () => buildIn);
+
 let query = 'code=draft.html';
 vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(query),
@@ -62,6 +66,7 @@ async function renderRoute() {
 describe('BlogPreviewRoute', () => {
   beforeEach(() => {
     query = 'code=draft.html';
+    buildIn.applyBuildIn.mockReset();
   });
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -142,5 +147,25 @@ describe('BlogPreviewRoute', () => {
         '取得に失敗しました',
       );
     });
+  });
+
+  it('本文を表示した後に、ビルトイン JS を適用する(目次は、本文が DOM に出てから作る必要がある)', async () => {
+    respond({ entry: entryJson, relationalEntries: [] });
+
+    await renderRoute();
+    await screen.findByRole('heading', { name: '下書きの記事' });
+
+    await waitFor(() => {
+      expect(buildIn.applyBuildIn).toHaveBeenCalledWith(document);
+    });
+  });
+
+  it('本文が表示されるまで(取得中・エラー)は、ビルトイン JS を適用しない', async () => {
+    respond({}, { ok: false, status: 401 });
+
+    await renderRoute();
+    await screen.findByRole('alert');
+
+    expect(buildIn.applyBuildIn).not.toHaveBeenCalled();
   });
 });

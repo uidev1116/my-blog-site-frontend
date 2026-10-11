@@ -16,8 +16,9 @@ updates:
       minor-and-patch:
         update-types: [minor, patch]
     ignore:
-      # @opennextjs/cloudflare の対応状況を確認してから手動で上げる(docs/cloudflare-workers.md 参照)
+      # Next.js の major 更新は、静的書き出しへの影響を確認して手動で行う
       - dependency-name: next
+        update-types: ['version-update:semver-major']
       # ツールチェーンの major 更新は、設定・依存の互換性を確認して手動で行う
       # (typescript 7 は typescript-eslint が <6.1 までしか対応しておらず、@eslint/js 10 は eslint 10 と
       # eslint-config-next 同梱のプラグインが未対応)

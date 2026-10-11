@@ -5,6 +5,9 @@ import { BASE_URL, COPYRIGHT_START_YEAR, SITE_HOST } from '../config';
 import { getRssFeed } from './api';
 import { MEDIA_BASE_URL } from '../config/acms';
 
+// 静的書き出しでは、ビルド時に feed.xml として生成する
+export const dynamic = 'force-static';
+
 export async function GET() {
   const PROFILE_URL = new URL('/profile/', BASE_URL).toString();
   const [ogp, rss] = await Promise.all([getOgp(), getRssFeed()]);

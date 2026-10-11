@@ -88,6 +88,15 @@ describe('静的書き出し + Cloudflare 静的アセット', () => {
       );
     });
 
+    it('プレビューページは、Referer を送らず、検索エンジンに載せない', () => {
+      expect(headers).toMatch(
+        /^\/blog\/preview\/\*\r?\n(\s+[^\n]+\n)*?\s+Referrer-Policy: no-referrer/m,
+      );
+      expect(headers).toMatch(
+        /^\/blog\/preview\/\*\r?\n(\s+[^\n]+\n)*?\s+X-Robots-Tag: noindex, nofollow/m,
+      );
+    });
+
     it('ハッシュ付きの /_next/static を長期キャッシュする', () => {
       expect(headers).toMatch(
         /^\/_next\/static\/\*\r?\n\s+Cache-Control: public, max-age=31536000, immutable$/m,

@@ -1,5 +1,7 @@
 import { getBlogEntries } from '@/app/blog/api';
 import { isAcmsNotFoundError } from '@/app/utils';
+import { json } from './http';
+import { handleDraft, handlePreview } from './preview';
 
 // 静的アセット(out/)で配信できない、実行時の処理だけを担当する Worker。
 // wrangler.jsonc の assets.run_worker_first で、/api/* だけがここに届く。
@@ -7,19 +9,8 @@ import { isAcmsNotFoundError } from '@/app/utils';
 const MAX_KEYWORD_LENGTH = 200;
 const MAX_PAGE = 1_000_000;
 
-// 成功したレスポンスだけキャッシュを許可し、エラーはキャッシュさせない
+// 成功したレスポンスだけキャッシュを許可し、エラーはキャッシュさせない(json() の既定は no-store)
 const CACHEABLE = 'public, max-age=60';
-
-function json(body: unknown, status = 200, headers: HeadersInit = {}) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      'Content-Type': 'application/json; charset=utf-8',
-      'Cache-Control': 'no-store',
-      ...headers,
-    },
-  });
-}
 
 // エッジのキャッシュ(Cache API)。カスタムドメインのゾーン上でだけ有効で、
 // workers.dev などで使えない場合は、キャッシュなしで動く
@@ -106,6 +97,16 @@ export async function handleRequest(request: Request): Promise<Response> {
 
   if (pathname === '/api/blog') {
     return handleBlogEntries(url);
+  }
+  if (pathname === '/api/blog/draft') {
+    // Cookie を発行するため、GET だけ(HEAD は、プリフェッチャなどで副作用が出る)
+    if (request.method !== 'GET') {
+      return json({ error: 'Method Not Allowed' }, 405, { Allow: 'GET' });
+    }
+    return handleDraft(url);
+  }
+  if (pathname === '/api/blog/preview') {
+    return handlePreview(request, url);
   }
 
   return json({ error: 'Not Found' }, 404);

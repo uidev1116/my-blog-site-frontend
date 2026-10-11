@@ -76,12 +76,12 @@ a-blog cms のプレビューリンク(`/api/blog/draft/?previewKey=...&code=...
 
 静的書き出しは、記事を更新しても自動では反映されない。再ビルド・再デプロイが必要で、きっかけは次のとおり。
 
-| きっかけ                       | 内容                                                                                                                         |
-| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| **a-blog cms の更新(Webhook)** | **Cloudflare の Deploy Hook**(URL に POST するだけ。ヘッダー不要)。下記                                                      |
-| 手動                           | GitHub の Actions → `Deploy to Cloudflare` → Run workflow、または Cloudflare の Workers Builds の「Retry build」             |
-| 定期実行                       | `Deploy to Cloudflare` の `schedule`(6 時間ごと、UTC)。通知漏れと、Zenn の記事一覧の更新を反映する。間隔は `cron` を変更する |
-| `master` への push             | Workers Builds を Git に接続している場合、自動でビルド・デプロイされる                                                       |
+| きっかけ                       | 内容                                                                                                                                               |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **a-blog cms の更新(Webhook)** | **Cloudflare の Deploy Hook**(URL に POST するだけ。ヘッダー不要)。下記                                                                            |
+| 手動                           | GitHub の Actions → `Deploy to Cloudflare` → Run workflow(Deploy Hook を呼ぶ)、または Cloudflare の Workers Builds の「Retry build」               |
+| 定期実行                       | `Deploy to Cloudflare` の `schedule`(6 時間ごと、UTC)が、Deploy Hook を呼ぶ。通知漏れと、Zenn の記事一覧の更新を反映する。間隔は `cron` を変更する |
+| `master` への push             | Workers Builds を Git に接続している場合、自動でビルド・デプロイされる                                                                             |
 
 ### a-blog cms の Webhook(スタンダードライセンスでも使える方法)
 
@@ -101,8 +101,9 @@ a-blog cms のスタンダードライセンスでは、Webhook に、ヘッダ�
 - 公式ドキュメントに記載があるのは **POST だけ**。a-blog cms の Webhook が、GET でしか送れない場合は、使えないため、確認する。
 - 重複の防止: 同じ Deploy Hook が、前のビルドの開始前に、何度も呼ばれても、新しいビルドは作られない(`already_exists: true`)。
 - 制限: Deploy Hook は、Worker あたり 1 分に 10 ビルドまで。Workers Builds は、無料プランで、月 3,000 ビルド分(同時に 1 ビルド、タイムアウト 20 分)。
-- GitHub の Variables(`NEXT_PUBLIC_BASE_URL`)が未設定の間は、定期実行と通知(`repository_dispatch`)からの `Deploy to Cloudflare` は、失敗の通知を出さないよう、スキップされる。手動実行は、常に動き、設定の不足は、はっきり失敗する。
-- Cloudflare 側でビルドする場合、GitHub の `production` Environment の Secrets(`CLOUDFLARE_API_TOKEN` など)は、定期実行と手動の `Deploy to Cloudflare` にだけ使う。
+- **`Deploy to Cloudflare`(GitHub Actions)は、この Deploy Hook を呼ぶだけ**(`curl -X POST`)。ビルドとデプロイは、Cloudflare(Workers Builds)で行われるため、Cloudflare の API トークンや、a-blog cms のキーを、GitHub に置く必要はない。
+- GitHub の `production` Environment に、Secret `CLOUDFLARE_DEPLOY_HOOK_URL`(Deploy Hook の URL)を、1 つだけ登録する。**未設定の間は、定期実行と通知からの実行は、失敗の通知を出さずにスキップされ、手動実行は、はっきり失敗する。**
+- Deploy Hook の URL は、GitHub の Secret にも、a-blog cms の設定にも、同じものを登録してよい。漏れたときは、Hook を削除して作り直し、両方を更新する。
 
 ### GitHub の repository_dispatch(ヘッダーを指定できる別のシステムから呼ぶ場合)
 
@@ -130,7 +131,17 @@ printf '%s' "$ACMS_API_KEY" | npx wrangler secret put ACMS_API_KEY
 printf '%s' "$ACMS_API_PREVIEW_KEY" | npx wrangler secret put ACMS_API_PREVIEW_KEY
 ```
 
-Secret 以外の実行時の変数は、デプロイのたびに、ワークフローが `--var` で渡す。
+実行時の変数(Secret 以外)は、Cloudflare の Settings → Variables & Secrets に登録する。`keep_vars: true` のため、デプロイしても消えない。ローカルから直接デプロイする方法は、次の節。
+
+## ローカルから直接デプロイする(緊急用)
+
+Workers Builds や Deploy Hook が使えないときは、自分のターミナルから、直接デプロイできる。キー(`ACMS_API_KEY`、`ACMS_API_PREVIEW_KEY`)は、そのシェルで `export` しておく(値は、チャットや Git に載せない)。
+
+```bash
+NEXT_PUBLIC_BASE_URL=https://blog.uidev.me ACMS_API_PROTOCOL=https ACMS_API_HOSTNAME=backend.uidev.jp ACMS_API_PORT= ACMS_ASSETS_PROTOCOL=https ACMS_ASSETS_HOSTNAME=assets.uidev.jp ACMS_ASSETS_PORT= npm run deploy -- --var NEXT_PUBLIC_BASE_URL:https://blog.uidev.me --var ACMS_API_PROTOCOL:https --var ACMS_API_HOSTNAME:backend.uidev.jp --var ACMS_ASSETS_PROTOCOL:https --var ACMS_ASSETS_HOSTNAME:assets.uidev.jp
+```
+
+`--var` は、Worker の実行時の変数(Secret 以外)を、更新するときに付ける。
 
 ## 本番切り替え
 
@@ -138,19 +149,14 @@ Secret 以外の実行時の変数は、デプロイのたびに、ワークフ�
 
 ## CI / CD(GitHub Actions)
 
-| ワークフロー                                  | トリガー                                                                      | 内容                                                                                                                                      |
-| --------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `.github/workflows/ci.yml`                    | PR / master への push                                                         | 型チェック + Vitest、変更ファイルの ESLint / Prettier、静的書き出しのビルドと出力ファイルの確認                                           |
-| `.github/workflows/deploy-cloudflare.yml`     | 手動 / `repository_dispatch`(`acms-content-updated`) / 6 時間ごと(`schedule`) | `master` をテストして、`npm run deploy` で Cloudflare にデプロイ。Worker の変数(Secret 以外)は `--var` で渡し、必須の変数が空なら失敗する |
-| `.github/workflows/dependabot-auto-merge.yml` | Dependabot の PR                                                              | major 以外の更新を、CI が全て成功したら自動でスカッシュマージ                                                                             |
-| `.github/dependabot.yml`                      | 週次                                                                          | GitHub Actions と npm の更新 PR(`next`、typescript / eslint の major は対象外)                                                            |
+| ワークフロー                                  | トリガー                                                                      | 内容                                                                                                       |
+| --------------------------------------------- | ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `.github/workflows/ci.yml`                    | PR / master への push                                                         | 型チェック + Vitest、変更ファイルの ESLint / Prettier、静的書き出しのビルドと出力ファイルの確認            |
+| `.github/workflows/deploy-cloudflare.yml`     | 手動 / `repository_dispatch`(`acms-content-updated`) / 6 時間ごと(`schedule`) | Cloudflare の Deploy Hook を呼んで、ビルド・デプロイを開始する(ビルド自体は、Cloudflare の Workers Builds) |
+| `.github/workflows/dependabot-auto-merge.yml` | Dependabot の PR                                                              | major 以外の更新を、CI が全て成功したら自動でスカッシュマージ                                              |
+| `.github/dependabot.yml`                      | 週次                                                                          | GitHub Actions と npm の更新 PR(`next`、typescript / eslint の major は対象外)                             |
 
 - CI のビルドは `scripts/mock-acms.mjs` のモック API を使うため、シークレットは不要。
 - ESLint / Prettier は、既存コードに未対応の指摘が残っているため、変更したファイルだけを検査する。
-- `CLOUDFLARE_API_TOKEN` は、このアカウントだけを対象にして、`Workers Scripts: Edit` を付ける(`wrangler.jsonc` の `routes` をコードで管理する場合は、ゾーンの `Workers Routes: Edit` も)。
-- `production` Environment は、Required reviewers を付けない(定期実行と通知が、承認待ちで止まるため)。デプロイ可能なブランチを `master` に限定する。
-- Secret は、`Deploy` のステップにだけ渡す(`npm ci` や `npm test` には渡さない)。
-- デプロイに必要な設定(GitHub の `production` Environment):
-  - Secrets: `CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID`、`ACMS_API_KEY`、`ACMS_API_PREVIEW_KEY`
-  - Variables: `NEXT_PUBLIC_BASE_URL`、`ACMS_API_PROTOCOL`、`ACMS_API_HOSTNAME`、`ACMS_API_PORT`、`ACMS_ASSETS_PROTOCOL`、`ACMS_ASSETS_HOSTNAME`、`ACMS_ASSETS_PORT`
-- `master` のブランチ保護の必須チェック名は、`Typecheck & Test`、`Lint (changed files)`、`Build (static export / Cloudflare)`、`Vercel`。ジョブ名を変えたときは、ここも更新する。
+- `Deploy to Cloudflare` に必要な GitHub の設定は、`production` Environment の Secret `CLOUDFLARE_DEPLOY_HOOK_URL` だけ。Required reviewers は付けない(定期実行と通知が、承認待ちで止まるため)。デプロイ可能なブランチを `master` に限定する。
+- `master` のブランチ保護の必須チェック名は、`Typecheck & Test`、`Lint (changed files)`、`Build (static export / Cloudflare)`。ジョブ名を変えたときは、ここも更新する。

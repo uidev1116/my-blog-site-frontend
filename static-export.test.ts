@@ -133,24 +133,19 @@ describe('静的書き出し + Cloudflare 静的アセット', () => {
   });
 
   describe('デプロイのワークフロー(.github/workflows/deploy-cloudflare.yml)', () => {
+    // ビルドとデプロイは Cloudflare(Workers Builds)で行い、このワークフローは、Deploy Hook を呼ぶだけ
     type Step = { name?: string; run?: string; env?: Record<string, string> };
-    const workflow = parseYaml(
-      read(path.join(root, '.github/workflows/deploy-cloudflare.yml')),
+    const source = read(
+      path.join(root, '.github/workflows/deploy-cloudflare.yml'),
     );
+    const workflow = parseYaml(source);
     const job = workflow.jobs.deploy;
     const steps: Step[] = job.steps;
-    const deployStep = steps.find((step) => step.name === 'Deploy') as Step;
-    // --var を組み立てるループ(for name in A B C; do ... value=...)の、変数名の一覧
-    const passedVars =
-      [
-        ...(deployStep.run ?? '').matchAll(
-          /for name in ([^;]+); do\s*\n\s*value=/g,
-        ),
-      ]
-        .pop()?.[1]
-        .split(/\s+/) ?? [];
+    const hookStep = steps.find(
+      (step) => step.name === 'Trigger build',
+    ) as Step;
 
-    it('手動、a-blog cms の更新通知、定期実行(Zenn の更新の反映)で動く', () => {
+    it('手動、a-blog cms 以外のシステムからの通知、定期実行(Zenn の更新の反映)で動く', () => {
       expect(workflow.on).toHaveProperty('workflow_dispatch');
       expect(workflow.on.repository_dispatch.types).toEqual([
         'acms-content-updated',
@@ -159,74 +154,53 @@ describe('静的書き出し + Cloudflare 静的アセット', () => {
       expect(workflow.on.schedule[0].cron).toMatch(/^\S+ \S+ \S+ \S+ \S+$/);
     });
 
-    it('同時に複数のデプロイを走らせず、実行中のデプロイを途中で止めない', () => {
+    it('同時に複数を走らせない(Deploy Hook 側でも、重複するビルドはまとめられる)', () => {
       expect(workflow.concurrency.group).toBe('deploy-cloudflare');
       expect(workflow.concurrency['cancel-in-progress']).toBe(false);
     });
 
-    it('変数が未設定のときは、定期実行・通知からの実行を、黙ってスキップする(手動実行は、そのまま動かして失敗を見せる)', () => {
-      expect(job.if).toContain("github.event_name == 'workflow_dispatch'");
-      expect(job.if).toContain("vars.NEXT_PUBLIC_BASE_URL != ''");
+    it('ジョブは、リポジトリのコードを取得せず、依存もインストールせず、権限も持たない', () => {
+      expect(JSON.stringify(steps)).not.toContain('actions/checkout');
+      expect(JSON.stringify(steps)).not.toContain('npm ');
+      expect(workflow.permissions).toEqual({});
     });
 
-    it('master をデプロイし、production の Environment を使い、権限は読み取りだけ', () => {
-      const checkout = steps.find((step) =>
-        String((step as { uses?: string }).uses).startsWith('actions/checkout'),
-      ) as { with?: { ref?: string } };
-      expect(checkout.with?.ref).toBe('master');
+    it('Secret は、Deploy Hook の URL だけ。Cloudflare の API トークンや a-blog cms のキーは、GitHub に置かない', () => {
       expect(job.environment).toBe('production');
-      expect(workflow.permissions).toEqual({ contents: 'read' });
+      expect(source).toContain('secrets.CLOUDFLARE_DEPLOY_HOOK_URL');
+      expect(source).not.toMatch(
+        /secrets\.(CLOUDFLARE_API_TOKEN|CLOUDFLARE_ACCOUNT_ID|ACMS_)/,
+      );
+      expect(source).not.toMatch(/vars\./);
     });
 
-    it('Secret は、Deploy のステップにだけ渡す(ジョブ全体の env や、npm ci / npm test に渡さない)', () => {
-      const secretKeys = (env: Record<string, string> = {}) =>
-        Object.keys(env).filter((key) => /KEY|TOKEN/.test(key));
-
-      expect(secretKeys(job.env)).toEqual([]);
-      for (const step of steps.filter((s) => s !== deployStep)) {
-        expect(secretKeys(step.env)).toEqual([]);
-      }
-      expect(secretKeys(deployStep.env).sort()).toEqual([
-        'ACMS_API_KEY',
-        'ACMS_API_PREVIEW_KEY',
-        'CLOUDFLARE_API_TOKEN',
-      ]);
+    it('Hook の URL は、環境変数として渡し、コマンドに直接書かない', () => {
+      expect(hookStep.env).toEqual(
+        expect.objectContaining({
+          HOOK_URL: '${{ secrets.CLOUDFLARE_DEPLOY_HOOK_URL }}',
+        }),
+      );
+      expect(hookStep.run).toContain('"$HOOK_URL"');
+      expect(hookStep.run).not.toContain('secrets.');
     });
 
-    it('Worker が実行時に読む変数(Secret 以外)を、デプロイで --var として渡す', () => {
-      expect([...passedVars].sort()).toEqual([
-        'ACMS_API_HOSTNAME',
-        'ACMS_API_PORT',
-        'ACMS_API_PROTOCOL',
-        'ACMS_ASSETS_HOSTNAME',
-        'ACMS_ASSETS_PORT',
-        'ACMS_ASSETS_PROTOCOL',
-        'NEXT_PUBLIC_BASE_URL',
-      ]);
-      expect(deployStep.run).toContain('--var');
+    it('Hook に POST する(ヘッダー不要)。失敗(4xx / 5xx)や success: false なら、ジョブを失敗させる', () => {
+      expect(hookStep.run).toMatch(/curl[^\n]*-X POST/);
+      expect(hookStep.run).toMatch(/curl[^\n]*(-f|--fail)/);
+      expect(hookStep.run).toMatch(/\.success == true/);
     });
 
-    it('Secret を --var で渡さない(Worker の Secret は wrangler secret put で別に登録する)', () => {
-      expect(passedVars.some((name) => /KEY|TOKEN/.test(name))).toBe(false);
+    it('Hook の URL が未設定の間は、定期実行・通知からの実行は、黙ってスキップする。手動実行は失敗させる', () => {
+      expect(hookStep.env?.EVENT_NAME).toBe('${{ github.event_name }}');
+      expect(hookStep.run).toMatch(/-z "\$HOOK_URL"/);
+      expect(hookStep.run).toContain('workflow_dispatch');
+      expect(hookStep.run).toMatch(/exit 1/);
+      expect(hookStep.run).toMatch(/exit 0/);
     });
 
-    it('必須の変数が空なら、デプロイせずに失敗する', () => {
-      expect(deployStep.run).toMatch(/exit 1/);
-      for (const name of [
-        'NEXT_PUBLIC_BASE_URL',
-        'ACMS_API_PROTOCOL',
-        'ACMS_API_HOSTNAME',
-        'ACMS_ASSETS_PROTOCOL',
-        'ACMS_ASSETS_HOSTNAME',
-      ]) {
-        expect(deployStep.run).toContain(name);
-      }
-    });
-
-    it('npm run deploy に --var を渡す。deploy は、最後に wrangler deploy を実行する(引数が末尾に付くため)', () => {
-      expect(deployStep.run).toMatch(/npm run deploy -- /);
-      const { scripts } = JSON.parse(read(path.join(root, 'package.json')));
-      expect(scripts.deploy).toMatch(/&& wrangler deploy$/);
+    it('Hook のレスポンスの、ビルド ID だけを表示する(URL やレスポンス全体は出さない)', () => {
+      expect(hookStep.run).toContain('build_uuid');
+      expect(hookStep.run).not.toMatch(/echo "?\$HOOK_URL/);
     });
   });
 

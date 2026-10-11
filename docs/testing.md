@@ -31,6 +31,17 @@ Vitest + Testing Library。**テストは実装ファイルの隣に置く(コ�
 - 環境変数は `vi.stubEnv` で指定する。テストが参照する変数は、空にしたいものも含めて**すべて**指定し、実行環境(CI のジョブ全体の `env` など)の値に依存させない。
 - 1 ファイルが大きくなったら、対象の実装を分割することを先に検討する。
 
+## カバレッジ
+
+`npm run test:coverage` で計測する(v8)。対象は `app/**` で、型定義(`app/types`)・barrel(`index.ts`)・テスト用ヘルパー(`app/test-utils`)は除外している。**lines / statements / functions / branches すべて 90% 以上**を閾値にしていて、下回ると失敗する。
+
+## テスト用の共通部品
+
+- `vitest.setup.ts`: `@testing-library/jest-dom` のマッチャー(`toBeInTheDocument` など)と、各テスト後の自動クリーンアップ。
+- `vitest.config.mts` の `test.env`: `NEXT_PUBLIC_BASE_URL` や `ACMS_*` の既定値。上書きしたいテストは `vi.stubEnv` を使う。
+- `app/test-utils/next-dynamic.tsx` / `next-link.tsx`: `next/dynamic` と `next/link` の差し替え。
+- async Server Component は、関数として呼び出した結果(`render(await Header(props)`)や、返った要素の `props`)を検証する。ページは API とルートコンポーネントをモックして、渡す props を確認する。
+
 ## 実行
 
 ```bash

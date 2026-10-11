@@ -26,3 +26,9 @@ updates:
         update-types: ['version-update:semver-major']
       - dependency-name: '@eslint/js'
         update-types: ['version-update:semver-major']
+      # ランタイム(Node 22)とずれる型 / ツールの major 更新は、Node の更新とあわせて手動で行う
+      # (@types/node 26 は Node 22 と不一致、lint-staged 17 は Node >=22.22.1 が必要)
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
+      - dependency-name: lint-staged
+        update-types: ['version-update:semver-major']

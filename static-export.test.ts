@@ -246,3 +246,11 @@ describe('静的書き出し + Cloudflare 静的アセット', () => {
     });
   });
 });
+
+describe('ads.txt(Google AdSense)', () => {
+  it('サイトのルートに、AdSense のパブリッシャー ID を宣言する', () => {
+    expect(read(path.join(root, 'public/ads.txt')).trim()).toBe(
+      'google.com, pub-1916494680308477, DIRECT, f08c47fec0942fa0',
+    );
+  });
+});

@@ -94,6 +94,7 @@ a-blog cms のスタンダードライセンスでは、Webhook に、ヘッダ�
    - **Build variables and secrets**(ビルド時だけ有効。実行時の変数とは別): `NEXT_PUBLIC_BASE_URL`、`ACMS_API_PROTOCOL`、`ACMS_API_HOSTNAME`、`ACMS_API_PORT`、`ACMS_API_KEY`(Secret)、`ACMS_API_PREVIEW_KEY`(Secret)、`ACMS_ASSETS_PROTOCOL`、`ACMS_ASSETS_HOSTNAME`、`ACMS_ASSETS_PORT`
    - Node.js は 24 を使う(`NODE_VERSION=24` のビルド変数。公式の設定ページに Node の選び方の記載がないため、最初のビルドのログで、Node のバージョンを確認する)。
    - **実行時の変数**(Worker が `process.env` から読む)は、別に、Settings → Variables & Secrets に登録する(`keep_vars: true` のため、デプロイしても消えない)。
+   - **ビルド用と実行時は、別々に登録する。キーの再発行や、接続先(ACMS のホスト名など)を変えるときは、両方を更新する**(片方だけだと、ビルドは通るが検索・プレビューが動かない、またはその逆になる)。
 2. Settings → Builds → **Deploy Hooks** → 名前(例: `a-blog cms`)とブランチ(`master`)を指定して作成し、**URL をコピーする**。
 3. a-blog cms の Webhook の URL を、この URL に変更する(今、Vercel の Deploy Hook の URL が設定されているなら、置き換える)。メソッドは **POST**。
 

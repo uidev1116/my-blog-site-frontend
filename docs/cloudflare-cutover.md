@@ -1,6 +1,6 @@
 # 本番切り替え(blog.uidev.me を Vercel から Cloudflare へ)
 
-`blog.uidev.me` を Vercel から Cloudflare の Worker(静的アセット + `/api/*`)に切り替える手順。**この文書は手順であり、まだ実行していない。**
+`blog.uidev.me` を Vercel から Cloudflare の Worker(静的アセット + `/api/*`)に切り替える手順。**この手順は、実行済み(`blog.uidev.me` は Cloudflare で配信中)。ロールバックや、同じ構成を作り直すときの記録として残す。** `blog.uidev.jp` の転送と、その転送先の `blog.uidev.me` は、Vercel のプロジェクトに残している(Vercel の転送先は、プロジェクトに登録したドメインからしか選べないため)。
 
 ## 現状(2026-10 時点で確認した内容)
 

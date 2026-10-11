@@ -7,3 +7,6 @@
 # RSS フィード(以前の URL は /feed/)
 /feed /feed.xml 301
 /feed/ /feed.xml 301
+
+# 廃止した検索結果のページ番号付き URL(検索は /blog/search/?keyword=...&page=N に変更)
+/blog/search/page/* /blog/search/ 301

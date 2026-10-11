@@ -20,6 +20,12 @@ function collect(dir: string): string[] {
 
 const read = (file: string) => readFileSync(file, 'utf-8');
 
+// コメントを除いたソース(コメントに書いた禁止語で誤検知しないため)
+const code = (file: string) =>
+  read(file)
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/^\s*\/\/.*$/gm, '');
+
 // jsonc のコメントと末尾カンマを除去して読み込む(wrangler.jsonc にはURL文字列がないため単純除去で足りる)
 function readJsonc(file: string) {
   const text = read(path.join(root, file))
@@ -60,6 +66,12 @@ describe('静的書き出し + Cloudflare 静的アセット', () => {
       );
     });
 
+    it('廃止した検索ページの旧 URL(/blog/search/page/N/)を検索ページに転送する', () => {
+      expect(redirects).toMatch(
+        /^\/blog\/search\/page\/\*\s+\/blog\/search\/\s+301$/m,
+      );
+    });
+
     it('RSS フィードの旧 URL(/feed, /feed/)を feed.xml に転送する', () => {
       expect(redirects).toMatch(/^\/feed\s+\/feed\.xml\s+301$/m);
       expect(redirects).toMatch(/^\/feed\/\s+\/feed\.xml\s+301$/m);
@@ -72,13 +84,13 @@ describe('静的書き出し + Cloudflare 静的アセット', () => {
 
     it('拡張子のない OGP 画像に Content-Type: image/png を付ける', () => {
       expect(headers).toMatch(
-        /^\/blog\/\*\/opengraph-image\n\s+Content-Type: image\/png$/m,
+        /^\/blog\/\*\/opengraph-image\r?\n\s+Content-Type: image\/png$/m,
       );
     });
 
     it('ハッシュ付きの /_next/static を長期キャッシュする', () => {
       expect(headers).toMatch(
-        /^\/_next\/static\/\*\n\s+Cache-Control: public, max-age=31536000, immutable$/m,
+        /^\/_next\/static\/\*\r?\n\s+Cache-Control: public, max-age=31536000, immutable$/m,
       );
     });
   });
@@ -102,7 +114,7 @@ describe('静的書き出し + Cloudflare 静的アセット', () => {
 
     it('Edge runtime を指定していない', () => {
       const offenders = files.filter((f) =>
-        /export\s+const\s+runtime\s*=\s*['"]edge['"]/.test(read(f)),
+        /export\s+const\s+runtime\s*=\s*['"]edge['"]/.test(code(f)),
       );
       expect(offenders).toEqual([]);
     });
@@ -110,7 +122,7 @@ describe('静的書き出し + Cloudflare 静的アセット', () => {
     it('リクエスト時にしか決まらない機能(force-dynamic / draftMode / cookies / headers)を使っていない', () => {
       const offenders = files.filter((f) =>
         /force-dynamic|draftMode\s*\(|\bcookies\s*\(|\bheaders\s*\(/.test(
-          read(f),
+          code(f),
         ),
       );
       expect(offenders.map((f) => path.relative(root, f))).toEqual([]);
@@ -128,7 +140,7 @@ describe('静的書き出し + Cloudflare 静的アセット', () => {
           const hasIt = readdirSync(dir)
             .filter((n) => /\.(ts|tsx)$/.test(n) && !/\.test\./.test(n))
             .some((n) =>
-              read(path.join(dir, n)).includes('generateStaticParams'),
+              code(path.join(dir, n)).includes('generateStaticParams'),
             );
           if (hasIt) return false;
           dir = path.dirname(dir);

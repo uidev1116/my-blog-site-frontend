@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { parse as parseYaml } from 'yaml';
 
 const root = __dirname;
 const appDir = path.join(root, 'app');
@@ -128,6 +129,99 @@ describe('静的書き出し + Cloudflare 静的アセット', () => {
     it('OpenNext 用の設定(IMAGES バインディング、.open-next の main)を持たない', () => {
       expect(config.images).toBeUndefined();
       expect(String(config.main ?? '')).not.toContain('.open-next');
+    });
+  });
+
+  describe('デプロイのワークフロー(.github/workflows/deploy-cloudflare.yml)', () => {
+    type Step = { name?: string; run?: string; env?: Record<string, string> };
+    const workflow = parseYaml(
+      read(path.join(root, '.github/workflows/deploy-cloudflare.yml')),
+    );
+    const job = workflow.jobs.deploy;
+    const steps: Step[] = job.steps;
+    const deployStep = steps.find((step) => step.name === 'Deploy') as Step;
+    // --var を組み立てるループ(for name in A B C; do ... value=...)の、変数名の一覧
+    const passedVars =
+      [
+        ...(deployStep.run ?? '').matchAll(
+          /for name in ([^;]+); do\s*\n\s*value=/g,
+        ),
+      ]
+        .pop()?.[1]
+        .split(/\s+/) ?? [];
+
+    it('手動、a-blog cms の更新通知、定期実行(Zenn の更新の反映)で動く', () => {
+      expect(workflow.on).toHaveProperty('workflow_dispatch');
+      expect(workflow.on.repository_dispatch.types).toEqual([
+        'acms-content-updated',
+      ]);
+      expect(workflow.on.schedule).toHaveLength(1);
+      expect(workflow.on.schedule[0].cron).toMatch(/^\S+ \S+ \S+ \S+ \S+$/);
+    });
+
+    it('同時に複数のデプロイを走らせず、実行中のデプロイを途中で止めない', () => {
+      expect(workflow.concurrency.group).toBe('deploy-cloudflare');
+      expect(workflow.concurrency['cancel-in-progress']).toBe(false);
+    });
+
+    it('master をデプロイし、production の Environment を使い、権限は読み取りだけ', () => {
+      const checkout = steps.find((step) =>
+        String((step as { uses?: string }).uses).startsWith('actions/checkout'),
+      ) as { with?: { ref?: string } };
+      expect(checkout.with?.ref).toBe('master');
+      expect(job.environment).toBe('production');
+      expect(workflow.permissions).toEqual({ contents: 'read' });
+    });
+
+    it('Secret は、Deploy のステップにだけ渡す(ジョブ全体の env や、npm ci / npm test に渡さない)', () => {
+      const secretKeys = (env: Record<string, string> = {}) =>
+        Object.keys(env).filter((key) => /KEY|TOKEN/.test(key));
+
+      expect(secretKeys(job.env)).toEqual([]);
+      for (const step of steps.filter((s) => s !== deployStep)) {
+        expect(secretKeys(step.env)).toEqual([]);
+      }
+      expect(secretKeys(deployStep.env).sort()).toEqual([
+        'ACMS_API_KEY',
+        'ACMS_API_PREVIEW_KEY',
+        'CLOUDFLARE_API_TOKEN',
+      ]);
+    });
+
+    it('Worker が実行時に読む変数(Secret 以外)を、デプロイで --var として渡す', () => {
+      expect([...passedVars].sort()).toEqual([
+        'ACMS_API_HOSTNAME',
+        'ACMS_API_PORT',
+        'ACMS_API_PROTOCOL',
+        'ACMS_ASSETS_HOSTNAME',
+        'ACMS_ASSETS_PORT',
+        'ACMS_ASSETS_PROTOCOL',
+        'NEXT_PUBLIC_BASE_URL',
+      ]);
+      expect(deployStep.run).toContain('--var');
+    });
+
+    it('Secret を --var で渡さない(Worker の Secret は wrangler secret put で別に登録する)', () => {
+      expect(passedVars.some((name) => /KEY|TOKEN/.test(name))).toBe(false);
+    });
+
+    it('必須の変数が空なら、デプロイせずに失敗する', () => {
+      expect(deployStep.run).toMatch(/exit 1/);
+      for (const name of [
+        'NEXT_PUBLIC_BASE_URL',
+        'ACMS_API_PROTOCOL',
+        'ACMS_API_HOSTNAME',
+        'ACMS_ASSETS_PROTOCOL',
+        'ACMS_ASSETS_HOSTNAME',
+      ]) {
+        expect(deployStep.run).toContain(name);
+      }
+    });
+
+    it('npm run deploy に --var を渡す。deploy は、最後に wrangler deploy を実行する(引数が末尾に付くため)', () => {
+      expect(deployStep.run).toMatch(/npm run deploy -- /);
+      const { scripts } = JSON.parse(read(path.join(root, 'package.json')));
+      expect(scripts.deploy).toMatch(/&& wrangler deploy$/);
     });
   });
 

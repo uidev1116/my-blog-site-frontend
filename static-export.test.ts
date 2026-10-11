@@ -122,6 +122,51 @@ describe('静的書き出し + Cloudflare 静的アセット', () => {
     });
   });
 
+  describe('デプロイのワークフロー(.github/workflows/deploy-cloudflare.yml)', () => {
+    const workflow = read(
+      path.join(root, '.github/workflows/deploy-cloudflare.yml'),
+    );
+
+    it('手動、a-blog cms の更新通知、定期実行(Zenn の更新の反映)で動く', () => {
+      expect(workflow).toMatch(/^\s+workflow_dispatch:/m);
+      expect(workflow).toMatch(
+        /repository_dispatch:\s*\n\s+types:\s*\[acms-content-updated\]/,
+      );
+      expect(workflow).toMatch(
+        /schedule:\s*\n(\s+#[^\n]*\n)*\s+- cron: '[^']+'/,
+      );
+    });
+
+    it('同時に複数のデプロイを走らせず、実行中のデプロイを途中で止めない', () => {
+      expect(workflow).toMatch(/concurrency:\s*\n\s+group: deploy-cloudflare/);
+      expect(workflow).toMatch(/cancel-in-progress: false/);
+    });
+
+    it('Worker が実行時に読む変数を、デプロイで渡す(--var)', () => {
+      for (const name of [
+        'NEXT_PUBLIC_BASE_URL',
+        'ACMS_API_PROTOCOL',
+        'ACMS_API_HOSTNAME',
+        'ACMS_API_PORT',
+        'ACMS_ASSETS_PROTOCOL',
+        'ACMS_ASSETS_HOSTNAME',
+        'ACMS_ASSETS_PORT',
+      ]) {
+        expect(workflow).toContain(name);
+      }
+      expect(workflow).toContain('--var');
+    });
+
+    it('Secret(キー)を --var で渡さない(Worker の Secret は wrangler secret put で別に登録する)', () => {
+      expect(workflow).not.toMatch(/--var[^\n]*ACMS_API_KEY/);
+      expect(workflow).not.toMatch(/--var[^\n]*ACMS_API_PREVIEW_KEY/);
+    });
+
+    it('npm run deploy(ビルドして、wrangler deploy)を使う', () => {
+      expect(workflow).toMatch(/npm run deploy/);
+    });
+  });
+
   describe('app/ のソース', () => {
     const files = collect(appDir);
 

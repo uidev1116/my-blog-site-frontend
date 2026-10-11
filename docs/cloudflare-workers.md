@@ -45,11 +45,49 @@ CLI は Wrangler 4.x を使う。Cloudflare の新 CLI `cf`(2026/9 にオープ�
 | 以前(Vercel / OpenNext)                         | 今                                                                                                 |
 | ----------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | 記事の更新は再デプロイで反映                    | 同じ(再ビルド・再デプロイで反映)                                                                   |
-| `/blog/zenn` の 1 時間 ISR                      | 定期的な再ビルドで代替(PR5)                                                                        |
+| `/blog/zenn` の 1 時間 ISR                      | 定期的な再ビルド(6 時間ごと)で代替                                                                 |
 | OGP 画像が 10 秒ごとに更新                      | ビルド時に全記事分を生成(`opengraph-image`)                                                        |
 | `/feed/`                                        | `/feed.xml`(`/feed` と `/feed/` は 301 で転送)                                                     |
 | `next/image` の最適化                           | なし(元の画像をそのまま配信)。Cloudflare Images を使うには、ドメインを Cloudflare に置く必要がある |
 | 検索(SSR)、`/api/blog`、プレビュー(`draftMode`) | Worker に移す(PR2〜4)。PR1 の時点では動かない                                                      |
+
+## 記事の更新を反映する
+
+静的書き出しは、記事を更新しても自動では反映されない。`Deploy to Cloudflare`(`.github/workflows/deploy-cloudflare.yml`)を、次のタイミングで動かして、再ビルド・再デプロイする。
+
+| きっかけ          | 内容                                                                                   |
+| ----------------- | -------------------------------------------------------------------------------------- |
+| 手動              | GitHub の Actions → `Deploy to Cloudflare` → Run workflow                              |
+| a-blog cms の更新 | `repository_dispatch`(`event_type: acms-content-updated`)を GitHub API に送る(下記)    |
+| 定期実行          | 6 時間ごと(UTC)。通知漏れと、Zenn の記事一覧の更新を反映する。間隔は `cron` を変更する |
+
+a-blog cms の更新通知(Webhook など)から呼ぶ API:
+
+```bash
+curl -X POST \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer <GitHub のトークン>" \
+  https://api.github.com/repos/uidev1116/my-blog-site-frontend/dispatches \
+  -d '{"event_type":"acms-content-updated"}'
+```
+
+- トークンは、このリポジトリだけを対象にした fine-grained トークンで、`Contents: Read and write` が必要(`repository_dispatch` の権限)。**トークンは a-blog cms 側の設定にだけ置き、このリポジトリには置かない**。
+- 連続して通知が来ても、`concurrency` で、デプロイは 1 つずつ実行される(実行中のデプロイは止めない)。
+
+## Worker の Secret(1 回だけ登録する)
+
+`ACMS_API_KEY` と `ACMS_API_PREVIEW_KEY` は、Worker の Secret として、1 回だけ登録する。デプロイしても消えない。値は、自分のターミナルで入力する(チャットや Git には載せない)。
+
+```bash
+printf '%s' "$ACMS_API_KEY" | npx wrangler secret put ACMS_API_KEY
+printf '%s' "$ACMS_API_PREVIEW_KEY" | npx wrangler secret put ACMS_API_PREVIEW_KEY
+```
+
+Secret 以外の実行時の変数は、デプロイのたびに、ワークフローが `--var` で渡す。
+
+## 本番切り替え
+
+`docs/cloudflare-cutover.md` を参照。
 
 ## CI / CD(GitHub Actions)
 

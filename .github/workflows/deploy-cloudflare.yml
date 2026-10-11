@@ -1,11 +1,17 @@
 name: Deploy to Cloudflare
 
-# 手動実行、または a-blog cms の更新通知(repository_dispatch: acms-content-updated)で再デプロイする。
+# 静的書き出しは、記事を更新しても自動では反映されないため、次のタイミングで再ビルド・再デプロイする。
+#   - 手動
+#   - a-blog cms の更新通知(repository_dispatch: acms-content-updated。docs/cloudflare-workers.md 参照)
+#   - 定期実行(a-blog cms の通知漏れと、Zenn の記事一覧の更新を反映する)
 # 本番切り替え(DNS)が完了するまでは、push では自動デプロイしない。
 on:
   workflow_dispatch:
   repository_dispatch:
     types: [acms-content-updated]
+  schedule:
+    # 6 時間ごと(UTC)
+    - cron: '0 */6 * * *'
 
 # 同時に複数デプロイしない(実行中は待たせ、最新だけ残す)
 concurrency:
@@ -43,5 +49,15 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      # Worker が実行時に読む変数(Secret 以外)を、デプロイで渡す。
+      # Secret(ACMS_API_KEY / ACMS_API_PREVIEW_KEY)は、Worker に 1 回だけ `wrangler secret put` で登録する(デプロイでは消えない)
       - name: Deploy
-        run: npm run deploy
+        run: |
+          args=()
+          for name in NEXT_PUBLIC_BASE_URL ACMS_API_PROTOCOL ACMS_API_HOSTNAME ACMS_API_PORT ACMS_ASSETS_PROTOCOL ACMS_ASSETS_HOSTNAME ACMS_ASSETS_PORT; do
+            value="${!name}"
+            if [ -n "$value" ]; then
+              args+=(--var "$name:$value")
+            fi
+          done
+          npm run deploy -- "${args[@]}"

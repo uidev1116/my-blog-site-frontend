@@ -68,7 +68,7 @@ describe('BlogSearchForm', () => {
       screen.getByRole('option', { name: 'Next.js 入門' }),
     ).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledWith(
-      `/api/blog?keyword=${encodeURIComponent('あ')}`,
+      `/api/blog/?keyword=${encodeURIComponent('あ')}`,
     );
   });
 

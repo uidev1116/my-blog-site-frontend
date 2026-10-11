@@ -5,19 +5,16 @@
   "scripts": {
     "dev": "TZ='Etc/UTC' next dev",
     "build": "next build",
-    "start": "next start",
     "lint": "eslint .",
     "format": "prettier --write .",
     "prepare": "husky",
-    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
-    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "preview": "next build && wrangler dev",
+    "deploy": "next build && wrangler deploy"
   },
   "dependencies": {
     "@next/third-parties": "^16.4.0",
-    "@opennextjs/cloudflare": "^1.20.10",
     "@types/node": "24.19.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -35,7 +32,7 @@
     "html-react-parser": "^6.1.8",
     "leaflet": "^1.9.4",
     "lozad": "^1.16.0",
-    "next": "16.3.8",
+    "next": "^16.4.0",
     "nprogress": "^0.2.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
@@ -70,7 +67,8 @@
     "tailwindcss": "^4.1.17",
     "typescript": "~6.0.2",
     "vitest": "^5.0.3",
-    "wrangler": "^4.149.0"
+    "wrangler": "^4.149.0",
+    "yaml": "^2.9.1"
   },
   "engines": {
     "node": "24.x"

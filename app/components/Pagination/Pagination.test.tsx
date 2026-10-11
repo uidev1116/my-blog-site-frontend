@@ -94,3 +94,25 @@ describe('Pagination', () => {
     });
   });
 });
+
+describe('Pagination の appendQuery', () => {
+  it('既定では、現在のクエリ文字列を各リンクに引き継ぐ', () => {
+    nav.searchParams = new URLSearchParams('keyword=cms&page=2');
+    render(<Pagination currentPage={1} pages={pages} />);
+
+    expect(screen.getByRole('link', { name: '2' })).toHaveAttribute(
+      'href',
+      '/blog/page/2/?keyword=cms&page=2',
+    );
+  });
+
+  it('appendQuery が false なら、path をそのまま使う(リンク側でクエリを組み立てる場合)', () => {
+    nav.searchParams = new URLSearchParams('keyword=cms&page=2');
+    render(<Pagination currentPage={1} pages={pages} appendQuery={false} />);
+
+    expect(screen.getByRole('link', { name: '2' })).toHaveAttribute(
+      'href',
+      '/blog/page/2/',
+    );
+  });
+});

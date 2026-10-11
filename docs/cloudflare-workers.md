@@ -1,92 +1,156 @@
-# Cloudflare Workers へのデプロイ
+# Cloudflare へのデプロイ(静的書き出し + 静的アセット)
 
-[OpenNext Cloudflare アダプター](https://opennext.js.org/cloudflare)(`@opennextjs/cloudflare`)で Cloudflare Workers に載せる。Vercel からの移行用の構成。
+Next.js を **静的書き出し(`output: 'export'`)** でビルドし、`out/` を Cloudflare の **静的アセット**として配信する。HTML は Worker を通らず、静的ファイルとして直接返る(配信は無料・無制限、CPU 制限も関係しない)。
+
+動的な処理(検索 API、プレビュー)だけを、小さな Worker として `worker/` に置く。`wrangler.jsonc` の `assets.run_worker_first: ["/api/*"]` で、`/api/*` だけが Worker に届き、それ以外は静的ファイルが直接返る(Worker は動かない)。
+
+> OpenNext(`@opennextjs/cloudflare`)は使わない。OpenNext では、静的ページも Worker 経由で配信され、1 リクエストあたり 30〜80 ミリ秒の CPU を使うため、無料プランの上限(10 ミリ秒)を超えた(`wrangler tail` で計測)。
 
 ## 構成
 
-| ファイル              | 役割                                                                              |
-| --------------------- | --------------------------------------------------------------------------------- |
-| `wrangler.jsonc`      | Worker 設定。静的アセット(`ASSETS`)と画像最適化(`IMAGES`)のバインディング         |
-| `open-next.config.ts` | OpenNext 設定。キャッシュ(R2 / D1)は未使用                                        |
-| `next.config.js`      | `initOpenNextCloudflareForDev()` で `next dev` でもバインディングを利用可能にする |
+| ファイル                | 役割                                                                                                                                                                                                                                                                                                                          |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `next.config.js`        | `output: 'export'`、`trailingSlash`、`images.unoptimized`                                                                                                                                                                                                                                                                     |
+| `worker/index.ts`       | Worker。`GET /api/blog/?keyword=...&page=N`(検索・一覧。`keyword` と `page` だけを a-blog cms に渡す)。`app/blog/api` を再利用する。範囲外のページは 0 件で返す。成功は `max-age=60`、エラーは `no-store`。カスタムドメインのゾーン上では、Cache API でエッジにもキャッシュする(workers.dev では使えず、キャッシュなしで動く) |
+| `worker/preview.ts`     | 下書きのプレビュー(「下書きのプレビュー」の節)。`/api/blog/draft/` と `/api/blog/preview/`。`worker/index.ts` がルーティングし、`worker/http.ts` の `json()` が共通のヘッダー(`no-store`、`nosniff`、`Referrer-Policy: no-referrer`)を付ける                                                                                  |
+| `wrangler.jsonc`        | `out/` を静的アセットとして配信。存在しない URL は `404.html` を返す                                                                                                                                                                                                                                                          |
+| `public/_redirects`     | リダイレクト(旧記事 URL、`/feed` → `/feed.xml`)。`next.config.js` の `redirects()` は書き出しで動かない                                                                                                                                                                                                                       |
+| `public/_headers`       | 拡張子のない OGP 画像の `Content-Type`、`/_next/static` の長期キャッシュ                                                                                                                                                                                                                                                      |
+| `static-export.test.ts` | 上記の構成と、書き出しで使えない機能(`force-dynamic`、`draftMode` など)を使っていないことのテスト                                                                                                                                                                                                                             |
 
 ## コマンド
 
-| コマンド          | 内容                                                                   |
-| ----------------- | ---------------------------------------------------------------------- |
-| `npm run preview` | OpenNext でビルドし、ローカルの workerd で起動する(`.dev.vars` が必要) |
-| `npm run deploy`  | OpenNext でビルドし、Cloudflare にデプロイする                         |
-| `npm test`        | Vitest(Cloudflare 互換性のテスト)                                      |
+| コマンド          | 内容                                                      |
+| ----------------- | --------------------------------------------------------- |
+| `npm run build`   | 静的書き出し(`out/`)。ビルド時に a-blog cms の API を呼ぶ |
+| `npm run preview` | ビルドして、ローカルの workerd で配信する(`wrangler dev`) |
+| `npm run deploy`  | ビルドして、Cloudflare にデプロイする(`wrangler deploy`)  |
+| `npm test`        | Vitest(方針は `docs/testing.md`)                          |
 
-CLI は `opennextjs-cloudflare`(OpenNext 公式)を使う。Cloudflare の新 CLI `cf`(2026/9 にオープンベータ公開)は JS の Workers ではデプロイ時に Wrangler へ委譲する設計で、OpenNext 側は Wrangler 4.x に依存しているため、現時点では Wrangler 4.x を使う。`cf` / `cloudflare.config.ts` の安定版が出て OpenNext が対応したら移行を検討する。
+CLI は Wrangler 4.x を使う。Cloudflare の新 CLI `cf`(2026/9 にオープンベータ公開)は、JS の Workers では Wrangler に処理を任せる設計のため、安定版が出るまでは Wrangler を使う。
 
 ## 環境変数
 
-名前のみ記載する(値はダッシュボードで設定する)。
+ビルド時(静的書き出し)と、Worker の実行時の両方で必要(値はダッシュボード / GitHub の設定で管理する)。ダッシュボードで設定した変数は、`keep_vars: true` のため、デプロイしても消えない(Secret はもともと消えない)。
 
-| 変数                                                                 | ビルド時                                   | 実行時 | 種別       |
-| -------------------------------------------------------------------- | ------------------------------------------ | ------ | ---------- |
-| `NEXT_PUBLIC_BASE_URL` / `BASE_URL`                                  | 必須                                       | 必須   | 変数       |
-| `ACMS_API_PROTOCOL` / `ACMS_API_HOSTNAME` / `ACMS_API_PORT`          | 必須                                       | 必須   | 変数       |
-| `ACMS_API_KEY`                                                       | 必須                                       | 必須   | **Secret** |
-| `ACMS_API_PREVIEW_KEY`                                               | 必須                                       | 必須   | **Secret** |
-| `ACMS_ASSETS_PROTOCOL` / `ACMS_ASSETS_HOSTNAME` / `ACMS_ASSETS_PORT` | 必須(`next.config.js` の `remotePatterns`) | 必須   | 変数       |
+| 変数                                                                 | 種別       |
+| -------------------------------------------------------------------- | ---------- |
+| `NEXT_PUBLIC_BASE_URL`                                               | 変数       |
+| `ACMS_API_PROTOCOL` / `ACMS_API_HOSTNAME` / `ACMS_API_PORT`          | 変数       |
+| `ACMS_API_KEY`                                                       | **Secret** |
+| `ACMS_API_PREVIEW_KEY`                                               | **Secret** |
+| `ACMS_ASSETS_PROTOCOL` / `ACMS_ASSETS_HOSTNAME` / `ACMS_ASSETS_PORT` | 変数       |
 
-`wrangler.jsonc` は `keep_vars: true` のため、デプロイしてもダッシュボードで設定した変数・Secret は消えない。
+## 静的書き出しで変わったこと
 
-Workers Builds でビルドする場合は、ビルド環境(Build variables)にも同じ値を設定する。
+| 以前(Vercel / OpenNext)                         | 今                                                                                                 |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| 記事の更新は再デプロイで反映                    | 同じ(再ビルド・再デプロイで反映)                                                                   |
+| `/blog/zenn` の 1 時間 ISR                      | 定期的な再ビルド(6 時間ごと)で代替                                                                 |
+| OGP 画像が 10 秒ごとに更新                      | ビルド時に全記事分を生成(`opengraph-image`)                                                        |
+| `/feed/`                                        | `/feed.xml`(`/feed` と `/feed/` は 301 で転送)                                                     |
+| `next/image` の最適化                           | なし(元の画像をそのまま配信)。Cloudflare Images を使うには、ドメインを Cloudflare に置く必要がある |
+| 検索(SSR)、`/api/blog`、プレビュー(`draftMode`) | 静的ページ + Worker の API に作り直した(下記)                                                      |
 
-## レンダリングと更新
+## 下書きのプレビュー
 
-記事・一覧・タグ・プロフィール等はビルド時に静的生成され、**再デプロイしないと更新されない**(Vercel 時代から `revalidate` 未指定で同じ挙動)。記事公開時に再ビルド・再デプロイする仕組み(Workers Builds の Deploy Hook、GitHub Actions 等)が必要。
+a-blog cms のプレビューリンク(`/api/blog/draft/?previewKey=...&code=...`)は、URL を変えずに使える。
 
-- `/blog/zenn` の 1 時間 ISR は、増分キャッシュ(R2)を設定していないため動作しない。ビルド時点の内容が配信される。必要になったら [キャッシュ設定](https://opennext.js.org/cloudflare/caching) で R2 を追加する。
-- 実行時に Worker が動くのは `/blog/search`、`/api/blog`、`/api/blog/draft`、`/feed`、OGP 画像。
+1. `GET /api/blog/draft/`(Worker): `previewKey`(`ACMS_API_PREVIEW_KEY` と一致)と `code`(`[A-Za-z0-9._~-]` の 200 文字まで)を検証し、記事が存在すれば、署名付きの Cookie(`preview`、30 分、`HttpOnly; Secure; SameSite=Lax; Path=/api/blog/preview`)を発行して、`/blog/preview/?code=...` に 302 でリダイレクトする。
+2. `/blog/preview/`(静的ページ、`noindex`): ブラウザで `GET /api/blog/preview/?code=...` を呼び、下書きの記事と関連記事を表示する。
+3. `GET /api/blog/preview/`(Worker): Cookie の署名・有効期限・`code` の一致を検証して返す(`Cache-Control: private, no-store`)。無効なら 401。
 
-## 無料プラン運用の注意
+- プレビューキーは、ブラウザの JavaScript にも Cookie にも渡さない(Cookie の署名の HMAC の鍵に使う)。Cookie は `code` ごとに発行され、別の記事には使えない。
+- 401(Cookie が無い・期限切れ・署名が不正・別の記事)は「有効期限が切れました」、404 は「記事が見つかりません」と画面に表示する。
+- 存在しない記事は、a-blog cms が 404 を返すため、Worker も 404 を返す。
+- Cookie 名は `__Secure-preview`(`__Secure-` は HTTPS で `Secure` が必須。Safari は `http://localhost` で `Secure` の Cookie を保存しないため、`wrangler dev` では Chrome か Firefox を使う)。
+- `/blog/preview/*` は、`_headers` で `Referrer-Policy: no-referrer` と `X-Robots-Tag: noindex, nofollow` を付ける。`/api/*` は Worker が先に動くため `_headers` が効かず、Worker が同じ種類のヘッダーを付ける。
 
-- 静的アセットの配信は無料・無制限。Worker が動く上記ルートのみ 1 日 10 万リクエストの対象。
-- Free は 1 リクエストあたり CPU 10 ms の制限がある。OGP 画像(`ImageResponse`)や検索 SSR が超過する場合は `Error 1102` になる。発生したら Paid プラン($5/月)にするか、`/feed` を `force-static` にする等で対処する。
-- Worker サイズは gzip で約 2.3 MiB(`wrangler deploy --dry-run`、モックデータでの計測)。Free の上限は 3 MiB のため余裕が小さい。依存を増やしたら再計測する。
-- 画像最適化(Cloudflare Images)は Free で月 5,000 ユニーク変換まで。超過後は新規変換がエラーになる(キャッシュ済みは配信される)。
+### プレビューキーの扱い
 
-## Next.js のバージョン
+- a-blog cms のプレビューリンクの URL には、`previewKey` が含まれる。**URL は Workers Logs(`observability`)にクエリ付きで残る**ため、ログの閲覧権限は、プレビューキーを扱える人に限る。
+- キーが漏れた(ログやブラウザの履歴から)可能性があるときは、a-blog cms 側でプレビューキーを再発行し、Worker の Secret(`ACMS_API_PREVIEW_KEY`)を更新する。Secret を変えると、発行済みの Cookie は、署名が合わなくなって、すべて無効になる。
+- Worker のログには、エラーメッセージだけを出し、プレビューキーは `***` に伏せる。
 
-`@opennextjs/cloudflare` の peer 要件は `next >=16.3.8`。`next` は動作確認済みの 16.3.8 に固定している。16.4.0 では `.next/server/preview-props.json` が OpenNext のマニフェスト埋め込みの対象外で、実行時に `Unexpected loadManifest(/.next/server/preview-props.json)` となり全ルートが 500 になった(@opennextjs/cloudflare 1.20.10 時点)。OpenNext 側の修正リリース後に上げること。
+## 記事の更新を反映する
 
-## 移行時のロールバック
+静的書き出しは、記事を更新しても自動では反映されない。再ビルド・再デプロイが必要で、きっかけは次のとおり。
 
-DNS を切り替えるまで Vercel が本番のまま。切り替え後に問題があれば DNS を Vercel に戻す(TTL は事前に短縮しておく)。
+| きっかけ                       | 内容                                                                                                                         |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| **a-blog cms の更新(Webhook)** | **Cloudflare の Deploy Hook**(URL に POST するだけ。ヘッダー不要)。下記                                                      |
+| 手動                           | GitHub の Actions → `Deploy to Cloudflare` → Run workflow、または Cloudflare の Workers Builds の「Retry build」             |
+| 定期実行                       | `Deploy to Cloudflare` の `schedule`(6 時間ごと、UTC)。通知漏れと、Zenn の記事一覧の更新を反映する。間隔は `cron` を変更する |
+| `master` への push             | Workers Builds を Git に接続している場合、自動でビルド・デプロイされる                                                       |
 
-## 動作確認済み(ローカル workerd + モック ACMS)
+### a-blog cms の Webhook(スタンダードライセンスでも使える方法)
 
-`/`、`/blog/`、記事、`/profile/`、検索、`/api/blog`、`/feed/`、`/sitemap.xml`、`/robots.txt`、`/blog/zenn/`、リダイレクト(`next.config.js`)、プレビュー(`/api/blog/draft`)、404、OGP 画像、`/_next/image/` が期待どおり応答。**実際の ACMS・Cloudflare 上での確認は未実施。**
+a-blog cms のスタンダードライセンスでは、Webhook に、ヘッダー(`Authorization` など)を指定できない。そのため、GitHub の API(`Authorization` ヘッダーが必須)は、a-blog cms から直接は呼べない。代わりに、**Cloudflare Workers Builds の Deploy Hook** を使う([公式](https://developers.cloudflare.com/workers/ci-cd/builds/deploy-hooks))。
 
-## 補足
+1. Cloudflare ダッシュボード → Workers & Pages → `my-blog-site-frontend` → Settings → **Builds** で、GitHub のリポジトリに接続する(Workers Builds)。
+   - Git のブランチ: `master`
+   - **Build command**: `npm run build`(静的書き出し)
+   - **Deploy command**: `npx wrangler deploy`(既定)
+   - **Build variables and secrets**(ビルド時だけ有効。実行時の変数とは別): `NEXT_PUBLIC_BASE_URL`、`ACMS_API_PROTOCOL`、`ACMS_API_HOSTNAME`、`ACMS_API_PORT`、`ACMS_API_KEY`(Secret)、`ACMS_API_PREVIEW_KEY`(Secret)、`ACMS_ASSETS_PROTOCOL`、`ACMS_ASSETS_HOSTNAME`、`ACMS_ASSETS_PORT`
+   - Node.js は 24 を使う(`NODE_VERSION=24` のビルド変数。公式の設定ページに Node の選び方の記載がないため、最初のビルドのログで、Node のバージョンを確認する)。
+   - **実行時の変数**(Worker が `process.env` から読む)は、別に、Settings → Variables & Secrets に登録する(`keep_vars: true` のため、デプロイしても消えない)。
+2. Settings → Builds → **Deploy Hooks** → 名前(例: `a-blog cms`)とブランチ(`master`)を指定して作成し、**URL をコピーする**。
+3. a-blog cms の Webhook の URL を、この URL に変更する(今、Vercel の Deploy Hook の URL が設定されているなら、置き換える)。メソッドは **POST**。
 
-- `.dev.vars` は `NEXT_PUBLIC_BASE_URL` のみ記載(`BASE_URL` は未設定時のフォールバック)。
-- カスタムドメインはダッシュボード(Workers & Pages → Settings → Domains)で設定する。
-- `compatibility_date` は動作確認した 2025-09-01 のまま。更新する場合は `npm run preview` で再確認する。
-- `package-lock.json` は npm 10 で再生成したため差分が大きい(`peer` フラグの追加など)。依存の実質変更は `@opennextjs/cloudflare`・`wrangler`・`vitest` の追加と `next` の固定。
+- ヘッダーは不要で、URL の ID が認証になる。**URL は、秘密として扱う**(リポジトリに置かない)。漏れたときは、Deploy Hook を削除して、作り直す(古い URL は、削除と同時に無効になる)。
+- 公式ドキュメントに記載があるのは **POST だけ**。a-blog cms の Webhook が、GET でしか送れない場合は、使えないため、確認する。
+- 重複の防止: 同じ Deploy Hook が、前のビルドの開始前に、何度も呼ばれても、新しいビルドは作られない(`already_exists: true`)。
+- 制限: Deploy Hook は、Worker あたり 1 分に 10 ビルドまで。Workers Builds は、無料プランで、月 3,000 ビルド分(同時に 1 ビルド、タイムアウト 20 分)。
+- GitHub の Variables(`NEXT_PUBLIC_BASE_URL`)が未設定の間は、定期実行と通知(`repository_dispatch`)からの `Deploy to Cloudflare` は、失敗の通知を出さないよう、スキップされる。手動実行は、常に動き、設定の不足は、はっきり失敗する。
+- Cloudflare 側でビルドする場合、GitHub の `production` Environment の Secrets(`CLOUDFLARE_API_TOKEN` など)は、定期実行と手動の `Deploy to Cloudflare` にだけ使う。
+
+### GitHub の repository_dispatch(ヘッダーを指定できる別のシステムから呼ぶ場合)
+
+ヘッダーを指定できるシステムからは、GitHub の API でも `Deploy to Cloudflare` を動かせる(`event_type: acms-content-updated`)。
+
+```bash
+curl -fsS -X POST \
+  -H "Accept: application/vnd.github+json" \
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  -H "Authorization: Bearer <GitHub のトークン>" \
+  https://api.github.com/repos/uidev1116/my-blog-site-frontend/dispatches \
+  -d '{"event_type":"acms-content-updated"}'
+```
+
+- 成功すると、HTTP 204(本文なし)が返る。`-f` を付けているため、401 や 404 のときは、終了コードが 0 以外になる。
+- トークンは、このリポジトリだけを対象にした fine-grained トークンで、`Contents: Read and write` が必要(`repository_dispatch` の権限)。**この権限は、`master` への push もできるほど強い**ため、漏れたときの影響が大きい。トークンは呼び出し側の設定にだけ置き、このリポジトリには置かない。漏れたら、すぐに失効させる。
+- 連続して通知が来ても、`concurrency` で、デプロイは 1 つずつ実行される(実行中のデプロイは止めない)。
+
+## Worker の Secret(1 回だけ登録する)
+
+`ACMS_API_KEY` と `ACMS_API_PREVIEW_KEY` は、Worker の Secret として、1 回だけ登録する。デプロイしても消えない。値は、自分のターミナルで入力する(チャットや Git には載せない)。
+
+```bash
+printf '%s' "$ACMS_API_KEY" | npx wrangler secret put ACMS_API_KEY
+printf '%s' "$ACMS_API_PREVIEW_KEY" | npx wrangler secret put ACMS_API_PREVIEW_KEY
+```
+
+Secret 以外の実行時の変数は、デプロイのたびに、ワークフローが `--var` で渡す。
+
+## 本番切り替え
+
+`docs/cloudflare-cutover.md` を参照。
 
 ## CI / CD(GitHub Actions)
 
-| ワークフロー                              | トリガー                                             | 内容                                                                                                        |
-| ----------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `.github/workflows/ci.yml`                | PR / master への push                                | 型チェック + Vitest、変更ファイルの ESLint / Prettier、OpenNext ビルドと Worker サイズ確認(gzip 3 MiB 未満) |
-| `.github/workflows/deploy-cloudflare.yml` | 手動 / `repository_dispatch`(`acms-content-updated`) | テスト後に `npm run deploy` で Cloudflare にデプロイ                                                        |
-| `.github/dependabot.yml`                  | 週次                                                 | GitHub Actions と npm の更新 PR(`next` は対象外)                                                            |
+| ワークフロー                                  | トリガー                                                                      | 内容                                                                                                                                      |
+| --------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `.github/workflows/ci.yml`                    | PR / master への push                                                         | 型チェック + Vitest、変更ファイルの ESLint / Prettier、静的書き出しのビルドと出力ファイルの確認                                           |
+| `.github/workflows/deploy-cloudflare.yml`     | 手動 / `repository_dispatch`(`acms-content-updated`) / 6 時間ごと(`schedule`) | `master` をテストして、`npm run deploy` で Cloudflare にデプロイ。Worker の変数(Secret 以外)は `--var` で渡し、必須の変数が空なら失敗する |
+| `.github/workflows/dependabot-auto-merge.yml` | Dependabot の PR                                                              | major 以外の更新を、CI が全て成功したら自動でスカッシュマージ                                                                             |
+| `.github/dependabot.yml`                      | 週次                                                                          | GitHub Actions と npm の更新 PR(`next`、typescript / eslint の major は対象外)                                                            |
 
-- CI のビルドは `scripts/mock-acms.mjs` のモック API を使うため、シークレットは不要です。
-- ESLint / Prettier は既存コードに未対応の指摘が残っているため、変更したファイルだけを検査します。
-- デプロイは、DNS 切り替えが済むまで push では走らせていません。
+- CI のビルドは `scripts/mock-acms.mjs` のモック API を使うため、シークレットは不要。
+- ESLint / Prettier は、既存コードに未対応の指摘が残っているため、変更したファイルだけを検査する。
+- `CLOUDFLARE_API_TOKEN` は、このアカウントだけを対象にして、`Workers Scripts: Edit` を付ける(`wrangler.jsonc` の `routes` をコードで管理する場合は、ゾーンの `Workers Routes: Edit` も)。
+- `production` Environment は、Required reviewers を付けない(定期実行と通知が、承認待ちで止まるため)。デプロイ可能なブランチを `master` に限定する。
+- Secret は、`Deploy` のステップにだけ渡す(`npm ci` や `npm test` には渡さない)。
 - デプロイに必要な設定(GitHub の `production` Environment):
   - Secrets: `CLOUDFLARE_API_TOKEN`、`CLOUDFLARE_ACCOUNT_ID`、`ACMS_API_KEY`、`ACMS_API_PREVIEW_KEY`
   - Variables: `NEXT_PUBLIC_BASE_URL`、`ACMS_API_PROTOCOL`、`ACMS_API_HOSTNAME`、`ACMS_API_PORT`、`ACMS_ASSETS_PROTOCOL`、`ACMS_ASSETS_HOSTNAME`、`ACMS_ASSETS_PORT`
-- a-blog cms の更新時に再デプロイするには、更新イベントから GitHub API(`POST /repos/{owner}/{repo}/dispatches`、`event_type: acms-content-updated`)を呼びます。
-
-## Dependabot の自動マージ
-
-- 対象は major 以外の更新(`minor-and-patch` グループ、または個別の minor / patch)。major は手動でレビューする。
-- リポジトリ設定で「Allow auto-merge」を有効にし、`master` のブランチ保護で次のチェックを必須にしている: `Typecheck & Test`、`Lint (changed files)`、`Build (OpenNext / Cloudflare)`、`Vercel`。
-- 必須チェックのうち 1 つでも失敗すると、マージされない。
+- `master` のブランチ保護の必須チェック名は、`Typecheck & Test`、`Lint (changed files)`、`Build (static export / Cloudflare)`、`Vercel`。ジョブ名を変えたときは、ここも更新する。

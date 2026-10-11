@@ -1,49 +1,18 @@
-import { acmsPath } from '@uidev1116/acms-js-sdk/acmsPath';
-import { getBlogEntries } from '../api';
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 import { getMetadata } from '@/app/api';
-import { objToSearchParams } from '@/app/utils';
-import BlogIndexRoute from '../routes/BlogIndexRoute';
+import BlogSearchRoute from './BlogSearchRoute';
 
-export const dynamic = 'force-dynamic';
-
-type Props = {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-};
-
-export async function generateMetadata(props: Props): Promise<Metadata> {
-  const searchParams = await props.searchParams;
-  return await getMetadata({
-    blog: 'blog',
-    searchParams: objToSearchParams(searchParams),
-  });
+// 検索結果はブラウザで取得するため、ページ自体は静的に書き出す
+export async function generateMetadata(): Promise<Metadata> {
+  const metadata = await getMetadata({ blog: 'blog' });
+  return { ...metadata, robots: { index: false, follow: true } };
 }
 
-export default async function BlogSearchPage(props0: Props) {
-  const searchParams = await props0.searchParams;
-  const { entries, pager } = await getBlogEntries({
-    searchParams: objToSearchParams(searchParams),
-  });
-
-  const props: React.ComponentProps<typeof BlogIndexRoute> = {
-    entries,
-    pagination: {
-      currentPage: 1,
-      previous: pager?.previous && {
-        ...pager.previous,
-        path: `/blog/search/${acmsPath({ page: pager.previous.page })}`,
-      },
-      pages:
-        pager?.pages.map((page) => ({
-          ...page,
-          path: `/blog/search/${acmsPath({ page: page.page })}`,
-        })) || [],
-      next: pager?.next && {
-        ...pager.next,
-        path: `/blog/search/${acmsPath({ page: pager.next.page })}`,
-      },
-    },
-  };
-
-  return <BlogIndexRoute {...props} />;
+export default function BlogSearchPage() {
+  return (
+    <Suspense fallback={<p className="py-20 text-center">検索中...</p>}>
+      <BlogSearchRoute />
+    </Suspense>
+  );
 }

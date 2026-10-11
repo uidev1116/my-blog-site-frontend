@@ -69,7 +69,7 @@ jobs:
         run: '[ ! -s changed.txt ] || xargs npx prettier --check --ignore-unknown < changed.txt'
 
   build:
-    name: Build (OpenNext / Cloudflare)
+    name: Build (static export / Cloudflare)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -83,14 +83,13 @@ jobs:
         run: |
           node scripts/mock-acms.mjs > mock-acms.log 2>&1 &
           for i in $(seq 1 20); do curl -fs localhost:8787/ >/dev/null && break; sleep 0.5; done
-      - name: Build (Next.js)
+      - name: Build (static export)
         run: npx next build
-      - name: Build (OpenNext)
-        run: npx opennextjs-cloudflare build
-      - name: Check Worker size
+      - name: Check exported files
         run: |
-          npx wrangler deploy --dry-run 2>&1 | tee dryrun.log
-          # 無料プランの Worker サイズ上限(gzip 3 MiB)に収まっているか
-          GZIP=$(grep -oE 'gzip: [0-9.]+' dryrun.log | grep -oE '[0-9.]+')
-          echo "gzip size: ${GZIP} KiB"
-          awk -v s="$GZIP" 'BEGIN { exit !(s < 3072) }'
+          for f in index.html 404.html feed.xml sitemap.xml robots.txt _redirects _headers blog/post-1/index.html blog/post-1/opengraph-image; do
+            test -s "out/$f" || { echo "missing: out/$f"; exit 1; }
+          done
+          echo "files: $(find out -type f | wc -l)"
+      - name: Check deploy config
+        run: npx wrangler deploy --dry-run

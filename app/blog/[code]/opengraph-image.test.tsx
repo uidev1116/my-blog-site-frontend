@@ -2,14 +2,24 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const m = vi.hoisted(() => ({
   getBlogEntry: vi.fn(),
+  getAllBlogEntries: vi.fn(),
   loadFont: vi.fn(),
   ImageResponse: vi.fn(),
 }));
-vi.mock('../api', () => ({ getBlogEntry: m.getBlogEntry }));
+vi.mock('../api', () => ({
+  getBlogEntry: m.getBlogEntry,
+  getAllBlogEntries: m.getAllBlogEntries,
+}));
 vi.mock('@/app/lib/font/google', () => ({ loadFont: m.loadFont }));
 vi.mock('next/og', () => ({ ImageResponse: m.ImageResponse }));
 
-import Image, { alt, contentType, size } from './opengraph-image';
+import Image, {
+  alt,
+  contentType,
+  dynamicParams,
+  generateStaticParams,
+  size,
+} from './opengraph-image';
 
 const params = { params: Promise.resolve({ code: 'a' }) };
 
@@ -20,6 +30,16 @@ describe('opengraph-image', () => {
     expect(alt).toBe('記事のOGP画像');
     expect(contentType).toBe('image/png');
     expect(size).toEqual({ width: 1200, height: 630 });
+  });
+
+  it('静的書き出しでは、ビルド時に、全記事分の画像を生成する', async () => {
+    m.getAllBlogEntries.mockResolvedValue([{ code: 'a' }, { code: 'b.html' }]);
+
+    expect(await generateStaticParams()).toEqual([
+      { code: 'a' },
+      { code: 'b.html' },
+    ]);
+    expect(dynamicParams).toBe(false);
   });
 
   it('記事が無ければ 404', async () => {

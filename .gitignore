@@ -35,8 +35,6 @@ yarn-error.log*
 next-env.d.ts
 .claude/
 
-# cloudflare / opennext
-.open-next
+# cloudflare
 .wrangler
 .dev.vars
-cloudflare-env.d.ts

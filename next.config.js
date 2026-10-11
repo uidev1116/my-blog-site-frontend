@@ -1,34 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
-    remotePatterns: [
-      {
-        protocol: process.env.ACMS_ASSETS_PROTOCOL,
-        hostname: process.env.ACMS_ASSETS_HOSTNAME,
-        port: process.env.ACMS_ASSETS_PORT,
-      },
-    ],
-    dangerouslyAllowLocalIP: process.env.NODE_ENV === 'development',
-  },
-  async redirects() {
-    return [
-      // Basic redirect
-      {
-        source: '/blog/entry-106.html',
-        destination: '/blog/ablogcms-next-rss-feed.html',
-        permanent: true,
-      },
-    ];
-  },
+  // 静的書き出し。out/ を Cloudflare の静的アセットとして配信する
+  // (リダイレクトは public/_redirects、動的な処理は worker/ に置く)
+  output: 'export',
   trailingSlash: true,
+  // 標準の画像最適化は静的書き出しでは使えない
+  images: {
+    unoptimized: true,
+  },
 };
 
-module.exports = (phase) => {
-  // `next dev` でのみ Cloudflare のバインディングを利用できるようにする
-  // (`next build` や Vercel のビルドでは workerd を起動しない)
-  if (phase === 'phase-development-server') {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    require('@opennextjs/cloudflare').initOpenNextCloudflareForDev();
-  }
-  return nextConfig;
-};
+module.exports = nextConfig;

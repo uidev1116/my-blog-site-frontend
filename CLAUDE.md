@@ -12,11 +12,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `npm run dev` - Start development server (runs on port 3000 with UTC timezone)
 - `npm run build` - Build production application
-- `npm run start` - Start production server
 - `npm run lint` - Run ESLint checks
 - `npm run test` - Run tests with Vitest (TDD で進める方針。テストは実装の隣に置く。詳細は `docs/testing.md`)
 - `npm run test:coverage` - Run tests with coverage (lines / statements / functions / branches すべて 90% 以上が閾値。CI でも実行される)
-- `npm run preview` / `npm run deploy` - Cloudflare Workers (OpenNext) 用。詳細は `docs/cloudflare-workers.md`
+- `npm run build` - 静的書き出し(`out/`)。`npm run preview` / `npm run deploy` は Cloudflare 用。詳細は `docs/cloudflare-workers.md`
 
 ### Code Quality
 
@@ -81,7 +80,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Blog listing: `/blog` with pagination `/blog/page/[page]`
 - Individual posts: `/blog/[code]`
 - Tag filtering: `/blog/tag/[tag]` with pagination
-- Search: `/blog/search` with pagination
+- Search: `/blog/search/?keyword=...&page=N`(静的な土台 + ブラウザで Worker の API から取得)
 - Zenn articles: `/blog/zenn` with pagination
 - Profile: `/profile`
 

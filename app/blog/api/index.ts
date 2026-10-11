@@ -4,7 +4,7 @@ import type { AcmsPathParams } from '@uidev1116/acms-js-sdk/acmsPath';
 import acmsClient from '@/app/lib/acms';
 import { PREVIEW_KEY } from '@/app/config/acms';
 
-type EntriesResponse = {
+export type EntriesResponse = {
   entries: BlogEntry[];
   pager?: {
     firstPage: number;
@@ -33,6 +33,21 @@ type TagFilterResponse = {
     }[];
   selectable: Tag[];
 };
+
+// a-blog cms の API は、ページ番号を数値、または { page, url, ... } のオブジェクトで返す
+// (最初のページは null)。数値に揃える
+function toPageNumber(value: unknown, fallback: number): number {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === 'string' && /^[0-9]+$/.test(value)) {
+    return Number(value);
+  }
+  if (typeof value === 'object' && value !== null && 'page' in value) {
+    return toPageNumber((value as { page: unknown }).page, fallback);
+  }
+  return fallback;
+}
 
 function normalizePath(path: string) {
   return path.replace(/\/keyword\/[^\/]+/, '');
@@ -76,8 +91,8 @@ export async function getBlogEntries(
     ...(pagination !== undefined
       ? {
           pager: {
-            firstPage: pagination.firstPage,
-            lastPage: pagination.lastPage,
+            firstPage: toPageNumber(pagination.firstPage, 1),
+            lastPage: toPageNumber(pagination.lastPage, 1),
             ...(pagination.prevPage !== null
               ? {
                   previous: {

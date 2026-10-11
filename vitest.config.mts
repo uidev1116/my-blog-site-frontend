@@ -21,16 +21,11 @@ export default defineConfig({
       ACMS_ASSETS_PORT: '',
     },
     include: ['**/*.test.{ts,tsx}'],
-    exclude: [
-      '**/node_modules/**',
-      '.next/**',
-      '.open-next/**',
-      '.wrangler/**',
-    ],
+    exclude: ['**/node_modules/**', '.next/**', '.wrangler/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text-summary', 'text', 'html', 'lcov'],
-      include: ['app/**/*.{ts,tsx}'],
+      include: ['app/**/*.{ts,tsx}', 'worker/**/*.ts'],
       exclude: [
         '**/*.test.{ts,tsx}',
         // テスト用ヘルパー

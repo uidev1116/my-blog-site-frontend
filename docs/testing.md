@@ -4,12 +4,12 @@ Vitest + Testing Library。**テストは実装ファイルの隣に置く(コ�
 
 ## 置き場所
 
-| 対象                                       | 置き場所                                                                           |
-| ------------------------------------------ | ---------------------------------------------------------------------------------- |
-| フック・ユーティリティ・コンポーネント     | 実装の隣。`foo.ts` → `foo.test.ts`、`Foo.tsx` → `Foo.test.tsx`                     |
-| Route Handler                              | 同じディレクトリ。`route.ts` → `route.test.ts`(外部 API は `vi.mock` で差し替える) |
-| 特定の実装を持たない、リポジトリ全体の制約 | ルート直下。例: `cloudflare-compat.test.ts`                                        |
-| E2E                                        | 専用ディレクトリ(導入する場合)。コロケーションの対象外                             |
+| 対象                                       | 置き場所                                                                                                                       |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| フック・ユーティリティ・コンポーネント     | 実装の隣。`foo.ts` → `foo.test.ts`、`Foo.tsx` → `Foo.test.tsx`                                                                 |
+| Route Handler / Worker                     | 同じディレクトリ。`route.ts` → `route.test.ts`、`worker/index.ts` → `worker/index.test.ts`(外部 API は `vi.mock` で差し替える) |
+| 特定の実装を持たない、リポジトリ全体の制約 | ルート直下。例: `static-export.test.ts`(静的書き出しと Cloudflare の構成、ワークフローの条件)                                  |
+| E2E                                        | 専用ディレクトリ(導入する場合)。コロケーションの対象外                                                                         |
 
 - Next.js の App Router は、`page` / `route` / `layout` など決まった名前のファイル以外を無視するため、`app/` 配下に置いても公開されない([公式](https://nextjs.org/docs/app/guides/testing/vitest)も、コロケーションを認めている)。
 - 設定は `vitest.config.mts`。対象は `**/*.test.{ts,tsx}`。
@@ -18,7 +18,7 @@ Vitest + Testing Library。**テストは実装ファイルの隣に置く(コ�
 
 - **ユーティリティ・フック**(純粋なロジック): ユニットテスト。入力と出力、状態の変化を見る。
 - **コンポーネント**: Testing Library で、ユーザーから見える振る舞い(ロール、テキスト、操作)を検証する。実装の詳細(内部 state、クラス名)は見ない。
-- **Route Handler**: 外部 API(a-blog cms など)をモックして、レスポンスのステータス・ヘッダー・本文を検証する。
+- **Route Handler / Worker**: 外部 API(a-blog cms など)をモックして、レスポンスのステータス・ヘッダー・本文を検証する。セキュリティに関わる処理(プレビューの認証など)は、不正な入力(改ざん、期限切れ、別の記事)も検証する。
 - **async Server Components(ページ)**: Vitest では未対応のため、ユニットテストはしない。必要になったら E2E(Playwright 等)で扱う。
 - **ビルドと実行環境**: CI のビルドジョブ(モック API)と、検証デプロイで確認する。
 
@@ -26,14 +26,14 @@ Vitest + Testing Library。**テストは実装ファイルの隣に置く(コ�
 
 - 新しい挙動や修正は、**先に失敗するテストを書いてから**実装する(TDD)。
 - 外部との境界(ネットワーク、ブラウザ API)はモックし、自分たちのコードを対象にする。ライブラリ自体のテストはしない。
-- DOM が要るテストは、ファイルの先頭に `// @vitest-environment jsdom` を書く(既定は node)。
+- DOM が要るテストは、ファイルの先頭に `// @vitest-environment jsdom` を書く(既定は node)。描画した DOM は、`vitest.setup.ts` がテストごとに片付ける。
 - テスト名は、何が起きるべきかを日本語で書く。
 - 環境変数は `vi.stubEnv` で指定する。テストが参照する変数は、空にしたいものも含めて**すべて**指定し、実行環境(CI のジョブ全体の `env` など)の値に依存させない。
 - 1 ファイルが大きくなったら、対象の実装を分割することを先に検討する。
 
 ## カバレッジ
 
-`npm run test:coverage` で計測する(v8)。対象は `app/**` で、型定義(`app/types`)・barrel(`index.ts`)・テスト用ヘルパー(`app/test-utils`)は除外している。**lines / statements / functions / branches すべて 90% 以上**を閾値にしていて、下回ると失敗する。
+`npm run test:coverage` で計測する(v8)。対象は `app/**` と `worker/**` で、型定義(`app/types`)・barrel(`index.ts`)・テスト用ヘルパー(`app/test-utils`)は除外している。**lines / statements / functions / branches すべて 90% 以上**を閾値にしていて、下回ると失敗する。
 
 ## テスト用の共通部品
 

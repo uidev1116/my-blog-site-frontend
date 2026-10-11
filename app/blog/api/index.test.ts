@@ -266,3 +266,77 @@ describe('getTagFilter', () => {
     expect(await getTagFilter([])).toEqual({ selected: [], selectable: [] });
   });
 });
+
+// a-blog cms の API は、ページ番号を数値ではなく { page, url, ... } のオブジェクトで返す(最初のページは null)
+describe('getBlogEntries の pager(実際の a-blog cms のレスポンスの形)', () => {
+  const pageRef = (page: number) => ({
+    page,
+    url: `https://cms.example.com/blog/page/${page}/`,
+    current: false,
+  });
+
+  it('firstPage が null、lastPage がオブジェクトのレスポンスから、ページ番号を数値で取り出す', async () => {
+    get.mockResolvedValue({
+      data: {
+        items: [rawEntry],
+        pagination: {
+          firstPage: null,
+          lastPage: pageRef(8),
+          prevPage: null,
+          nextPage: { ...pageRef(2), count: 10 },
+          pages: [pageRef(1), pageRef(2)],
+        },
+      },
+    });
+
+    const { pager } = await getBlogEntries();
+
+    expect(pager?.firstPage).toBe(1);
+    expect(pager?.lastPage).toBe(8);
+    expect(pager?.next).toEqual({ path: '/blog/page/2/', num: 10, page: 2 });
+    expect(pager?.pages).toEqual([
+      { page: 1, path: '/blog/page/1/' },
+      { page: 2, path: '/blog/page/2/' },
+    ]);
+  });
+
+  it('数値文字列でも、数値にする', async () => {
+    get.mockResolvedValue({
+      data: {
+        items: [rawEntry],
+        pagination: {
+          firstPage: '1',
+          lastPage: '3',
+          prevPage: null,
+          nextPage: null,
+          pages: [],
+        },
+      },
+    });
+
+    const { pager } = await getBlogEntries();
+
+    expect(pager?.firstPage).toBe(1);
+    expect(pager?.lastPage).toBe(3);
+  });
+
+  it('lastPage が無い(1 ページだけ)なら、firstPage / lastPage を 1 にする', async () => {
+    get.mockResolvedValue({
+      data: {
+        items: [rawEntry],
+        pagination: {
+          firstPage: null,
+          lastPage: null,
+          prevPage: null,
+          nextPage: null,
+          pages: [],
+        },
+      },
+    });
+
+    const { pager } = await getBlogEntries();
+
+    expect(pager?.firstPage).toBe(1);
+    expect(pager?.lastPage).toBe(1);
+  });
+});

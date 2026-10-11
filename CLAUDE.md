@@ -26,7 +26,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Node.js Version
 
-- Project uses Node.js 22.19.0 (managed via Volta)
+- Project uses Node.js 24 LTS (24.21.0, managed via Volta; `engines.node` で Vercel にも 24.x を指定)
 
 ## Architecture Overview
 

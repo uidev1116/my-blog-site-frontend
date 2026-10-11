@@ -2,7 +2,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-const root = path.resolve(__dirname, '..');
+const root = __dirname;
 
 function collect(dir: string): string[] {
   return readdirSync(dir).flatMap((name) => {
@@ -67,7 +67,7 @@ describe('Cloudflare Workers (OpenNext) 互換性', () => {
   it('next.config.js は本番ビルド時に設定を返す(workerd を起動しない)', async () => {
     const { createRequire } = await import('node:module');
     const require = createRequire(import.meta.url);
-    const factory = require('../next.config.js');
+    const factory = require('./next.config.js');
     const config = factory('phase-production-build');
     expect(config.trailingSlash).toBe(true);
     expect(config.images.remotePatterns).toHaveLength(1);

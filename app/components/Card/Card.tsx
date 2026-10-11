@@ -3,7 +3,6 @@ import { ComponentPropsWithoutRef, forwardRef } from 'react';
 
 type Props = ComponentPropsWithoutRef<'div'> & {
   as?: React.ElementType;
-  chidren?: React.ReactNode;
 };
 
 export default forwardRef<'div', Props>(function Card(

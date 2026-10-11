@@ -34,10 +34,8 @@ const CopyToClipboard = ({
     [copy, children, text],
   );
 
+  // 子要素が単一の React 要素でなければ Children.only が例外を投げる
   const element = Children.only(children);
-  if (!isValidElement(element)) {
-    return null;
-  }
 
   // @ts-expect-error onClick is not typed
   return cloneElement(element, { ...element.props, onClick: handleClick });

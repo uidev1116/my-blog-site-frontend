@@ -19,6 +19,8 @@ const eslintConfig = defineConfig([
     '.open-next/**',
     '.wrangler/**',
     'cloudflare-env.d.ts',
+    // テストカバレッジの出力
+    'coverage/**',
   ]),
 ]);
 

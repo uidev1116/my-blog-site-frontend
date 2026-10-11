@@ -3,7 +3,6 @@ import { ComponentPropsWithoutRef, forwardRef } from 'react';
 
 type Props = ComponentPropsWithoutRef<'span'> & {
   as?: React.ElementType;
-  chidren?: React.ReactNode;
 };
 
 export default forwardRef<HTMLSpanElement, Props>(function Badge(

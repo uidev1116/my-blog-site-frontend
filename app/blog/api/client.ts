@@ -14,12 +14,23 @@ const DATE_KEYS = [
   'endAt',
 ] as const;
 
-// Worker の API(worker/index.ts)は、日付を ISO 文字列で返す
+/** Worker の API が、成功以外のステータスを返した */
+export class FetchError extends Error {
+  constructor(public readonly status: number) {
+    super(`Failed to fetch entries (${status})`);
+    this.name = 'FetchError';
+  }
+}
+
+// Worker の API(worker/index.ts)は、日付を ISO 文字列で返す。
+// 値が無い日付(Invalid Date)は null になるため、undefined に戻す
 function reviveEntry(json: Serialized<BlogEntry>): BlogEntry {
   const entry = { ...json } as Record<string, unknown>;
   for (const key of DATE_KEYS) {
     if (typeof entry[key] === 'string') {
       entry[key] = new Date(entry[key]);
+    } else if (entry[key] === null) {
+      delete entry[key];
     }
   }
   return entry as unknown as BlogEntry;
@@ -42,7 +53,7 @@ export async function fetchBlogEntries({
 
   const res = await fetch(`/api/blog/?${params.toString()}`);
   if (!res.ok) {
-    throw new Error(`Failed to fetch entries (${res.status})`);
+    throw new FetchError(res.status);
   }
 
   const { entries = [], pager } = (await res.json()) as {

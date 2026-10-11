@@ -53,7 +53,13 @@ async function renderRoute() {
   const { default: BlogSearchRoute } = await import('./BlogSearchRoute');
   return render(
     // テストごとに SWR のキャッシュを分ける
-    <SWRConfig value={{ provider: () => new Map(), dedupingInterval: 0 }}>
+    <SWRConfig
+      value={{
+        provider: () => new Map(),
+        dedupingInterval: 0,
+        errorRetryInterval: 5,
+      }}
+    >
       <BlogSearchRoute />
     </SWRConfig>,
   );
@@ -109,7 +115,7 @@ describe('BlogSearchRoute', () => {
     expect(link.getAttribute('href')).toBe('/blog/search/?keyword=cms&page=3');
   });
 
-  it('page が無い URL は 1 ページ目として扱う', async () => {
+  it('page が無い URL は、1 ページ目として取得する(page=1 と同じキャッシュキー)', async () => {
     query = 'keyword=cms';
     const fn = respond({ entries: [entryJson] });
 
@@ -117,7 +123,59 @@ describe('BlogSearchRoute', () => {
 
     await screen.findByText('検索でヒットした記事');
     const url = new URL(fn.mock.calls[0][0], 'https://example.com');
-    expect(url.searchParams.get('page') ?? '1').toBe('1');
+    expect(url.searchParams.get('page')).toBe('1');
+  });
+
+  it.each(['0', 'abc', '-1', '1.5'])(
+    '不正な page(%s)は、1 ページ目として扱う',
+    async (page) => {
+      query = `keyword=cms&page=${page}`;
+      const fn = respond({ entries: [entryJson] });
+
+      await renderRoute();
+
+      await screen.findByText('検索でヒットした記事');
+      const url = new URL(fn.mock.calls[0][0], 'https://example.com');
+      expect(url.searchParams.get('page')).toBe('1');
+    },
+  );
+
+  it('keyword が空なら、API を呼ばずにキーワードの入力を促す', async () => {
+    query = 'keyword=';
+    const fn = respond({ entries: [entryJson] });
+
+    await renderRoute();
+
+    expect(screen.getByText('キーワードを入力してください。')).toBeTruthy();
+    expect(fn).not.toHaveBeenCalled();
+  });
+
+  it('keyword のパラメーターが無くても、API を呼ばない', async () => {
+    query = '';
+    const fn = respond({ entries: [entryJson] });
+
+    await renderRoute();
+
+    expect(fn).not.toHaveBeenCalled();
+  });
+
+  it('4xx(入力が不正)では再試行しない', async () => {
+    const fn = respond({}, { ok: false, status: 400 });
+
+    await renderRoute();
+
+    await screen.findByRole('alert');
+    await new Promise((r) => setTimeout(r, 150));
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('5xx は再試行する', async () => {
+    const fn = respond({}, { ok: false, status: 502 });
+
+    await renderRoute();
+
+    await screen.findByRole('alert');
+    await waitFor(() => expect(fn.mock.calls.length).toBeGreaterThan(1));
   });
 
   it('結果が 0 件なら、見つからなかったことを表示する', async () => {

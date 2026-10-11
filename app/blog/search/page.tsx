@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function BlogSearchPage() {
   return (
-    <Suspense>
+    <Suspense fallback={<p className="py-20 text-center">検索中...</p>}>
       <BlogSearchRoute />
     </Suspense>
   );

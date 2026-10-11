@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { fetchBlogEntries } from './client';
+import { FetchError, fetchBlogEntries } from './client';
 
 const entryJson = {
   id: 1,
@@ -72,5 +72,27 @@ describe('fetchBlogEntries', () => {
     await expect(fetchBlogEntries({ keyword: 'cms' })).rejects.toThrow(
       'Failed to fetch entries (502)',
     );
+  });
+
+  it('失敗したときの例外は、HTTP ステータスを持つ', async () => {
+    mockFetch({ ok: false, status: 400 });
+
+    const error = await fetchBlogEntries({ keyword: 'cms' }).catch((e) => e);
+
+    expect(error).toBeInstanceOf(FetchError);
+    expect(error.status).toBe(400);
+  });
+
+  it('日付が null(JSON で値が無い)なら undefined にする', async () => {
+    mockFetch({
+      json: async () => ({
+        entries: [{ ...entryJson, startAt: null, endAt: null }],
+      }),
+    });
+
+    const { entries } = await fetchBlogEntries({ keyword: 'cms' });
+
+    expect(entries[0].startAt).toBeUndefined();
+    expect(entries[0].endAt).toBeUndefined();
   });
 });

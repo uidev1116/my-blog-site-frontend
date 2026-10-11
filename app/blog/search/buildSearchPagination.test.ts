@@ -61,4 +61,14 @@ describe('buildSearchPagination', () => {
 
     expect(result.pages[0].path).toBe('/blog/search/?keyword=&page=1');
   });
+
+  it('& # % ? や日本語を含む keyword を、URL エンコードして組み立てる', () => {
+    const result = buildSearchPagination(pager, 'a&b#c%d?e 日本語', 1);
+
+    expect(result.pages[0].path).toBe(
+      `/blog/search/?keyword=${encodeURIComponent('a&b#c%d?e 日本語')}&page=1`,
+    );
+    const url = new URL(result.pages[0].path, 'https://example.com');
+    expect(url.searchParams.get('keyword')).toBe('a&b#c%d?e 日本語');
+  });
 });

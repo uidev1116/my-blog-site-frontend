@@ -1,17 +1,38 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import useSWR from 'swr';
+import useSWR, { type SWRConfiguration } from 'swr';
 import { Container } from '@/app/components';
-import { fetchBlogEntries } from '../api/client';
+import { FetchError, fetchBlogEntries } from '../api/client';
 import BlogIndexRoute from '../routes/BlogIndexRoute';
 import buildSearchPagination from './buildSearchPagination';
 
+// 不正な page は、1 ページ目として扱う
 function parsePage(value: string | null) {
-  return value !== null && /^[1-9][0-9]*$/.test(value)
-    ? Number(value)
-    : undefined;
+  return value !== null && /^[1-9][0-9]*$/.test(value) ? Number(value) : 1;
 }
+
+const MAX_RETRIES = 3;
+
+// 入力が不正(4xx)なら再試行しても同じ結果のため、再試行しない。それ以外は、間隔を空けて数回だけ再試行する
+const onErrorRetry: SWRConfiguration['onErrorRetry'] = (
+  error,
+  _key,
+  config,
+  revalidate,
+  { retryCount },
+) => {
+  if (error instanceof FetchError && error.status < 500) {
+    return;
+  }
+  if (retryCount >= MAX_RETRIES) {
+    return;
+  }
+  setTimeout(
+    () => revalidate({ retryCount: retryCount + 1 }),
+    config.errorRetryInterval * 2 ** retryCount,
+  );
+};
 
 function Message({
   role,
@@ -37,12 +58,26 @@ export default function BlogSearchRoute() {
   const keyword = searchParams.get('keyword') ?? '';
   const page = parsePage(searchParams.get('page'));
 
-  const { data, error, isLoading } = useSWR(
-    ['blog-search', keyword, page],
-    ([, k, p]) => fetchBlogEntries({ keyword: k, page: p }),
-    { revalidateOnFocus: false },
+  const { data, error, isLoading, isValidating } = useSWR(
+    // キーワードが空なら、取得しない
+    keyword === '' ? null : (['blog-search', keyword, page] as const),
+    async ([, k, p]) => ({
+      ...(await fetchBlogEntries({ keyword: k, page: p })),
+      // 結果と、その検索条件を対応づける(ページ移動中に、古い結果へ新しいページ番号を出さない)
+      keyword: k,
+      page: p,
+    }),
+    {
+      revalidateOnFocus: false,
+      // ページ移動中も、前の結果を表示し続ける(画面が消えて跳ねるのを防ぐ)
+      keepPreviousData: true,
+      onErrorRetry,
+    },
   );
 
+  if (keyword === '') {
+    return <Message role="status">キーワードを入力してください。</Message>;
+  }
   if (error) {
     return (
       <Message role="alert">
@@ -55,9 +90,11 @@ export default function BlogSearchRoute() {
   }
 
   return (
-    <BlogIndexRoute
-      entries={data.entries}
-      pagination={buildSearchPagination(data.pager, keyword, page ?? 1)}
-    />
+    <div aria-busy={isValidating}>
+      <BlogIndexRoute
+        entries={data.entries}
+        pagination={buildSearchPagination(data.pager, data.keyword, data.page)}
+      />
+    </div>
   );
 }

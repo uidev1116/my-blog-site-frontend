@@ -49,7 +49,7 @@ export default function BlogDetailRoute({ entry, relationalEntries }: Props) {
                 </div>
               </header>
               {entry.body && (
-                <div className="format format-sm dark:format-invert sm:format-base lg:format-lg">
+                <div className="format format-sm sm:format-base lg:format-lg dark:format-invert">
                   <div className="js-outline" data-target=".js-outline-yield">
                     <EntryBody html={entry.body} />
                   </div>

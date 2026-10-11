@@ -1,0 +1,96 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+# 同じ ref の古い実行はキャンセルする
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # ビルド検証用のダミー値(実際の a-blog cms には接続しない。scripts/mock-acms.mjs を使う)
+  ACMS_API_PROTOCOL: http
+  ACMS_API_HOSTNAME: 127.0.0.1
+  ACMS_API_PORT: '8787'
+  ACMS_API_KEY: dummy
+  ACMS_API_PREVIEW_KEY: dummy
+  ACMS_ASSETS_PROTOCOL: http
+  ACMS_ASSETS_HOSTNAME: 127.0.0.1
+  ACMS_ASSETS_PORT: '8787'
+  NEXT_PUBLIC_BASE_URL: https://example.com
+  NEXT_TELEMETRY_DISABLED: '1'
+
+jobs:
+  test:
+    name: Typecheck & Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: package.json # Volta の node バージョンを参照
+          cache: npm
+      - run: npm ci
+      # next-env.d.ts は git 管理外のため、型チェック前に生成する
+      - run: npx next typegen
+      - run: npx tsc --noEmit
+      - run: npm test
+
+  lint:
+    name: Lint (changed files)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: package.json
+          cache: npm
+      - run: npm ci
+      # 既存コードに未対応の指摘が残っているため、変更したファイルだけを対象にする
+      - name: Changed files
+        id: files
+        run: |
+          BASE="${{ github.event.pull_request.base.sha || github.event.before }}"
+          git diff --name-only --diff-filter=ACMR "$BASE" HEAD > changed.txt
+          grep -E '\.(js|mjs|mts|ts|tsx)$' changed.txt > changed-code.txt || true
+      - name: ESLint
+        run: '[ ! -s changed-code.txt ] || xargs npx eslint < changed-code.txt'
+      - name: Prettier
+        run: '[ ! -s changed.txt ] || xargs npx prettier --check --ignore-unknown < changed.txt'
+
+  build:
+    name: Build (OpenNext / Cloudflare)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: package.json
+          cache: npm
+      - run: npm ci
+      - name: Start mock a-blog cms
+        run: |
+          node scripts/mock-acms.mjs > mock-acms.log 2>&1 &
+          for i in $(seq 1 20); do curl -fs localhost:8787/ >/dev/null && break; sleep 0.5; done
+      - name: Build (Next.js)
+        run: npx next build
+      - name: Build (OpenNext)
+        run: npx opennextjs-cloudflare build
+      - name: Check Worker size
+        run: |
+          npx wrangler deploy --dry-run 2>&1 | tee dryrun.log
+          # 無料プランの Worker サイズ上限(gzip 3 MiB)に収まっているか
+          GZIP=$(grep -oE 'gzip: [0-9.]+' dryrun.log | grep -oE '[0-9.]+')
+          echo "gzip size: ${GZIP} KiB"
+          awk -v s="$GZIP" 'BEGIN { exit !(s < 3072) }'

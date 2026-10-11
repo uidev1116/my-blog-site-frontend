@@ -3,8 +3,6 @@ import { ImageResponse } from 'next/og';
 import { getBlogEntry } from '../api';
 import { MEDIA_BASE_URL } from '@/app/config/acms';
 
-export const runtime = 'edge';
-
 export const revalidate = 10;
 
 export const alt = '記事のOGP画像';

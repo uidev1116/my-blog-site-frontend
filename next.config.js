@@ -23,4 +23,12 @@ const nextConfig = {
   trailingSlash: true,
 };
 
-module.exports = nextConfig;
+module.exports = (phase) => {
+  // `next dev` でのみ Cloudflare のバインディングを利用できるようにする
+  // (`next build` や Vercel のビルドでは workerd を起動しない)
+  if (phase === 'phase-development-server') {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('@opennextjs/cloudflare').initOpenNextCloudflareForDev();
+  }
+  return nextConfig;
+};

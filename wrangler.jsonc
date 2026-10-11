@@ -1,12 +1,19 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "my-blog-site-frontend",
+  "main": "worker/index.ts",
   "compatibility_date": "2025-09-01",
+  // process.env から環境変数・Secret を読めるようにする(app/config/acms.ts)
+  "compatibility_flags": ["nodejs_compat"],
+  // ダッシュボードで設定した変数・Secret を、デプロイで消さない
+  "keep_vars": true,
   "assets": {
     // next build の出力(静的書き出し)
     "directory": "./out",
     // 存在しない URL は out/404.html を返す
     "not_found_handling": "404-page",
+    // /api/* だけを Worker で処理する。それ以外は静的アセットを直接返す(Worker は動かない)
+    "run_worker_first": ["/api/*"],
   },
   "observability": {
     "enabled": true,

@@ -103,6 +103,15 @@ describe('静的書き出し + Cloudflare 静的アセット', () => {
       expect(config.assets.not_found_handling).toBe('404-page');
     });
 
+    it('Worker は /api/* だけを処理し、それ以外は静的アセットを直接返す', () => {
+      expect(config.main).toBe('worker/index.ts');
+      expect(config.assets.run_worker_first).toEqual(['/api/*']);
+    });
+
+    it('process.env から環境変数を読めるよう nodejs_compat を有効にする', () => {
+      expect(config.compatibility_flags).toContain('nodejs_compat');
+    });
+
     it('OpenNext 用の設定(IMAGES バインディング、.open-next の main)を持たない', () => {
       expect(config.images).toBeUndefined();
       expect(String(config.main ?? '')).not.toContain('.open-next');

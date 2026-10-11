@@ -2,19 +2,20 @@
 
 Next.js を **静的書き出し(`output: 'export'`)** でビルドし、`out/` を Cloudflare の **静的アセット**として配信する。HTML は Worker を通らず、静的ファイルとして直接返る(配信は無料・無制限、CPU 制限も関係しない)。
 
-動的な処理(検索 API、プレビュー)だけを、小さな Worker として `worker/` に置く(PR2 以降で追加)。
+動的な処理(検索 API、プレビュー)だけを、小さな Worker として `worker/` に置く。`wrangler.jsonc` の `assets.run_worker_first: ["/api/*"]` で、`/api/*` だけが Worker に届き、それ以外は静的ファイルが直接返る(Worker は動かない)。
 
 > OpenNext(`@opennextjs/cloudflare`)は使わない。OpenNext では、静的ページも Worker 経由で配信され、1 リクエストあたり 30〜80 ミリ秒の CPU を使うため、無料プランの上限(10 ミリ秒)を超えた(`wrangler tail` で計測)。
 
 ## 構成
 
-| ファイル                | 役割                                                                                                    |
-| ----------------------- | ------------------------------------------------------------------------------------------------------- |
-| `next.config.js`        | `output: 'export'`、`trailingSlash`、`images.unoptimized`                                               |
-| `wrangler.jsonc`        | `out/` を静的アセットとして配信。存在しない URL は `404.html` を返す                                    |
-| `public/_redirects`     | リダイレクト(旧記事 URL、`/feed` → `/feed.xml`)。`next.config.js` の `redirects()` は書き出しで動かない |
-| `public/_headers`       | 拡張子のない OGP 画像の `Content-Type`、`/_next/static` の長期キャッシュ                                |
-| `static-export.test.ts` | 上記の構成と、書き出しで使えない機能(`force-dynamic`、`draftMode` など)を使っていないことのテスト       |
+| ファイル                | 役割                                                                                                                               |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `next.config.js`        | `output: 'export'`、`trailingSlash`、`images.unoptimized`                                                                          |
+| `worker/index.ts`       | Worker。`GET /api/blog/?keyword=...&page=N`(検索・一覧。`keyword` と `page` だけを a-blog cms に渡す)。`app/blog/api` を再利用する |
+| `wrangler.jsonc`        | `out/` を静的アセットとして配信。存在しない URL は `404.html` を返す                                                               |
+| `public/_redirects`     | リダイレクト(旧記事 URL、`/feed` → `/feed.xml`)。`next.config.js` の `redirects()` は書き出しで動かない                            |
+| `public/_headers`       | 拡張子のない OGP 画像の `Content-Type`、`/_next/static` の長期キャッシュ                                                           |
+| `static-export.test.ts` | 上記の構成と、書き出しで使えない機能(`force-dynamic`、`draftMode` など)を使っていないことのテスト                                  |
 
 ## コマンド
 
@@ -29,7 +30,7 @@ CLI は Wrangler 4.x を使う。Cloudflare の新 CLI `cf`(2026/9 にオープ�
 
 ## 環境変数
 
-ビルド時にだけ必要(値はダッシュボード / GitHub の設定で管理する)。
+ビルド時(静的書き出し)と、Worker の実行時の両方で必要(値はダッシュボード / GitHub の設定で管理する)。Worker の変数・Secret は、`keep_vars: true` のため、デプロイしても消えない。
 
 | 変数                                                                 | 種別       |
 | -------------------------------------------------------------------- | ---------- |

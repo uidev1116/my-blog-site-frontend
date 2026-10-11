@@ -4,6 +4,7 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 vi.stubEnv('ACMS_ASSETS_PROTOCOL', 'https');
 vi.stubEnv('ACMS_ASSETS_HOSTNAME', 'assets.example.com');
+vi.stubEnv('ACMS_ASSETS_PORT', ''); // CI など、実行環境の値に依存させない
 
 // next/image と next/link は、描画結果を単純にするため差し替える
 vi.mock('next/image', () => ({

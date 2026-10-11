@@ -38,6 +38,8 @@ jobs:
           node-version-file: package.json # Volta の node バージョンを参照
           cache: npm
       - run: npm ci
+      # next-env.d.ts は git 管理外のため、型チェック前に生成する
+      - run: npx next typegen
       - run: npx tsc --noEmit
       - run: npm test
 

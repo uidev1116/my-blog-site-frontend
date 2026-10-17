@@ -1,5 +1,3 @@
-import { ZennUser } from '.';
-
 export type ZennArticle = {
   id: number;
   postType: 'Article';

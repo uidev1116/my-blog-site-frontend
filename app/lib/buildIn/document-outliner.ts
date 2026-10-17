@@ -27,15 +27,17 @@ export default function setupDocumentOutliner(
     const outline = new DocumentOutliner(element);
     const overrideConfig: Partial<ConfigType> = {};
     Object.keys(defaultOptions).forEach((key) => {
-      let value: any = element.getAttribute(`data-${key}`);
-      if (value != null) {
-        if (isNaN(value) === false) {
+      const attribute = element.getAttribute(`data-${key}`);
+      if (attribute != null) {
+        let value: string | number | boolean = attribute;
+        if (isNaN(Number(value)) === false) {
           value = parseInt(value, 10);
         }
         if (value === 'true' || value === 'false') {
           value = value === 'true';
         }
-        overrideConfig[key as keyof ConfigType] = value;
+        // 値の型は、属性ごとに違う(型は実行時にしか決まらない)
+        (overrideConfig as Record<string, unknown>)[key] = value;
       }
     });
     outline.makeList(target, {

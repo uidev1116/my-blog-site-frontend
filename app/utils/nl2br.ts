@@ -7,7 +7,7 @@ export default function nl2br(string: string) {
 
   return string
     .split(newlineRegex)
-    .map(function (line, index) {
+    .map(function (line) {
       if (line.match(newlineRegex)) {
         return '<br />';
       }

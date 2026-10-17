@@ -15,7 +15,7 @@ export default function setupScrollHint(
     scrollHintIconAppendClass: 'scroll-hint-icon-white',
     scrollHintIconWrapClass: 'scroll-hint-icon-wrap',
     scrollHintText: 'scroll-hint-text',
-    // @ts-ignore
+    // @ts-expect-error remainingTime の型が string になっている(実際は number)
     remainingTime: -1,
     scrollHintBorderWidth: 10,
     enableOverflowScrolling: true,

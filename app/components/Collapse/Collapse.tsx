@@ -20,7 +20,7 @@ function Collapse({ toggle, children, ...props }: Props) {
   }, []);
 
   usePageChange(() => {
-    // @ts-ignore
+    // @ts-expect-error FlowbiteInstances はグローバルで、型定義がない
     const collapse = FlowbiteInstances.getInstance('Collapse', toggle);
     collapse.collapse();
   });

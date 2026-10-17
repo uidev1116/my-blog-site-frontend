@@ -1,4 +1,4 @@
-import type { Blog, Category, Tag, User, Unit, BlogBlog } from '.';
+import type { Blog, Category, Tag, User, BlogBlog } from '.';
 import type { EntryStatus } from './enums';
 
 export type Entry = {

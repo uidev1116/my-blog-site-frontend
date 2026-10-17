@@ -4,6 +4,18 @@ const ZENN_URL = 'https://zenn.dev';
 const ZENN_API_HOST = `${ZENN_URL}/api/`;
 const ZENN_USER_NAME = 'uidev1116';
 
+// Zenn API の記事(使う項目だけ)
+type ZennApiArticle = {
+  id: number;
+  post_type: ZennArticle['postType'];
+  title: string;
+  slug: string;
+  published_at: string;
+  article_type: ZennArticle['articleType'];
+  emoji: string;
+  path: string;
+};
+
 export type ZennArticleResponse = {
   articles: ZennArticle[];
   nextPage: number | null;
@@ -33,7 +45,7 @@ export async function getZennArticles(
   const { articles, next_page } = await res.json();
 
   return {
-    articles: articles.map((article: any) => ({
+    articles: articles.map((article: ZennApiArticle) => ({
       id: article.id,
       postType: article.post_type,
       title: article.title,

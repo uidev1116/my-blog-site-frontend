@@ -63,7 +63,28 @@ describe('静的書き出し + Cloudflare 静的アセット', () => {
 
     it('旧記事 URL のリダイレクトを含む', () => {
       expect(redirects).toMatch(
-        /^\/blog\/entry-106\.html\s+\/blog\/ablogcms-next-rss-feed\.html\/?\s+301$/m,
+        /^\/blog\/entry-106\.html\s+\/blog\/ablogcms-next-rss-feed\.html\s+301$/m,
+      );
+    });
+
+    it('.html の記事 URL(末尾スラッシュなし)を、転送せず 200 で配信する', () => {
+      expect(redirects).toMatch(
+        /^\/blog\/\*\.html\s+\/blog\/:splat\.html\/\s+200$/m,
+      );
+    });
+
+    it('.html の記事 URL の末尾スラッシュ付きは、スラッシュなしに 301 で転送する', () => {
+      expect(redirects).toMatch(
+        /^\/blog\/\*\.html\/\s+\/blog\/:splat\.html\s+301$/m,
+      );
+    });
+
+    it('個別の旧記事 URL の規則は、.html の書き換えより前に置く(最初に一致した規則だけが適用される)', () => {
+      const lines = redirects.split('\n');
+      const index = (re: RegExp) => lines.findIndex((l) => re.test(l));
+      expect(index(/^\/blog\/entry-106\.html\s/)).toBeGreaterThanOrEqual(0);
+      expect(index(/^\/blog\/entry-106\.html\s/)).toBeLessThan(
+        index(/^\/blog\/\*\.html\s/),
       );
     });
 

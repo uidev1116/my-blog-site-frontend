@@ -2,7 +2,14 @@
 # https://developers.cloudflare.com/workers/static-assets/redirects/
 
 # 旧記事 URL
-/blog/entry-106.html /blog/ablogcms-next-rss-feed.html/ 301
+/blog/entry-106.html /blog/ablogcms-next-rss-feed.html 301
+
+# .html の記事 URL は、末尾スラッシュなしが正規(canonical・sitemap と同じ。旧 a-blog cms の URL を引き継ぐ)。
+# 記事は out/blog/<名前>.html/index.html に出力されるため、そのままでは 307 で末尾スラッシュ付きに転送される。
+# スラッシュなしは転送せず 200 で配信(書き換え)し、スラッシュ付きは、スラッシュなしに 301 で転送する。
+# 最初に一致した規則だけが適用されるため、個別の規則(上の entry-106)より後ろに置く
+/blog/*.html/ /blog/:splat.html 301
+/blog/*.html /blog/:splat.html/ 200
 
 # RSS フィード(以前の URL は /feed/)
 /feed /feed.xml 301

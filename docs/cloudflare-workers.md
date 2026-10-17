@@ -139,7 +139,7 @@ printf '%s' "$ACMS_API_PREVIEW_KEY" | npx wrangler secret put ACMS_API_PREVIEW_K
 Workers Builds や Deploy Hook が使えないときは、自分のターミナルから、直接デプロイできる。キー(`ACMS_API_KEY`、`ACMS_API_PREVIEW_KEY`)は、そのシェルで `export` しておく(値は、チャットや Git に載せない)。
 
 ```bash
-NEXT_PUBLIC_BASE_URL=https://blog.uidev.me ACMS_API_PROTOCOL=https ACMS_API_HOSTNAME=backend.uidev.jp ACMS_API_PORT= ACMS_ASSETS_PROTOCOL=https ACMS_ASSETS_HOSTNAME=assets.uidev.jp ACMS_ASSETS_PORT= npm run deploy -- --var NEXT_PUBLIC_BASE_URL:https://blog.uidev.me --var ACMS_API_PROTOCOL:https --var ACMS_API_HOSTNAME:backend.uidev.jp --var ACMS_ASSETS_PROTOCOL:https --var ACMS_ASSETS_HOSTNAME:assets.uidev.jp
+NEXT_PUBLIC_BASE_URL=https://blog.uidev.me ACMS_API_PROTOCOL=https ACMS_API_HOSTNAME=backend.uidev.me ACMS_API_PORT= ACMS_ASSETS_PROTOCOL=https ACMS_ASSETS_HOSTNAME=assets.uidev.me ACMS_ASSETS_PORT= npm run deploy -- --var NEXT_PUBLIC_BASE_URL:https://blog.uidev.me --var ACMS_API_PROTOCOL:https --var ACMS_API_HOSTNAME:backend.uidev.me --var ACMS_ASSETS_PROTOCOL:https --var ACMS_ASSETS_HOSTNAME:assets.uidev.me
 ```
 
 `--var` は、Worker の実行時の変数(Secret 以外)を、更新するときに付ける。

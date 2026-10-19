@@ -1,6 +1,6 @@
 import { ZennArticle } from '@/app/types';
 import { Badge, Card, CardFooter, CardHeader } from '..';
-import { formatISO9075 } from 'date-fns';
+import { formatJstISO9075 } from '@/app/utils';
 import dynamic from 'next/dynamic';
 
 const CreatedTime = dynamic(() =>
@@ -26,7 +26,7 @@ export default function ZennArticleList({
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CreatedTime
-                      createdAt={formatISO9075(article.publishedAt)}
+                      createdAt={formatJstISO9075(article.publishedAt)}
                       className="text-sm font-light text-gray-600 dark:text-gray-400"
                     />
                   </div>

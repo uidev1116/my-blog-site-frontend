@@ -1,9 +1,11 @@
 // @vitest-environment jsdom
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import CreatedTime from './CreatedTime';
 
-const NOW = new Date(2026, 5, 15, 12, 0, 0);
+// a-blog cms の日時はタイムゾーンなしの日本時間。テストは実行環境のタイムゾーンに依存させない
+const NOW = new Date('2026-06-15T12:00:00+09:00');
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -13,15 +15,17 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-const ago = (ms: number) => {
-  const d = new Date(NOW.getTime() - ms);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-};
 const SEC = 1000;
 const MIN = 60 * SEC;
 const HOUR = 60 * MIN;
 const DAY = 24 * HOUR;
+
+// NOW から ms 前の、日本時間の日時文字列(yyyy-MM-dd HH:mm:ss)
+const ago = (ms: number) =>
+  new Date(NOW.getTime() - ms + 9 * HOUR)
+    .toISOString()
+    .slice(0, 19)
+    .replace('T', ' ');
 
 describe('CreatedTime', () => {
   it.each([
@@ -48,5 +52,45 @@ describe('CreatedTime', () => {
     expect(el.tagName).toBe('TIME');
     expect(el).toHaveAttribute('datetime', '2026-06-15 11:00:00');
     expect(el).toHaveClass('c');
+  });
+
+  it('日時は日本時間として読む(実行環境のタイムゾーンで、時間差がずれない)', () => {
+    // 日本時間 11:00 は、UTC の 02:00。NOW(日本時間 12:00)の 1 時間前
+    render(<CreatedTime createdAt="2026-06-15 11:00:00" />);
+    expect(screen.getByText('1時間前')).toBeInTheDocument();
+  });
+
+  it('未来の日時でも、マイナスにせず 0 秒前と表示する', () => {
+    render(<CreatedTime createdAt="2026-06-15 21:00:00" />);
+    expect(screen.getByText('0秒前')).toBeInTheDocument();
+    expect(screen.queryByText(/-/)).toBeNull();
+  });
+
+  it('サーバーの描画(ビルド時)では、時刻に依存しない絶対日付を出す', () => {
+    // 相対表示はブラウザで表示したあとに計算する(ビルド時の時刻が HTML に焼き込まれないように)
+    const html = renderToStaticMarkup(
+      <CreatedTime createdAt="2026-06-15 11:00:00" />,
+    );
+    expect(html).toContain('2026/06/15');
+    expect(html).not.toContain('前');
+  });
+  it('開いたままでも、1 分ごとに表示を更新する', () => {
+    render(<CreatedTime createdAt={ago(30 * SEC)} />);
+    expect(screen.getByText('30秒前')).toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(60 * SEC);
+    });
+
+    expect(screen.getByText('1分前')).toBeInTheDocument();
+  });
+
+  it('画面から消えたら更新をやめる(タイマーが残らない)', () => {
+    const { unmount } = render(<CreatedTime createdAt={ago(30 * SEC)} />);
+    expect(vi.getTimerCount()).toBeGreaterThan(0);
+
+    unmount();
+
+    expect(vi.getTimerCount()).toBe(0);
   });
 });

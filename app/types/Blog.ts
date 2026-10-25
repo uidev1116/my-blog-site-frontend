@@ -7,12 +7,13 @@ export type Blog = {
 
 export type RootBlog = Blog & {
   twitterAccount?: string;
-  facebookAccount?: string;
-  githubAccount?: string;
-  youtubeAccount?: string;
   googleAnalytics?: string;
   googleSiteVerification?: string;
   gaId: string;
+  scriptHead: string;
+  scriptBodyStart: string;
+  scriptBodyEnd: string;
+  noIndex: boolean;
 };
 
 export type BlogBlog = Blog & {

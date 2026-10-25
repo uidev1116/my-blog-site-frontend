@@ -6,6 +6,7 @@ export * from './ComboBox';
 export * from './ConditionalWrapper';
 export * from './Container';
 export * from './CreatedTime';
+export * from './CustomHtml';
 export * from './EmptyState';
 export * from './EntryBody';
 export * from './EntryList';

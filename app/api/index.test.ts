@@ -19,8 +19,8 @@ vi.mock('@uidev1116/acms-js-sdk', async (importOriginal) => ({
 
 import {
   getBlogEntries,
+  getBlogNoIndex,
   getFooterNavigation,
-  getGaId,
   getGlobalNavigation,
   getMetadata,
   getOgp,
@@ -186,12 +186,13 @@ describe('getRootBlog', () => {
         id: 1,
         code: 'root',
         name: 'サイト',
-        facebook_account: 'fb',
         twitter_account: 'tw',
-        github_account: 'gh',
-        youtube_account: 'yt',
         google_site_verification: 'gsv',
         ga_tracking_id: 'G-1',
+        script_head: '<script>h()</script>',
+        script_body_start: '<script>s()</script>',
+        script_body_end: '<script>e()</script>',
+        blog_meta_robots: ['noindex'],
       },
     });
 
@@ -200,27 +201,48 @@ describe('getRootBlog', () => {
       code: 'root',
       name: 'サイト',
       path: '/',
-      facebookAccount: 'fb',
       twitterAccount: 'tw',
-      githubAccount: 'gh',
-      youtubeAccount: 'yt',
       googleSiteVerification: 'gsv',
       gaId: 'G-1',
+      scriptHead: '<script>h()</script>',
+      scriptBodyStart: '<script>s()</script>',
+      scriptBodyEnd: '<script>e()</script>',
+      noIndex: true,
     });
   });
 
-  it('code と gaId は未設定なら空文字', async () => {
+  it('code・gaId・script は未設定なら空文字、noIndex は false', async () => {
     get.mockResolvedValue({ data: { id: 1, name: 'サイト' } });
     const blog = await getRootBlog();
     expect(blog.code).toBe('');
     expect(blog.gaId).toBe('');
+    expect(blog.scriptHead).toBe('');
+    expect(blog.scriptBodyStart).toBe('');
+    expect(blog.scriptBodyEnd).toBe('');
+    expect(blog.noIndex).toBe(false);
+  });
+
+  it.each([
+    ['配列', ['noindex'], true],
+    ['文字列', 'noindex', true],
+    ['空配列', [], false],
+    ['空文字', '', false],
+  ])('blog_meta_robots が %s のときの noIndex', async (_l, value, expected) => {
+    get.mockResolvedValue({ data: { id: 1, blog_meta_robots: value } });
+    expect((await getRootBlog()).noIndex).toBe(expected);
   });
 });
 
-describe('getGaId', () => {
-  it('ルートブログの gaId を返す', async () => {
-    get.mockResolvedValue({ data: { id: 1, ga_tracking_id: 'G-9' } });
-    expect(await getGaId()).toBe('G-9');
+describe('getBlogNoIndex', () => {
+  it('指定したブログの blog_meta_robots を見る', async () => {
+    get.mockResolvedValue({ data: { blog_meta_robots: ['noindex'] } });
+    expect(await getBlogNoIndex('blog')).toBe(true);
+    expect(get.mock.calls[0][0]).toEqual({ blog: 'blog', api: 'BF_ctx' });
+  });
+
+  it('未設定なら false', async () => {
+    get.mockResolvedValue({ data: {} });
+    expect(await getBlogNoIndex('blog')).toBe(false);
   });
 });
 
@@ -314,6 +336,12 @@ describe('getMetadata', () => {
     expect(meta.openGraph).toMatchObject({ type: 'website', url: '/' });
     expect(meta.openGraph).not.toHaveProperty('images');
     expect(meta.twitter).not.toHaveProperty('image');
+  });
+
+  it('twitter_account が未設定なら creator を出さない(@undefined にしない)', async () => {
+    mockApis({}, { twitter_account: undefined });
+    const meta = await getMetadata();
+    expect(meta.twitter).not.toHaveProperty('creator');
     expect(meta).not.toHaveProperty('verification');
     expect(meta.keywords).toBeUndefined();
   });
@@ -326,6 +354,31 @@ describe('getMetadata', () => {
     mockApis();
     const meta = await getMetadata(ctx);
     expect(meta.robots).toEqual({ index: false });
+  });
+
+  it('ルートブログが noindex ならトップは noindex', async () => {
+    mockApis({}, { blog_meta_robots: ['noindex'] });
+    const meta = await getMetadata();
+    expect(meta.robots).toEqual({ index: false });
+  });
+
+  it('対象のブログが noindex なら、そのブログ配下は noindex(ルートの設定は見ない)', async () => {
+    get.mockImplementation(
+      async ({ api, blog }: { api: string; blog?: string | number }) => {
+        if (api === 'ogp') return { data: { title: 't', description: 'd' } };
+        return {
+          data: {
+            id: 1,
+            name: 'サイト',
+            blog_meta_robots: blog === 'blog' ? ['noindex'] : [],
+          },
+        };
+      },
+    );
+    expect((await getMetadata({ blog: 'blog' })).robots).toEqual({
+      index: false,
+    });
+    expect((await getMetadata()).robots).toEqual({});
   });
 
   it('keyword 以外の searchParams は noindex にしない', async () => {

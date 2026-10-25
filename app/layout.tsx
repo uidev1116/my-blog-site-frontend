@@ -1,7 +1,13 @@
-import { Header, Footer, NextNProgress, BuildInJs } from './components';
+import {
+  Header,
+  Footer,
+  NextNProgress,
+  BuildInJs,
+  CustomHtml,
+} from './components';
 import { GoogleAnalytics } from '@next/third-parties/google';
 
-import { getFooterNavigation, getGaId, getGlobalNavigation } from './api';
+import { getFooterNavigation, getGlobalNavigation, getRootBlog } from './api';
 import ColorThemeContextProvider from './stores/color-theme';
 import './globals.css';
 
@@ -13,25 +19,31 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [gaId, globalNavigations, footerNavigations] = await Promise.all([
-    getGaId(),
+  const [rootBlog, globalNavigations, footerNavigations] = await Promise.all([
+    getRootBlog(),
     getGlobalNavigation(),
     getFooterNavigation(),
   ]);
 
+  const isProduction = process.env.NODE_ENV === 'production';
+  const { gaId, scriptHead, scriptBodyStart, scriptBodyEnd } = rootBlog;
+
   return (
     <html lang="ja" data-scroll-behavior="smooth" suppressHydrationWarning>
       {/* 所有確認と配信のため、静的 HTML の <head> に直接出す(next/script は <head> に出ない) */}
-      {process.env.NODE_ENV === 'production' && (
+      {isProduction && (
         <head>
           <script
             async
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
             crossOrigin="anonymous"
           />
+          {/* 管理画面(ブログ設定のカスタムフィールド)で入力した script */}
+          <CustomHtml html={scriptHead} />
         </head>
       )}
       <body>
+        {isProduction && <CustomHtml html={scriptBodyStart} />}
         <ColorThemeContextProvider>
           <BuildInJs />
           <Header navigations={globalNavigations} />
@@ -42,10 +54,9 @@ export default async function RootLayout({
             showSpinner={false}
           />
         </ColorThemeContextProvider>
+        {isProduction && <CustomHtml html={scriptBodyEnd} />}
       </body>
-      {process.env.NODE_ENV === 'production' && gaId !== '' && (
-        <GoogleAnalytics gaId={gaId} />
-      )}
+      {isProduction && gaId !== '' && <GoogleAnalytics gaId={gaId} />}
     </html>
   );
 }

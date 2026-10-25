@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const m = vi.hoisted(() => ({
-  getGaId: vi.fn(),
+  getRootBlog: vi.fn(),
   getGlobalNavigation: vi.fn(),
   getFooterNavigation: vi.fn(),
 }));
@@ -24,6 +24,7 @@ vi.mock('./components', () => ({
   Footer: ({ navigations }: { navigations: unknown[] }) => (
     <footer data-navs={navigations.length} />
   ),
+  CustomHtml: ({ html }: { html: string }) => <i data-custom={html} />,
   NextNProgress: ({ color }: { color: string }) => (
     <i data-c="progress" data-color={color} />
   ),
@@ -34,8 +35,16 @@ import RootLayout from './layout';
 const render = async () =>
   renderToStaticMarkup(await RootLayout({ children: <main>本文</main> }));
 
+const rootBlog = (overrides = {}) => ({
+  gaId: 'G-1',
+  scriptHead: 'HEAD',
+  scriptBodyStart: 'START',
+  scriptBodyEnd: 'END',
+  ...overrides,
+});
+
 beforeEach(() => {
-  m.getGaId.mockResolvedValue('G-1');
+  m.getRootBlog.mockResolvedValue(rootBlog());
   m.getGlobalNavigation.mockResolvedValue([{}, {}]);
   m.getFooterNavigation.mockResolvedValue([{}]);
 });
@@ -54,6 +63,22 @@ describe('RootLayout', () => {
     expect(html).toContain('data-color="#fde047"');
   });
 
+  describe('カスタムフィールドの script', () => {
+    it('本番では、head の中・body の直後・body の末尾に出す', async () => {
+      vi.stubEnv('NODE_ENV', 'production');
+      const html = await render();
+      const head = html.match(/<head>([\s\S]*?)<\/head>/)?.[1] ?? '';
+      expect(head).toContain('data-custom="HEAD"');
+      expect(html).toMatch(/<body[^>]*><i data-custom="START"/);
+      expect(html).toMatch(/data-custom="END"><\/i><\/body>/);
+    });
+
+    it('本番以外では出さない(開発中に計測タグなどを動かさない)', async () => {
+      vi.stubEnv('NODE_ENV', 'development');
+      expect(await render()).not.toContain('data-custom');
+    });
+  });
+
   it('本番で gaId があれば Google Analytics を出す', async () => {
     vi.stubEnv('NODE_ENV', 'production');
     expect(await render()).toContain('content="G-1"');
@@ -61,7 +86,7 @@ describe('RootLayout', () => {
 
   it('本番でも gaId が空なら出さない', async () => {
     vi.stubEnv('NODE_ENV', 'production');
-    m.getGaId.mockResolvedValue('');
+    m.getRootBlog.mockResolvedValue(rootBlog({ gaId: '' }));
     expect(await render()).not.toContain('name="ga"');
   });
 

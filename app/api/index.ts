@@ -150,10 +150,10 @@ export async function getFooterNavigation(): Promise<FooterNavigation[]> {
   );
 }
 
-export async function getRootBlog(): Promise<RootBlog> {
+async function fetchBlogContext(blog: AcmsPathParams['blog']) {
   const { data } = await acmsClient.get(
     {
-      blog: 1,
+      blog,
       api: 'BF_ctx',
     },
     {
@@ -161,31 +161,48 @@ export async function getRootBlog(): Promise<RootBlog> {
       acmsPathOptions: { apiVersion: 'v1' },
     },
   );
+  return data;
+}
 
+// チェックボックス(blog_meta_robots[]) は配列、単一値の場合は文字列で返る
+function isNoIndexField(value: unknown): boolean {
+  return Array.isArray(value) ? value.includes('noindex') : value === 'noindex';
+}
+
+export async function getRootBlog(): Promise<RootBlog> {
   const {
     id,
     code = '',
     name,
-    facebook_account: facebookAccount,
     twitter_account: twitterAccount,
-    github_account: githubAccount,
-    youtube_account: youtubeAccount,
     google_site_verification: googleSiteVerification,
     ga_tracking_id: gaId = '',
-  } = data;
+    script_head: scriptHead = '',
+    script_body_start: scriptBodyStart = '',
+    script_body_end: scriptBodyEnd = '',
+    blog_meta_robots: blogMetaRobots,
+  } = await fetchBlogContext(1);
 
   return {
     id,
     code,
     name,
     path: '/',
-    facebookAccount,
     twitterAccount,
-    githubAccount,
-    youtubeAccount,
     googleSiteVerification,
     gaId,
+    scriptHead,
+    scriptBodyStart,
+    scriptBodyEnd,
+    noIndex: isNoIndexField(blogMetaRobots),
   };
+}
+
+export async function getBlogNoIndex(
+  blog: AcmsPathParams['blog'],
+): Promise<boolean> {
+  const { blog_meta_robots: blogMetaRobots } = await fetchBlogContext(blog);
+  return isNoIndexField(blogMetaRobots);
 }
 
 export async function getOgp(acmsContext: AcmsPathParams = {}): Promise<Ogp> {
@@ -225,14 +242,24 @@ export async function getOgp(acmsContext: AcmsPathParams = {}): Promise<Ogp> {
 export async function getMetadata(
   acmsContext: AcmsPathParams = {},
 ): Promise<Metadata> {
-  const [
-    { title, description, keywords, image },
-    { name, twitterAccount, googleSiteVerification },
-  ] = await Promise.all([getOgp(acmsContext), getRootBlog()]);
-
   const { blog, category, entry, page, tag, searchParams } = acmsContext;
 
+  const [
+    { title, description, keywords, image },
+    { name, twitterAccount, googleSiteVerification, noIndex: isRootNoIndex },
+    isBlogNoIndex,
+  ] = await Promise.all([
+    getOgp(acmsContext),
+    getRootBlog(),
+    blog != null ? getBlogNoIndex(blog) : undefined,
+  ]);
+
   function isNoIndex() {
+    // ブログ単位の設定。対象のブログがあればそのブログ、無ければルートブログ
+    if (isBlogNoIndex ?? isRootNoIndex) {
+      return true;
+    }
+
     if (page != null) {
       return true;
     }
@@ -279,7 +306,7 @@ export async function getMetadata(
       card: 'summary_large_image',
       title,
       description: deleteNewLine(truncate(description, 350)),
-      creator: `@${twitterAccount}`,
+      ...(twitterAccount ? { creator: `@${twitterAccount}` } : {}),
       ...(image
         ? {
             image: `${MEDIA_BASE_URL}${image.path}`,
@@ -302,11 +329,6 @@ export async function getMetadata(
       ...(isNoIndex() ? { index: false } : {}),
     },
   };
-}
-
-export async function getGaId(): Promise<string> {
-  const { gaId } = await getRootBlog();
-  return gaId;
 }
 
 export async function getSitemap(): Promise<MetadataRoute.Sitemap> {

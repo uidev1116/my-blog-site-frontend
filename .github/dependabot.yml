@@ -23,6 +23,10 @@ updates:
       # 開発依存は major / minor / patch をすべてまとめる
       development:
         dependency-type: development
+      # 上のグループに入らない更新(主に間接依存)。major は個別の PR になる
+      other:
+        patterns: ['*']
+        update-types: [minor, patch]
     ignore:
       # Next.js の major 更新は、静的書き出しへの影響を確認して手動で行う
       - dependency-name: next

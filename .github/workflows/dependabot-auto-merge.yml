@@ -1,6 +1,6 @@
 name: Dependabot auto-merge
 
-# Dependabot の PR のうち、major 以外の更新を、CI が全て成功したら自動でマージする。
+# Dependabot の PR のうち、本番依存の major 以外の更新を、CI が全て成功したら自動でマージする(開発依存は major も対象)。
 # マージ条件(必須チェック)は、master のブランチ保護で指定している。
 on: pull_request
 
@@ -20,10 +20,12 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      # minor-and-patch グループ(dependabot.yml)、または個別の minor / patch 更新のみ対象
+      # minor-and-patch グループ(本番依存の minor / patch)、development グループ(開発依存の major / minor / patch)、
+      # または個別の minor / patch 更新が対象
       - name: Enable auto-merge (squash)
         if: >-
           steps.metadata.outputs.dependency-group == 'minor-and-patch' ||
+          steps.metadata.outputs.dependency-group == 'development' ||
           steps.metadata.outputs.update-type == 'version-update:semver-minor' ||
           steps.metadata.outputs.update-type == 'version-update:semver-patch'
         run: gh pr merge --auto --squash "$PR_URL"

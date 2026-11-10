@@ -12,9 +12,17 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    # 間接依存も更新の対象にする(既定は直接依存のみ)
+    allow:
+      - dependency-type: all
     groups:
+      # 本番依存は minor / patch だけまとめる(major は個別の PR になる)
       minor-and-patch:
+        dependency-type: production
         update-types: [minor, patch]
+      # 開発依存は major / minor / patch をすべてまとめる
+      development:
+        dependency-type: development
     ignore:
       # Next.js の major 更新は、静的書き出しへの影響を確認して手動で行う
       - dependency-name: next

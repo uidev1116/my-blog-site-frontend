@@ -29,7 +29,7 @@
     "eslint-config-next": "^16.4.6",
     "feed": "^6.0.0",
     "flowbite": "^4.0.2",
-    "html-react-parser": "^6.1.9",
+    "html-react-parser": "^6.1.10",
     "leaflet": "^1.9.4",
     "lozad": "^1.16.0",
     "next": "^16.4.6",
@@ -41,7 +41,7 @@
     "scroll-hint": "^1.2.10",
     "sharp": "^0.35.5",
     "swr": "^2.5.1",
-    "yet-another-react-lightbox": "^3.33.0"
+    "yet-another-react-lightbox": "^3.33.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.7",

@@ -5,6 +5,8 @@ namespace NodeJS {
     ACMS_API_PORT: string;
     ACMS_API_KEY: string;
     ACMS_API_PREVIEW_KEY: string;
+    CF_ACCESS_CLIENT_ID?: string;
+    CF_ACCESS_CLIENT_SECRET?: string;
     ACMS_ASSETS_HOSTNAME: string;
     ACMS_ASSETS_PROTOCOL: string;
     ACMS_ASSETS_PORT: string;

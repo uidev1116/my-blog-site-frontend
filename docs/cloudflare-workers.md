@@ -39,7 +39,10 @@ CLI は Wrangler 4.x を使う。Cloudflare の新 CLI `cf`(2026/9 にオープ�
 | `ACMS_API_PROTOCOL` / `ACMS_API_HOSTNAME` / `ACMS_API_PORT`          | 変数       |
 | `ACMS_API_KEY`                                                       | **Secret** |
 | `ACMS_API_PREVIEW_KEY`                                               | **Secret** |
+| `CF_ACCESS_CLIENT_ID` / `CF_ACCESS_CLIENT_SECRET`                    | **Secret** |
 | `ACMS_ASSETS_PROTOCOL` / `ACMS_ASSETS_HOSTNAME` / `ACMS_ASSETS_PORT` | 変数       |
+
+`CF_ACCESS_CLIENT_ID` / `CF_ACCESS_CLIENT_SECRET` は、バックエンド(`ACMS_API_HOSTNAME`)を Cloudflare Access で保護しているときの、サービストークン。両方そろっているときだけ、a-blog cms API へのリクエストに `CF-Access-Client-Id` / `CF-Access-Client-Secret` を付ける(`app/lib/acms/index.ts`)。未設定なら何も付けない。ビルド用の変数・Secret にも、同じ値を登録する。作り方は、バックエンドのリポジトリの `docs/cloudflare-access.md`。
 
 ## 静的書き出しで変わったこと
 
@@ -91,7 +94,7 @@ a-blog cms のスタンダードライセンスでは、Webhook に、ヘッダ�
    - Git のブランチ: `master`
    - **Build command**: `npm run build`(静的書き出し)
    - **Deploy command**: `npx wrangler deploy`(既定)
-   - **Build variables and secrets**(ビルド時だけ有効。実行時の変数とは別): `NEXT_PUBLIC_BASE_URL`、`ACMS_API_PROTOCOL`、`ACMS_API_HOSTNAME`、`ACMS_API_PORT`、`ACMS_API_KEY`(Secret)、`ACMS_API_PREVIEW_KEY`(Secret)、`ACMS_ASSETS_PROTOCOL`、`ACMS_ASSETS_HOSTNAME`、`ACMS_ASSETS_PORT`
+   - **Build variables and secrets**(ビルド時だけ有効。実行時の変数とは別): `NEXT_PUBLIC_BASE_URL`、`ACMS_API_PROTOCOL`、`ACMS_API_HOSTNAME`、`ACMS_API_PORT`、`ACMS_API_KEY`(Secret)、`ACMS_API_PREVIEW_KEY`(Secret)、`CF_ACCESS_CLIENT_ID`(Secret)、`CF_ACCESS_CLIENT_SECRET`(Secret)、`ACMS_ASSETS_PROTOCOL`、`ACMS_ASSETS_HOSTNAME`、`ACMS_ASSETS_PORT`
    - Node.js は 24 を使う(`NODE_VERSION=24` のビルド変数。公式の設定ページに Node の選び方の記載がないため、最初のビルドのログで、Node のバージョンを確認する)。
    - **実行時の変数**(Worker が `process.env` から読む)は、別に、Settings → Variables & Secrets に登録する(`keep_vars: true` のため、デプロイしても消えない)。
    - **ビルド用と実行時は、別々に登録する。キーの再発行や、接続先(ACMS のホスト名など)を変えるときは、両方を更新する**(片方だけだと、ビルドは通るが検索・プレビューが動かない、またはその逆になる)。
@@ -130,6 +133,9 @@ curl -fsS -X POST \
 ```bash
 printf '%s' "$ACMS_API_KEY" | npx wrangler secret put ACMS_API_KEY
 printf '%s' "$ACMS_API_PREVIEW_KEY" | npx wrangler secret put ACMS_API_PREVIEW_KEY
+# バックエンドを Cloudflare Access で保護する場合だけ
+printf '%s' "$CF_ACCESS_CLIENT_ID" | npx wrangler secret put CF_ACCESS_CLIENT_ID
+printf '%s' "$CF_ACCESS_CLIENT_SECRET" | npx wrangler secret put CF_ACCESS_CLIENT_SECRET
 ```
 
 実行時の変数(Secret 以外)は、Cloudflare の Settings → Variables & Secrets に登録する。`keep_vars: true` のため、デプロイしても消えない。ローカルから直接デプロイする方法は、次の節。
